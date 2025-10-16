@@ -1,0 +1,36 @@
+mobile project
+Asset borrowing system
+
+First week
+-design app
+ -select theme
+  -share a work in figma
+
+   -register/login page
+    -Ask who are you
+     -if borrower --> Reg/login
+     -else --> login only
+
+   -Home page
+    -Browse asset list
+     -asset has status and id (photo optitional)
+    -History
+     -Borrower (only Borrower)
+     -Staff (All)
+     -Lender (only Lender)
+
+    -Request page
+     -Borrower (borrow date and return date and check status, borrow asset a day, request only available status)
+     -Staff (not see this page)
+     -Lender (see request and can approve)
+
+    -Managing assets page(staff only)
+     -Staff (add, edit, disable assets, get returning assets and available its)
+
+   -Dashboard page
+    -show how many borrow assets, available assets, and disabled assets today
+
+   -Approve all page
+   
+- design a database(if have time)
+- link log in/register page to database and do log out function(if have time)
