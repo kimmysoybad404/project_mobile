@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_mobile/BottomBar.dart';
 import 'package:project_mobile/identify_page.dart';
 
 void main() {
@@ -9,6 +10,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: IdentifyPage());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: BottomBar());
   }
 }
