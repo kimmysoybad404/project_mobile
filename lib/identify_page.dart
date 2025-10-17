@@ -48,16 +48,13 @@ class _IdentifyPageState extends State<IdentifyPage> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF3E2C23),
+                    color: DarkBrown,
                   ),
                 ),
                 SizedBox(height: 12),
                 Text(
                   "Who you are ?",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color.fromARGB(255, 146, 118, 103),
-                  ),
+                  style: TextStyle(fontSize: 16, color: DarkBrown),
                 ),
               ],
             ),
@@ -86,11 +83,8 @@ class _IdentifyPageState extends State<IdentifyPage> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: isSelected
-                                  ? [
-                                      role["color"],
-                                      role["color"].withOpacity(0.7),
-                                    ]
-                                  : [Color(0xFFE8D5C4), Color(0xFFE8D5C4)],
+                                  ? [role["color"], role["color"]]
+                                  : [LightBrown, LightBrown],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -144,7 +138,7 @@ class _IdentifyPageState extends State<IdentifyPage> {
                                           fontWeight: FontWeight.bold,
                                           color: isSelected
                                               ? Colors.white
-                                              : Color(0xFF3E2C23),
+                                              : DarkBrown,
                                         ),
                                       ),
                                       SizedBox(height: 4),
