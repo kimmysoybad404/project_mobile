@@ -16,25 +16,25 @@ class _IdentifyPageState extends State<IdentifyPage> {
       {
         "icon": Icons.people,
         "title": "Borrower",
-        "color": Color(0xFF6366F1),
-        "description": "Join as a Borrower"
+        "color": const Color.fromARGB(255, 139, 70, 12),
+        "description": "Join as a Borrower",
       },
       {
         "icon": Icons.school,
         "title": "Staff",
-        "color": Color(0xFF8B5CF6),
-        "description": "Join as Staff member"
+        "color": const Color.fromARGB(255, 139, 70, 12),
+        "description": "Join as Staff member",
       },
       {
         "icon": Icons.library_books,
         "title": "Lender",
-        "color": Color(0xFFEC4899),
-        "description": "Join as a Lender"
+        "color": const Color.fromARGB(255, 139, 70, 12),
+        "description": "Join as a Lender",
       },
     ];
 
     return Scaffold(
-      backgroundColor: Color(0xFFF8F9FF),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Container(
@@ -46,7 +46,7 @@ class _IdentifyPageState extends State<IdentifyPage> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1F2937),
+                    color: Color(0xFF3E2C23),
                   ),
                 ),
                 SizedBox(height: 12),
@@ -54,7 +54,7 @@ class _IdentifyPageState extends State<IdentifyPage> {
                   "Who you are ?",
                   style: TextStyle(
                     fontSize: 16,
-                    color: Color(0xFF6B7280),
+                    color: Color.fromARGB(255, 146, 118, 103),
                   ),
                 ),
               ],
@@ -84,21 +84,28 @@ class _IdentifyPageState extends State<IdentifyPage> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: isSelected
-                                  ? [role["color"], role["color"].withOpacity(0.7)]
-                                  : [Colors.white, Colors.white],
+                                  ? [
+                                      role["color"],
+                                      role["color"].withOpacity(0.7),
+                                    ]
+                                  : [Color(0xFFE8D5C4), Color(0xFFE8D5C4)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: role["color"].withOpacity(isSelected ? 0.4 : 0.1),
+                                color: role["color"].withOpacity(
+                                  isSelected ? 0.4 : 0.1,
+                                ),
                                 blurRadius: isSelected ? 20 : 10,
                                 offset: Offset(0, isSelected ? 10 : 5),
                               ),
                             ],
                             border: Border.all(
-                              color: isSelected ? role["color"] : Colors.grey[300]!,
+                              color: isSelected
+                                  ? role["color"]
+                                  : Colors.grey[300]!,
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -109,26 +116,33 @@ class _IdentifyPageState extends State<IdentifyPage> {
                                 Container(
                                   padding: EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: role["color"].withOpacity(isSelected ? 0.2 : 0.1),
+                                    color: role["color"].withOpacity(
+                                      isSelected ? 0.2 : 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
                                     role["icon"],
                                     size: 32,
-                                    color: role["color"],
+                                    color: isSelected
+                                              ? Colors.white
+                                              : role["color"],
                                   ),
                                 ),
                                 SizedBox(width: 20),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         role["title"],
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
-                                          color: isSelected ? Colors.white : Color(0xFF1F2937),
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Color(0xFF3E2C23),
                                         ),
                                       ),
                                       SizedBox(height: 4),
@@ -136,14 +150,25 @@ class _IdentifyPageState extends State<IdentifyPage> {
                                         role["description"],
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: isSelected ? Colors.white70 : Color(0xFF6B7280),
+                                          color: isSelected
+                                              ? Colors.white70
+                                              : Color.fromARGB(
+                                                  255,
+                                                  146,
+                                                  118,
+                                                  103,
+                                                ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 if (isSelected)
-                                  Icon(Icons.check_circle, color: Colors.white, size: 28),
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
                               ],
                             ),
                           ),
@@ -165,7 +190,9 @@ class _IdentifyPageState extends State<IdentifyPage> {
                     // Handle role selection
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text("You selected ${roles[selectedIndex!]["title"]}"),
+                        content: Text(
+                          "You selected ${roles[selectedIndex!]["title"]}",
+                        ),
                       ),
                     );
                   },
@@ -178,7 +205,11 @@ class _IdentifyPageState extends State<IdentifyPage> {
                   ),
                   child: Text(
                     "Continue",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -200,7 +231,11 @@ class _IdentifyPageState extends State<IdentifyPage> {
                   ),
                   child: Text(
                     "Select a role to continue",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ),
               ),
