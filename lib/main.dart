@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_mobile/RegisterPage.dart';
 import 'package:project_mobile/identify_page.dart';
 import 'package:project_mobile/Login.dart';
 
@@ -10,6 +11,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: IdentifyPage());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: RegisterPage());
   }
 }
