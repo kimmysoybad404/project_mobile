@@ -9,6 +9,8 @@ class IdentifyPage extends StatefulWidget {
 
 class _IdentifyPageState extends State<IdentifyPage> {
   int? selectedIndex;
+  Color DarkBrown = Color(0xFF8B5B46);
+  Color LightBrown = Color(0xFFFEC785);
 
   @override
   Widget build(BuildContext context) {
@@ -16,19 +18,19 @@ class _IdentifyPageState extends State<IdentifyPage> {
       {
         "icon": Icons.people,
         "title": "Borrower",
-        "color": const Color.fromARGB(255, 139, 70, 12),
+        "color": DarkBrown,
         "description": "Join as a Borrower",
       },
       {
         "icon": Icons.school,
         "title": "Staff",
-        "color": const Color.fromARGB(255, 139, 70, 12),
+        "color": DarkBrown,
         "description": "Join as Staff member",
       },
       {
         "icon": Icons.library_books,
         "title": "Lender",
-        "color": const Color.fromARGB(255, 139, 70, 12),
+        "color": DarkBrown,
         "description": "Join as a Lender",
       },
     ];
@@ -125,8 +127,8 @@ class _IdentifyPageState extends State<IdentifyPage> {
                                     role["icon"],
                                     size: 32,
                                     color: isSelected
-                                              ? Colors.white
-                                              : role["color"],
+                                        ? Colors.white
+                                        : role["color"],
                                   ),
                                 ),
                                 SizedBox(width: 20),
