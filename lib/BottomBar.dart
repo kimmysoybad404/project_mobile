@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:project_mobile/Borrower/dashboard_page.dart';
 import 'package:project_mobile/Borrower/home_page.dart';
 
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
@@ -100,13 +101,13 @@ class _BottomBarState extends State<BottomBar> {
   List<Widget> CheckRole() {
     switch (role) {
       case 1:
-        return [const Scaffold(), const HomeBorrower(), const Scaffold()];
+        return [const Scaffold(), const HomeBorrower(), const DashboardPage()];
       case 2:
-        return [const Scaffold(), const Scaffold(), const Scaffold()];
+        return [const Scaffold(), const Scaffold(), const DashboardPage()];
       case 3:
-        return [const Scaffold(), const Scaffold(), const Scaffold()];
+        return [const Scaffold(), const Scaffold(), const DashboardPage()];
       default:
-        return [const Scaffold()];
+        return [const DashboardPage()];
     }
   }
 
