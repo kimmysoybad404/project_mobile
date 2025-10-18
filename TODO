@@ -1,3 +1,4 @@
+//if main update type in terminal --> git pull origin main
 mobile project
 Asset borrowing system
 
@@ -34,3 +35,4 @@ First week
    
 - design a database(if have time)
 - link log in/register page to database and do log out function(if have time)
+
