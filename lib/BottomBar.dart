@@ -15,6 +15,8 @@ class _BottomBarState extends State<BottomBar> {
   final NotchBottomBarController _controller = NotchBottomBarController(
     index: 1,
   );
+  Color DarkBrown = Color(0xFF8B5B46);
+  Color LightBrown = Color(0xFFFEC785);
 
   final List<List<IconData>> roleIcons = [
     [],
@@ -42,7 +44,7 @@ class _BottomBarState extends State<BottomBar> {
       icons.length,
       (index) => BottomBarItem(
         inActiveItem: Icon(icons[index], color: Colors.blueGrey),
-        activeItem: Icon(icons[index], color: Colors.blueAccent),
+        activeItem: Icon(icons[index], color: LightBrown),
       ),
     );
   }
@@ -54,7 +56,7 @@ class _BottomBarState extends State<BottomBar> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(248, 64, 115, 255),
+        backgroundColor: LightBrown,
         extendBody: true,
         body: PageView(
           controller: _pageController,
