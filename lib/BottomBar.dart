@@ -2,6 +2,78 @@ import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:project_mobile/Borrower/home_page.dart';
 
+class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
+  const AppBarNaja({super.key});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(100);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container( 
+      color: Colors.white,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Container(
+            height: 70,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8CC83), 
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Tigar",
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF3E2C23),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "User",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.brown.shade700.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+      
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFB67C4D),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/TigarEye.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
 
@@ -58,6 +130,7 @@ class _BottomBarState extends State<BottomBar> {
       child: Scaffold(
         backgroundColor: LightBrown,
         extendBody: true,
+        appBar: AppBarNaja(),
         body: PageView(
           controller: _pageController,
           children: Pages,
