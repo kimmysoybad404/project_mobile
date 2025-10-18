@@ -20,50 +20,7 @@ class _DashboardPageState extends State<DashboardPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 🟧 Header Row (Box + Avatar)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // 🟠 Name Box (Tigar, Borrower)
-                  Expanded(
-                    flex: 7,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFC68A),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Tigar",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "Borrower",
-                            style: TextStyle(color: Colors.brown),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  // 🟤 Add small horizontal spacing (closer than before)
-                  const SizedBox(width: 8),
-
-                  // 🟤 Avatar outside box but close
-                  const CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.brown,
-                    child: Icon(Icons.pets, color: Colors.white, size: 28),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+              
 
               // 🟧 Pie Chart Section
               Container(
