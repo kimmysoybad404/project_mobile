@@ -19,53 +19,70 @@ class _HomeBorrowerState extends State<HomeBorrower> {
             const SizedBox(height: 10),
             // --- Tab Buttons ---
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(
-                    0xFF8B5B46,
-                  ), // ✅ สีน้ำตาลพื้นหลังเหมือนในรูป
-                  borderRadius: BorderRadius.circular(40), // ✅ ทำให้โค้งยาว
+                  color: const Color(0xFF8B5B46),
+                  borderRadius: BorderRadius.circular(50),
                 ),
-                padding: const EdgeInsets.all(10), // ขอบใน
+                padding: const EdgeInsets.all(10),
                 child: Row(
                   children: [
+                    // ปุ่ม Browse asset list → ไปหน้า home_page.dart
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(
-                            0xFFFCCB90,
-                          ), // ✅ สีครีมส้มของ Browse
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: const Center(
-                          child: Text(
-                            'Browse asset list',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              fontSize: 16,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(50),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HomeBorrower(), // เรียก class HomeBorrower ครั้งเดียว
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: const Center(
+                            child: Text(
+                              'Browse asset list',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                fontSize: 20,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 8),
+                    // ปุ่ม History
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white, // ✅ สีขาวของ History
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: const Center(
-                          child: Text(
-                            'History',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              fontSize: 16,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        onTap: () {
+                          // อยู่หน้า History อยู่แล้ว
+                          print('History clicked');
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(252, 203, 144, 1),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: const Center(
+                            child: Text(
+                              'History',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                fontSize: 20,
+                              ),
                             ),
                           ),
                         ),
