@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:project_mobile/Borrower/dashboard_page.dart';
 import 'package:project_mobile/Borrower/home_page.dart';
-import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
-import 'package:project_mobile/Lender/request_page.dart' as requestlender;
+
+//1.User 2.Lender 3.Staff
+int role = 1;
 
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
@@ -11,9 +12,22 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(100);
 
+  String GetRoleTxt() {
+    switch (role) {
+      case 1:
+        return "User";
+      case 2:
+        return "Lender";
+      case 3:
+        return "Staff";
+      default:
+        return "ม่ายรู้ Who r u จ้ะ ???";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container( 
+    return Container(
       color: Colors.white,
       child: SafeArea(
         child: Padding(
@@ -21,7 +35,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             height: 70,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8CC83), 
+              color: const Color(0xFFF8CC83),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
@@ -43,7 +57,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "User",
+                        GetRoleTxt(),
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.brown.shade700.withOpacity(0.6),
@@ -51,7 +65,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ],
                   ),
-      
+
                   Container(
                     width: 50,
                     height: 50,
@@ -76,7 +90,6 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
 
@@ -85,8 +98,6 @@ class BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<BottomBar> {
-  // 1 = borrower, 2 = Lender, 3 = Staff
-  int role = 2;
   final PageController _pageController = PageController(initialPage: 1);
   final NotchBottomBarController _controller = NotchBottomBarController(
     index: 1,
@@ -104,9 +115,9 @@ class _BottomBarState extends State<BottomBar> {
   List<Widget> CheckRole() {
     switch (role) {
       case 1:
-        return [requestborrower.RequestPage(), const HomeBorrower(), const DashboardPage()];
+        return [const Scaffold(), const HomeBorrower(), const DashboardPage()];
       case 2:
-        return [requestlender.RequestPage(), const Scaffold(), const DashboardPage()];
+        return [const Scaffold(), const Scaffold(), const DashboardPage()];
       case 3:
         return [const Scaffold(), const Scaffold(), const DashboardPage()];
       default:
@@ -139,10 +150,7 @@ class _BottomBarState extends State<BottomBar> {
           controller: _pageController,
           children: Pages,
           onPageChanged: (index) {
-            setState(() {
-               _controller.index = index;
-            });
-           
+            _controller.index = index;
           },
         ),
         bottomNavigationBar: AnimatedNotchBottomBar(
