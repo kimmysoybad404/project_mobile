@@ -163,7 +163,7 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
-  Widget _buildSearchBar() {
+    Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
@@ -172,24 +172,38 @@ class _RequestPageState extends State<RequestPage> {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: LightBrown,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: const Text(
-              "Search bar",
-              style: TextStyle(
-                color: Color(0xFF4A3831),
-                fontWeight: FontWeight.bold,
+          ElevatedButton( 
+            onPressed: () {
+              // ใส่ logic การค้นหาตรงนี้
+
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: LightBrown, 
+              foregroundColor: const Color(0xFF4A3831),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
               ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              elevation: 0,
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.search, size: 18),
+                SizedBox(width: 8),
+                Text(
+                  "Search",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
           const Expanded(
             child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
+                hintText: "search here...", hintStyle: TextStyle(color: Colors.grey),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),

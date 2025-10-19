@@ -3,6 +3,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:project_mobile/Borrower/dashboard_page.dart';
 import 'package:project_mobile/Borrower/home_page.dart';
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
+import 'package:project_mobile/Lender/request_page.dart' as requestlender;
 
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
@@ -85,7 +86,7 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   // 1 = borrower, 2 = Lender, 3 = Staff
-  int role = 1;
+  int role = 2;
   final PageController _pageController = PageController(initialPage: 1);
   final NotchBottomBarController _controller = NotchBottomBarController(
     index: 1,
@@ -105,7 +106,7 @@ class _BottomBarState extends State<BottomBar> {
       case 1:
         return [requestborrower.RequestPage(), const HomeBorrower(), const DashboardPage()];
       case 2:
-        return [const Scaffold(), const Scaffold(), const DashboardPage()];
+        return [requestlender.RequestPage(), const Scaffold(), const DashboardPage()];
       case 3:
         return [const Scaffold(), const Scaffold(), const DashboardPage()];
       default:
