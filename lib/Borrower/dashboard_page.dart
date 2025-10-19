@@ -12,7 +12,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF7EE),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -20,7 +20,6 @@ class _DashboardPageState extends State<DashboardPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 🟧 Header Row (Box + Avatar)
-              
 
               // 🟧 Pie Chart Section
               Container(
@@ -65,7 +64,8 @@ class _DashboardPageState extends State<DashboardPage> {
                               titleStyle: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 20,
+                              ),
                             ),
                             PieChartSectionData(
                               color: Colors.red,
@@ -74,7 +74,8 @@ class _DashboardPageState extends State<DashboardPage> {
                               titleStyle: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 20,
+                              ),
                             ),
                           ],
                         ),
@@ -121,10 +122,7 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         Container(width: 16, height: 16, color: color),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -159,5 +157,3 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 }
-
-

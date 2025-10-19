@@ -80,9 +80,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-   - family: Cherry Bomb One
+   - family: Chewy
      fonts:
-     - asset: assets/fonts/CherryBombOne-Regular.ttf
+     - asset: assets/fonts/CaveatBrush-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

@@ -3,7 +3,13 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:project_mobile/Borrower/dashboard_page.dart';
 import 'package:project_mobile/Borrower/home_page.dart';
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
+import 'package:project_mobile/Lender/home_page.dart';
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
+import 'package:project_mobile/Staff/home_page.dart';
+
+//1 = User, 2 = Lender, 3 = Staff
+
+int role = 3;
 
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
@@ -98,7 +104,6 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   // 1 = borrower, 2 = Lender, 3 = Staff
-  int role = 2;
   final PageController _pageController = PageController(initialPage: 1);
   final NotchBottomBarController _controller = NotchBottomBarController(
     index: 1,
@@ -116,13 +121,21 @@ class _BottomBarState extends State<BottomBar> {
   List<Widget> CheckRole() {
     switch (role) {
       case 1:
-        return [const Scaffold(), const HomeBorrower(), const DashboardPage()];
+        return [
+          const requestborrower.RequestPage(),
+          const HomeBorrower(),
+          const DashboardPage(),
+        ];
       case 2:
-        return [requestlender.RequestPage(), const Scaffold(), const DashboardPage()];
+        return [
+          requestlender.RequestPage(),
+          const Homelender(),
+          const DashboardPage(),
+        ];
       case 3:
         return [const Scaffold(), const HomeStaff(), const DashboardPage()];
       default:
-        return [const DashboardPage()];
+        return [Scaffold()];
     }
   }
 
