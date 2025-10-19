@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        textTheme: TextTheme(headlineLarge: TextStyle(letterSpacing: 10)),
         primarySwatch: Colors.blue,
-        fontFamily: 'Cherry Bomb One',
+        fontFamily: 'Chewy',
       ),
       home: BottomBar(),
     );
