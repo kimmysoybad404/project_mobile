@@ -79,35 +79,38 @@ class _RequestPageState extends State<RequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 380),
-            child: Container(
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
-                color: DarkBrown,
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTabs(),
-                  const SizedBox(height: 12),
-                  const Text(
-                    "*You can only request once a day.",
-                    style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSearchBar(),
-                  const SizedBox(height: 16),
-                  IndexedStack(
-                    index: _selectedTabIndex,
-                    children: [_buildRequestInfoCard(), _buildStatusCard()],
-                  ),
-                ],
+      body: Container(
+        height: 585,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 380),
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: DarkBrown,
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTabs(),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "*You can only request once a day.",
+                      style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSearchBar(),
+                    const SizedBox(height: 16),
+                    IndexedStack(
+                      index: _selectedTabIndex,
+                      children: [_buildRequestInfoCard(), _buildStatusCard()],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -208,7 +211,7 @@ class _RequestPageState extends State<RequestPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDeviceIcon(),
+              _buildDeviceImage(),
               const SizedBox(width: 16),
               _buildDeviceInfo(),
             ],
@@ -246,15 +249,15 @@ class _RequestPageState extends State<RequestPage> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "ID: 00001",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 "Name: Notebook",
                 style: TextStyle(
                   color: Colors.white,
@@ -270,7 +273,7 @@ class _RequestPageState extends State<RequestPage> {
                 width: 100,
                 height: 100,
                 child:
-                    Icon(Icons.laptop_chromebook_rounded, size: 70, color: DarkBrown),
+                    Container(width: 100,height: 100,child: Image.asset("assets/images/Notebook.png")),
               ),
               Expanded(
                 child: Column(
@@ -342,7 +345,7 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
-  Widget _buildDeviceIcon() {
+  Widget _buildDeviceImage() {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -358,7 +361,7 @@ class _RequestPageState extends State<RequestPage> {
         child: SizedBox(
           width: 100,
           height: 100,
-          child: Icon(Icons.laptop_chromebook_rounded, size: 70, color: DarkBrown),
+          child: Image.asset("assets/images/Notebook.png"),
         ),
       ),
     );
