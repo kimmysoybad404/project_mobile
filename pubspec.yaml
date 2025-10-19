@@ -61,7 +61,11 @@ flutter:
   assets:
    - assets/images/Tigar.png
    - assets/images/TigarEye.png
-
+   - assets/images/boardgame.png
+   - assets/images/ipad.png
+   - assets/images/notebook.png
+   - assets/images/power.png
+   
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

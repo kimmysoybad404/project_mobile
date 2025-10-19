@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:project_mobile/Borrower/dashboard_page.dart';
+import 'package:project_mobile/Borrower/history.dart';
 import 'package:project_mobile/Borrower/home_page.dart';
 
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
@@ -11,7 +12,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container( 
+    return Container(
       color: Colors.white,
       child: SafeArea(
         child: Padding(
@@ -19,7 +20,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             height: 70,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8CC83), 
+              color: const Color(0xFFF8CC83),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
@@ -49,7 +50,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ],
                   ),
-      
+
                   Container(
                     width: 50,
                     height: 50,
@@ -73,7 +74,6 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
@@ -101,7 +101,7 @@ class _BottomBarState extends State<BottomBar> {
   List<Widget> CheckRole() {
     switch (role) {
       case 1:
-        return [const Scaffold(), const HomeBorrower(), const DashboardPage()];
+        return [const Scaffold(), const History(), const DashboardPage()];
       case 2:
         return [const Scaffold(), const Scaffold(), const DashboardPage()];
       case 3:
