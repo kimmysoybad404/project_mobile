@@ -11,114 +11,63 @@ class HomeBorrower extends StatefulWidget {
 class _HomeBorrowerState extends State<HomeBorrower> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const BorrowerHomePage(),
-    );
-  }
-}
-
-class BorrowerHomePage extends StatelessWidget {
-  const BorrowerHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final Color lightOrange = const Color(0xFFFDC886);
-    final Color darkBrown = const Color(0xFF724E32);
-    final Color background = const Color(0xFFFDF7F0);
-
     return Scaffold(
-      backgroundColor: background,
+      backgroundColor: const Color(0xFFF7EDF8),
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  )
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: lightOrange,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 12),
-                          child: const Text(
-                            "Tigar",
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          "Borrower",
-                          style:
-                              TextStyle(color: Colors.grey, fontSize: 14),
-
-                        ),
-                      ],
-                    ),
-                  ),
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: lightOrange,
-                    // backgroundImage: AssetImage("assets/hamster.png"),
-                  )
-                ],
-              ),
-            ),
-
-            // Tabs
+            const SizedBox(height: 10),
+            // --- Tab Buttons ---
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: darkBrown.withOpacity(0.1),
+                  color: const Color(
+                    0xFF8B5B46,
+                  ), // ✅ สีน้ำตาลพื้นหลังเหมือนในรูป
+                  borderRadius: BorderRadius.circular(40), // ✅ ทำให้โค้งยาว
                 ),
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(10), // ขอบใน
                 child: Row(
                   children: [
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: darkBrown.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
+                          color: const Color(
+                            0xFFFCCB90,
+                          ), // ✅ สีครีมส้มของ Browse
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          "Browse asset list",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.brown),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: const Center(
+                          child: Text(
+                            'Browse asset list',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          "History",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.brown),
+                        decoration: BoxDecoration(
+                          color: Colors.white, // ✅ สีขาวของ History
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: const Center(
+                          child: Text(
+                            'History',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -127,79 +76,51 @@ class BorrowerHomePage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 15),
 
-            // Grid items
+            // --- Asset Cards Grid ---
             Expanded(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: darkBrown,
+                  color: const Color(0xFF8B5E47),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(15),
+                margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
                 child: GridView.count(
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   children: const [
                     AssetCard(
-                      imagePath: "assets/images/notebook.png",
-                      name: "Notebook",
-                      id: "00001",
+                      name: 'Notebook',
+                      id: '00001',
+                      imagePath: 'assets/images/notebook.png',
+                      status: 'Available',
                     ),
                     AssetCard(
-                      imagePath: "assets/images/ipad.png",
-                      name: "Ipad",
-                      id: "00002",
+                      name: 'Ipad',
+                      id: '00002',
+                      imagePath: 'assets/images/ipad.png',
+                      status: 'Available',
                     ),
                     AssetCard(
-                      imagePath: "assets/images/bord.png",
-                      name: "Board game",
-                      id: "00003",
+                      name: 'Board game',
+                      id: '00003',
+                      imagePath: 'assets/images/boardgame.png',
+                      status: 'Available',
                     ),
                     AssetCard(
-                      imagePath: "assets/images/power.png",
-                      name: "Power bank",
-                      id: "00004",
+                      name: 'Power bank',
+                      id: '00004',
+                      imagePath: 'assets/images/powerbank.png',
+                      status: 'Available',
                     ),
                   ],
                 ),
               ),
             ),
           ],
-        ),
-      ),
-
-      // Bottom navigation
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black12, blurRadius: 6, offset: const Offset(0, -2))
-          ],
-        ),
-        child: BottomAppBar(
-          color: Colors.transparent,
-          elevation: 0,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Icon(Icons.calendar_today, color: Colors.grey),
-                CircleAvatar(
-                  radius: 25,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.home, color: Colors.orange, size: 28),
-                ),
-                Icon(Icons.grid_view, color: Colors.grey),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -207,60 +128,80 @@ class BorrowerHomePage extends StatelessWidget {
 }
 
 class AssetCard extends StatelessWidget {
-  final String imagePath;
   final String name;
   final String id;
+  final String imagePath;
+  final String status;
 
   const AssetCard({
     super.key,
-    required this.imagePath,
     required this.name,
     required this.id,
+    required this.imagePath,
+    required this.status,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color lightOrange = const Color(0xFFFDC886);
-
     return Container(
       decoration: BoxDecoration(
-        color: lightOrange,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF2BE83),
+        borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-              alignment: Alignment.topRight,
-              child: Icon(Icons.add, color: Colors.brown[800])),
-          Expanded(
-            child: Center(
-              child: Image.asset(
-                imagePath,
-                width: 70,
-                height: 70,
-                fit: BoxFit.contain,
+          // --- Image & Add Button ----------------------------------------------------------------------------------------
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset(imagePath, height: 90),
+
+              // ✅ ขยับปุ่ม + ขึ้นเล็กน้อย
+              Transform.translate(
+                offset: const Offset(0, -30), // ปรับ -8 หรือ -10 แล้วแต่ต้องการ
+                child: const Icon(Icons.add, size: 26, color: Colors.black),
               ),
-            ),
+            ],
           ),
+          const SizedBox(height: 8),
           Text(
             name,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          Text("ID:$id", style: const TextStyle(fontSize: 12)),
-          const SizedBox(height: 4),
-          Row(
-            children: const [
-              Text("Status: ",
-                  style: TextStyle(fontSize: 12, color: Colors.black)),
-              Text("Available",
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold)),
-            ],
+          Text(
+            'ID:$id',
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.white70,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                   TextSpan(
+                    text: 'Status: ',
+                    // style: TextStyle(color: Colors.black87, fontSize: 12),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Colors.black87,
+          fontSize: 12,
+        ),
+                  ),
+                  TextSpan(
+                    text: status,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: const Color.fromARGB(221, 17, 172, 51),
+          fontSize: 12,
+        ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

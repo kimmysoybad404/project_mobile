@@ -63,8 +63,8 @@ flutter:
    - assets/images/TigarEye.png
    - assets/images/notebook.png
    - assets/images/ipad.png
-   - assets/images/power.png
-   - assets/images/bord.png
+   - assets/images/powerbank.png
+   - assets/images/boardgame.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
