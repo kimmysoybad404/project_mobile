@@ -88,7 +88,7 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   // 1 = borrower, 2 = Lender, 3 = Staff
-  int role = 3;
+  int role = 1;
   final PageController _pageController = PageController(initialPage: 1);
   final NotchBottomBarController _controller = NotchBottomBarController(
     index: 1,

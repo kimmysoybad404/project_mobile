@@ -12,7 +12,7 @@ class _HomeStaffState extends State<HomeStaff> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7EDF8),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: Column(
           children: [
@@ -318,8 +318,7 @@ class AssetCard extends StatelessWidget {
     required this.status,
   });
 
-  // @override
-
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -330,19 +329,8 @@ class AssetCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- Image & Add Button ----------------------------------------------------------------------------------------
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(imagePath, height: 90),
-
-              // ✅ ขยับปุ่ม + ขึ้นเล็กน้อย
-              Transform.translate(
-                offset: const Offset(0, -30), // ปรับ -8 หรือ -10 แล้วแต่ต้องการ
-                child: const Icon(Icons.add, size: 26, color: Colors.black),
-              ),
-            ],
-          ),
+          // --- Image ---
+          Image.asset(imagePath, height: 90),
           const SizedBox(height: 8),
           Text(
             name,
@@ -364,18 +352,17 @@ class AssetCard extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: 'Status: ',
-                    // style: TextStyle(color: Colors.black87, fontSize: 12),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
-                      fontSize: 12,
-                    ),
+                          color: Colors.black87,
+                          fontSize: 12,
+                        ),
                   ),
                   TextSpan(
                     text: status,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color.fromARGB(221, 17, 172, 51),
-                      fontSize: 12,
-                    ),
+                          color: const Color.fromARGB(221, 17, 172, 51),
+                          fontSize: 12,
+                        ),
                   ),
                 ],
               ),
