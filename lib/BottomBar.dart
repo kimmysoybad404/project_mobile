@@ -5,12 +5,6 @@ import 'package:project_mobile/Borrower/home_page.dart';
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
 import 'package:project_mobile/Lender/home_page.dart';
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
-import 'package:project_mobile/Staff/home_page.dart';
-import 'package:project_mobile/Staff/manage_assets_page2.dart';
-
-//1 = User, 2 = Lender, 3 = Staff
-
-int role = 3;
 
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
@@ -128,13 +122,9 @@ class _BottomBarState extends State<BottomBar> {
           const DashboardPage(),
         ];
       case 2:
-        return [
-          requestlender.RequestPage(),
-          const Scaffold(),
-          const DashboardPage(),
-        ];
+        return [requestlender.RequestPage(), const Scaffold(), const DashboardPage()];
       case 3:
-        return [const ManageAssetsPage2(), const Scaffold(), const DashboardPage()];
+        return [const Scaffold(), const Scaffold(), const DashboardPage()];
       default:
         return [Scaffold()];
     }
