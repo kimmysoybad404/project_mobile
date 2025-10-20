@@ -47,6 +47,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  giffy_dialog: ^2.3.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -60,13 +61,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/images/Tigar.png
-   - assets/images/TigarEye.png
-   - assets/images/boardgame.png
-   - assets/images/ipad.png
-   - assets/images/Notebook.png
-   - assets/images/powerbank.png
-
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -80,9 +75,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-   - family: Chewy
-     fonts:
-     - asset: assets/fonts/CaveatBrush-Regular.ttf
+    - family: Chewy
+      fonts:
+        - asset: assets/fonts/CaveatBrush-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
