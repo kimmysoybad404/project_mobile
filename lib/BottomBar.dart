@@ -6,6 +6,7 @@ import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
 import 'package:project_mobile/Lender/home_page.dart';
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
 
+int role = 1; // 1 = borrower, 2 = Lender, 3 = Staff
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
 
