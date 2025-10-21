@@ -108,7 +108,7 @@ class _HomelenderState extends State<Homelender> {
           AssetCard(
             name: 'Notebook',
             id: '00001',
-            imagePath: 'assets/images/Notebook.png',
+            imagePath: 'assets/images/notebook.png',
             status: 'Available',
           ),
           AssetCard(

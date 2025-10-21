@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:project_mobile/Borrower/dashboard_page.dart';
-import 'package:project_mobile/Borrower/home_page.dart';
+import 'package:project_mobile/Borrower/home_page.dart' as homepageborrower;
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
-import 'package:project_mobile/Lender/home_page.dart';
+import 'package:project_mobile/Lender/home_page.dart' as homepageLender;
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
-import 'package:project_mobile/LoginPage.dart';
-import 'package:project_mobile/Staff/home_page.dart';
+import 'package:project_mobile/Login.dart';
+import 'package:project_mobile/Staff/home_page.dart' as homepageStaff;
 import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:project_mobile/Staff/manage_assets_page2.dart';
 import 'package:project_mobile/identify_page.dart';
 
-//1 = User, 2 = Lender, 3 = Staff
-
-int role = 3;
-
+int role = 3; // 1 = borrower, 2 = Lender, 3 = Staff
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
 
@@ -294,17 +292,13 @@ class _BottomBarState extends State<BottomBar> {
       case 1:
         return [
           const requestborrower.RequestPage(),
-          const HomeBorrower(),
+          const homepageborrower.HomeBorrower(),
           const DashboardPage(),
         ];
       case 2:
-        return [
-          requestlender.RequestPage(),
-          const Homelender(),
-          const DashboardPage(),
-        ];
+        return [requestlender.RequestPage(), const homepageLender.Homelender(), const DashboardPage()];
       case 3:
-        return [const Scaffold(), const HomeStaff(), const DashboardPage()];
+        return [const ManageAssetsPage2(), homepageStaff.HomeStaff(), const DashboardPage()];
       default:
         return [Scaffold()];
     }
