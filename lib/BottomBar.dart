@@ -5,6 +5,14 @@ import 'package:project_mobile/Borrower/home_page.dart';
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
 import 'package:project_mobile/Lender/home_page.dart';
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
+import 'package:project_mobile/Login.dart';
+import 'package:project_mobile/Staff/home_page.dart';
+import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:project_mobile/identify_page.dart';
+
+//1 = User, 2 = Lender, 3 = Staff
+
+int role = 3;
 
 int role = 1; // 1 = borrower, 2 = Lender, 3 = Staff
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
@@ -42,31 +50,8 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Tigar",
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3E2C23),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        GetRoleTxt(),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.brown.shade700.withOpacity(0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-
                   Container(
                     width: 50,
                     height: 50,
@@ -79,6 +64,197 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                         'assets/images/TigarEye.png',
                         fit: BoxFit.cover,
                       ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Tigar",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF3E2C23),
+                        ),
+                      ),
+                      Text(
+                        GetRoleTxt(),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.brown.shade700.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Spacer(),
+
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.redAccent,
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            backgroundColor: Colors.transparent,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF8B5B46),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // รูปภาพ
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.asset(
+                                        "assets/images/TigarByeBye.png",
+                                        height: 250,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+
+                                    // ข้อความหลัก
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFFEC785),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: const Text(
+                                          'Logout',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(
+                                              0xFF8B5B46,
+                                            ), // น้ำตาลเข้ม
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 12),
+
+                                    // ข้อความยืนยัน
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFFEC785),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: const Text(
+                                          'Are you sure to logout?',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xFF8B5B46),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 28),
+
+                                    // ปุ่ม
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xFF8B5B46),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                side: BorderSide(
+                                                  color: Color(0xFFFEC785),
+                                                  width: 2
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              elevation: 2,
+                                            ),
+                                            child: const Text(
+                                              "Cancel",
+                                              style: TextStyle(
+                                                color: Color(0xFFFEC785),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const IdentifyPage(),
+                                                ),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xFFFEC785),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              elevation: 2,
+                                            ),
+                                            child: const Text(
+                                              "Logout",
+                                              style: TextStyle(
+                                                color: Color(0xFF8B5B46),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.logout, color: Colors.white),
                     ),
                   ),
                 ],
