@@ -17,7 +17,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
       'status': 'Available',
       'borrow': '25/1/2568',
       'return': '25/1/2568',
-      'image': 'assets/images/notebook.png', // เปลี่ยนเป็น n ตัวเล็ก
+      'image': 'assets/images/notebook.png',
       'borrowBy': '-',
     },
     {
@@ -33,7 +33,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
 
   String searchText = '';
   List<String> imageOptions = [
-    'assets/images/notebook.png', // เปลี่ยนเป็น n ตัวเล็ก
+    'assets/images/notebook.png',
     'assets/images/Phone.png',
     'assets/images/Board_games.png',
     'assets/images/Phone_2.png',
@@ -315,7 +315,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop('assets/images/notebook.png'); // เปลี่ยนเป็น n ตัวเล็ก
+                          Navigator.of(context).pop('assets/images/notebook.png');
                         },
                         child: Container(
                           width: double.infinity,
@@ -370,7 +370,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
   void showAddDialog() {
     String newStatus = 'Available';
     String newName = '';
-    String newImage = 'assets/images/notebook.png'; // เปลี่ยนเป็น n ตัวเล็ก
+    String newImage = 'assets/images/notebook.png';
 
     showDialog(
       context: context,
@@ -476,7 +476,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                                   const Text('Select Image', style: TextStyle(fontWeight: FontWeight.w600)),
                                   Row(
                                     children: [
-                                      Text(newImage.split('/').last.split('.').first == 'notebook' ? 'Notebook' : // เปลี่ยนเป็น n ตัวเล็ก
+                                      Text(newImage.split('/').last.split('.').first == 'notebook' ? 'Notebook' :
                                            newImage.split('/').last.split('.').first == 'Phone' ? 'Ipad' :
                                            newImage.split('/').last.split('.').first == 'Board_games' ? 'Board game' :
                                            'Power bank', style: const TextStyle(fontSize: 14)),
@@ -566,7 +566,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
   void showEditDialog(Map<String, dynamic> item) {
     String localStatus = item['status'] ?? 'Available';
     String localName = item['name'] ?? '';
-    String localImage = item['image'] ?? 'assets/images/notebook.png'; // เปลี่ยนเป็น n ตัวเล็ก
+    String localImage = item['image'] ?? 'assets/images/notebook.png';
 
     showDialog(
       context: context,
@@ -672,7 +672,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                                   const Text('Select Image', style: TextStyle(fontWeight: FontWeight.w600)),
                                   Row(
                                     children: [
-                                      Text(localImage.split('/').last.split('.').first == 'notebook' ? 'Notebook' : // เปลี่ยนเป็น n ตัวเล็ก
+                                      Text(localImage.split('/').last.split('.').first == 'notebook' ? 'Notebook' :
                                            localImage.split('/').last.split('.').first == 'Phone' ? 'Ipad' :
                                            localImage.split('/').last.split('.').first == 'Board_games' ? 'Board game' :
                                            'Power bank', style: const TextStyle(fontSize: 14)),
@@ -929,119 +929,123 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                 elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'ID: ${item['id']}',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                              textAlign: TextAlign.center,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'ID: ${item['id']}',
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 4),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    item['image'],
+                                    height: 120,
+                                    width: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item['name'],
+                                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.asset(
-                                item['image'],
-                                height: 120,
-                                width: 120,
-                                fit: BoxFit.cover,
-                              ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text('Status: ', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                    Container(
+                                      width: 200,
+                                      height: 35,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEC785),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          item['status'],
+                                          style: TextStyle(color: statusColor, fontSize: 14, fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text('Borrow: ', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                    Container(
+                                      width: 200,
+                                      height: 35,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEC785),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          item['borrow'],
+                                          style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text('Return: ', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                    Container(
+                                      width: 200,
+                                      height: 35,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEC785),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          item['return'],
+                                          style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item['name'],
-                              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text('Status: ', style: TextStyle(color: Colors.white, fontSize: 14)),
-                                Container(
-                                  width: 200,
-                                  height: 35,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFEC785),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      item['status'],
-                                      style: TextStyle(color: statusColor, fontSize: 14, fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text('Borrow: ', style: TextStyle(color: Colors.white, fontSize: 14)),
-                                Container(
-                                  width: 200,
-                                  height: 35,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFEC785),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      item['borrow'],
-                                      style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text('Return: ', style: TextStyle(color: Colors.white, fontSize: 14)),
-                                Container(
-                                  width: 200,
-                                  height: 35,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFEC785),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      item['return'],
-                                      style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
+                      const SizedBox(height: 16),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           ElevatedButton(
                             onPressed: () => showEditDialog(item),
@@ -1052,7 +1056,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                             ),
                             child: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 16)),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () => showDeleteDialog(item),
                             style: ElevatedButton.styleFrom(
