@@ -5,7 +5,7 @@ import 'package:project_mobile/Borrower/home_page.dart';
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
 import 'package:project_mobile/Lender/home_page.dart';
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
-import 'package:project_mobile/Login.dart';
+import 'package:project_mobile/LoginPage.dart';
 import 'package:project_mobile/Staff/home_page.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:project_mobile/identify_page.dart';
