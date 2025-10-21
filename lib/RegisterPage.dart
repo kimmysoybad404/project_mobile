@@ -110,7 +110,7 @@ class _RegisterState extends State<Register> {
                           labelText: 'Fullname',
                           labelStyle: TextStyle(color: DarkBrown),
                           filled: true,
-                          fillColor: Color(0xFFF3F4F6),
+                          fillColor: Color(0xFFFFFAF0),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
                               color: Color(0xFFE5E7EB),
@@ -144,7 +144,7 @@ class _RegisterState extends State<Register> {
                           labelText: 'Username',
                           labelStyle: TextStyle(color: DarkBrown),
                           filled: true,
-                          fillColor: Color(0xFFF3F4F6),
+                          fillColor: Color(0xFFFFFAF0),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
                               color: Color(0xFFE5E7EB),
@@ -193,7 +193,7 @@ class _RegisterState extends State<Register> {
                           labelText: 'Password',
                           labelStyle: TextStyle(color: DarkBrown),
                           filled: true,
-                          fillColor: Color(0xFFF3F4F6),
+                          fillColor: Color(0xFFFFFAF0),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
                               color: Color(0xFFE5E7EB),
