@@ -271,7 +271,7 @@ class _RequestPageState extends State<RequestPage> {
                 width: 100,
                 height: 100,
                 child:
-                    Container(width: 100,height: 100,child: Image.asset("assets/images/Notebook.png")),
+                    Container(width: 100,height: 100,child: Image.asset("assets/images/notebook.png")),
               ),
               Expanded(
                 child: Column(
@@ -359,7 +359,7 @@ class _RequestPageState extends State<RequestPage> {
         child: SizedBox(
           width: 100,
           height: 100,
-          child: Image.asset("assets/images/Notebook.png"),
+          child: Image.asset("assets/images/notebook.png"),
         ),
       ),
     );

@@ -196,7 +196,7 @@ class _RequestPageState extends State<RequestPage> {
                 width: 100,
                 height: 100,
                 child:
-                    Container(width: 100,height: 100,child: Image.asset("assets/images/Notebook.png")), // Make sure this path is in your pubspec.yaml
+                    Container(width: 100,height: 100,child: Image.asset("assets/images/notebook.png")), // Make sure this path is in your pubspec.yaml
               ),
               Expanded(
                 child: Column(

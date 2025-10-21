@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project_mobile/Borrower/dashboard_page.dart';
-import 'package:project_mobile/Borrower/home_page.dart';
 import 'package:project_mobile/BottomBar.dart';
 import 'package:project_mobile/LoginPage.dart';
 import 'package:project_mobile/identify_page.dart';
