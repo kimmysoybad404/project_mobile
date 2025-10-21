@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_mobile/BottomBar.dart';
+import 'package:project_mobile/LoginPage.dart';
+import 'package:project_mobile/identify_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Chewy',
       ),
-      home: BottomBar(),
+      home: LoginPage(),
     );
   }
 }

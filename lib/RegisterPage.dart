@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_mobile/Login.dart';
+import 'package:project_mobile/LoginPage.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -76,7 +76,7 @@ class _RegisterState extends State<Register> {
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF6366F1).withOpacity(0.3),
+                  color: DarkBrown.withOpacity(0.3),
                   blurRadius: 30,
                   offset: Offset(0, 15),
                 ),
@@ -93,7 +93,7 @@ class _RegisterState extends State<Register> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1F2937),
+                        color: DarkBrown,
                       ),
                     ),
 
@@ -106,9 +106,9 @@ class _RegisterState extends State<Register> {
                       ),
                       child: TextField(
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.person, color: DarkBrown),
-                          labelText: 'Full Name',
-                          labelStyle: TextStyle(color: Color(0xFF9CA3AF)),
+                          prefixIcon: Icon(Icons.person_rounded, color: DarkBrown),
+                          labelText: 'Fullname',
+                          labelStyle: TextStyle(color: DarkBrown),
                           filled: true,
                           fillColor: Color(0xFFF3F4F6),
                           border: OutlineInputBorder(
@@ -140,9 +140,9 @@ class _RegisterState extends State<Register> {
                       ),
                       child: TextField(
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.person, color: DarkBrown),
+                          prefixIcon: Icon(Icons.badge_rounded, color: DarkBrown),
                           labelText: 'Username',
-                          labelStyle: TextStyle(color: Color(0xFF9CA3AF)),
+                          labelStyle: TextStyle(color: DarkBrown),
                           filled: true,
                           fillColor: Color(0xFFF3F4F6),
                           border: OutlineInputBorder(
@@ -160,10 +160,7 @@ class _RegisterState extends State<Register> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Color(0xFF6366F1),
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: DarkBrown, width: 2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
@@ -194,7 +191,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           labelText: 'Password',
-                          labelStyle: TextStyle(color: Color(0xFF9CA3AF)),
+                          labelStyle: TextStyle(color: DarkBrown),
                           filled: true,
                           fillColor: Color(0xFFF3F4F6),
                           border: OutlineInputBorder(
@@ -212,10 +209,7 @@ class _RegisterState extends State<Register> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Color(0xFF6366F1),
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: DarkBrown, width: 2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
@@ -240,7 +234,7 @@ class _RegisterState extends State<Register> {
                             shadowColor: DarkBrown.withOpacity(0.4),
                           ),
                           child: Text(
-                            "Login",
+                            "Sign Up",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
