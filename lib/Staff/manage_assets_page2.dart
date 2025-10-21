@@ -17,7 +17,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
       'status': 'Available',
       'borrow': '25/1/2568',
       'return': '25/1/2568',
-      'image': 'assets/images/Notebook.png',
+      'image': 'assets/images/notebook.png',
       'borrowBy': '-',
     },
     {
@@ -315,7 +315,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop('assets/images/Notebook.png');
+                          Navigator.of(context).pop('assets/images/notebook.png');
                         },
                         child: Container(
                           width: double.infinity,
@@ -370,7 +370,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
   void showAddDialog() {
     String newStatus = 'Available';
     String newName = '';
-    String newImage = 'assets/images/Notebook.png';
+    String newImage = 'assets/images/notebook.png';
 
     showDialog(
       context: context,
@@ -566,7 +566,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
   void showEditDialog(Map<String, dynamic> item) {
     String localStatus = item['status'] ?? 'Available';
     String localName = item['name'] ?? '';
-    String localImage = item['image'] ?? 'assets/images/Notebook.png';
+    String localImage = item['image'] ?? 'assets/images/notebook.png';
 
     showDialog(
       context: context,
