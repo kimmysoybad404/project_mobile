@@ -14,6 +14,7 @@ import 'package:project_mobile/identify_page.dart';
 
 int role = 3;
 
+int role = 1; // 1 = borrower, 2 = Lender, 3 = Staff
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
 
@@ -298,13 +299,9 @@ class _BottomBarState extends State<BottomBar> {
           const DashboardPage(),
         ];
       case 2:
-        return [
-          requestlender.RequestPage(),
-          const Homelender(),
-          const DashboardPage(),
-        ];
+        return [requestlender.RequestPage(), const Scaffold(), const DashboardPage()];
       case 3:
-        return [const Scaffold(), const HomeStaff(), const DashboardPage()];
+        return [const Scaffold(), const Scaffold(), const DashboardPage()];
       default:
         return [Scaffold()];
     }
