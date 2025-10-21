@@ -109,7 +109,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           AssetCard(
             name: 'Notebook',
             id: '00001',
-            imagePath: 'assets/images/Notebook.png',
+            imagePath: 'assets/images/notebook.png',
             status: 'Available',
           ),
           AssetCard(
