@@ -17,7 +17,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
       'status': 'Available',
       'borrow': '25/1/2568',
       'return': '25/1/2568',
-      'image': 'assets/images/notebook.png',
+      'image': 'assets/images/notebook.png', // เปลี่ยนเป็น n ตัวเล็ก
       'borrowBy': '-',
     },
     {
@@ -33,7 +33,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
 
   String searchText = '';
   List<String> imageOptions = [
-    'assets/images/notebook.png',
+    'assets/images/notebook.png', // เปลี่ยนเป็น n ตัวเล็ก
     'assets/images/Phone.png',
     'assets/images/Board_games.png',
     'assets/images/Phone_2.png',
@@ -315,7 +315,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop('assets/images/notebook.png');
+                          Navigator.of(context).pop('assets/images/notebook.png'); // เปลี่ยนเป็น n ตัวเล็ก
                         },
                         child: Container(
                           width: double.infinity,
@@ -370,7 +370,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
   void showAddDialog() {
     String newStatus = 'Available';
     String newName = '';
-    String newImage = 'assets/images/notebook.png';
+    String newImage = 'assets/images/notebook.png'; // เปลี่ยนเป็น n ตัวเล็ก
 
     showDialog(
       context: context,
@@ -476,7 +476,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                                   const Text('Select Image', style: TextStyle(fontWeight: FontWeight.w600)),
                                   Row(
                                     children: [
-                                      Text(newImage.split('/').last.split('.').first == 'Notebook' ? 'Notebook' :
+                                      Text(newImage.split('/').last.split('.').first == 'notebook' ? 'Notebook' : // เปลี่ยนเป็น n ตัวเล็ก
                                            newImage.split('/').last.split('.').first == 'Phone' ? 'Ipad' :
                                            newImage.split('/').last.split('.').first == 'Board_games' ? 'Board game' :
                                            'Power bank', style: const TextStyle(fontSize: 14)),
@@ -566,7 +566,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
   void showEditDialog(Map<String, dynamic> item) {
     String localStatus = item['status'] ?? 'Available';
     String localName = item['name'] ?? '';
-    String localImage = item['image'] ?? 'assets/images/notebook.png';
+    String localImage = item['image'] ?? 'assets/images/notebook.png'; // เปลี่ยนเป็น n ตัวเล็ก
 
     showDialog(
       context: context,
@@ -672,7 +672,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                                   const Text('Select Image', style: TextStyle(fontWeight: FontWeight.w600)),
                                   Row(
                                     children: [
-                                      Text(localImage.split('/').last.split('.').first == 'Notebook' ? 'Notebook' :
+                                      Text(localImage.split('/').last.split('.').first == 'notebook' ? 'Notebook' : // เปลี่ยนเป็น n ตัวเล็ก
                                            localImage.split('/').last.split('.').first == 'Phone' ? 'Ipad' :
                                            localImage.split('/').last.split('.').first == 'Board_games' ? 'Board game' :
                                            'Power bank', style: const TextStyle(fontSize: 14)),
@@ -889,7 +889,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                 decoration: InputDecoration(
                   hintText: 'Search by ID, Name, Status, Borrow, Return',
                   filled: true,
-                  fillColor: const Color(0xFFFEC785), // เพิ่มสีพื้นหลังให้แท็บ search
+                  fillColor: const Color(0xFFFEC785),
                   prefixIcon: const Icon(Icons.search, color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -1100,7 +1100,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                   decoration: InputDecoration(
                     hintText: 'Search by ID, Name, Borrower, Borrow Date, Return Date',
                     filled: true,
-                    fillColor: const Color(0xFFFEC785), // เพิ่มสีพื้นหลังให้แท็บ search
+                    fillColor: const Color(0xFFFEC785),
                     prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -1133,7 +1133,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                 decoration: InputDecoration(
                   hintText: 'Search by ID, Name, Borrower, Borrow Date, Return Date',
                   filled: true,
-                  fillColor: const Color(0xFFFEC785), // เพิ่มสีพื้นหลังให้แท็บ search
+                  fillColor: const Color(0xFFFEC785),
                   prefixIcon: const Icon(Icons.search, color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
