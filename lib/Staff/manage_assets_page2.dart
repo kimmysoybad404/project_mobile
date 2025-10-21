@@ -880,41 +880,44 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: TextField(
-                onChanged: (v) => setState(() => searchText = v),
-                decoration: InputDecoration(
-                  hintText: 'Search by ID, Name, Status, Borrow, Return',
-                  filled: true,
-                  fillColor: const Color(0xFFFEC785),
-                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (v) => setState(() => searchText = v),
+                  decoration: InputDecoration(
+                    hintText: 'Search by ID, Name, Status, Borrow, Return',
+                    filled: true,
+                    fillColor: const Color(0xFFFEC785),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            ElevatedButton(
-              onPressed: () => showAddDialog(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF8B5B46),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () => showAddDialog(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8B5B46),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                ),
+                child: const Text('Add', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
-              child: const Text('Add', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 20),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // เพิ่ม padding ด้านข้างและด้านบน/ล่าง
             itemCount: filtered.length,
             itemBuilder: (context, idx) {
               final item = filtered[idx];
@@ -923,7 +926,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                                  item['status'] == 'Disabled' ? Colors.red :
                                  Colors.blue;
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0), // ปรับ margin การ์ด
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 color: const Color(0xFF8B5B46),
                 elevation: 4,
@@ -1095,7 +1098,45 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (v) => setState(() => searchText = v),
+                    decoration: InputDecoration(
+                      hintText: 'Search by ID, Name, Borrower, Borrow Date, Return Date',
+                      filled: true,
+                      fillColor: const Color(0xFFFEC785),
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'No borrowed assets.',
+            style: TextStyle(color: Colors.black54, fontSize: 16, fontStyle: FontStyle.italic),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
@@ -1116,43 +1157,11 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'No borrowed assets.',
-            style: TextStyle(color: Colors.black54, fontSize: 16, fontStyle: FontStyle.italic),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: TextField(
-                onChanged: (v) => setState(() => searchText = v),
-                decoration: InputDecoration(
-                  hintText: 'Search by ID, Name, Borrower, Borrow Date, Return Date',
-                  filled: true,
-                  fillColor: const Color(0xFFFEC785),
-                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-              ),
-            ),
-          ],
         ),
         const SizedBox(height: 20),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // เพิ่ม padding ด้านข้างและด้านบน/ล่าง
             itemCount: filtered.length,
             itemBuilder: (context, idx) {
               final item = filtered[idx];
@@ -1161,7 +1170,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
                                  item['status'] == 'Disabled' ? Colors.red :
                                  Colors.blue;
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0), // ปรับ margin การ์ด
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 color: const Color(0xFF8B5B46),
                 elevation: 4,
@@ -1347,7 +1356,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2> {
           children: [
             const SizedBox(height: 10),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5B46),
