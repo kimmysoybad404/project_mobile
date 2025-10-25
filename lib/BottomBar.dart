@@ -21,7 +21,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   String GetRoleTxt() {
     switch (role) {
       case 1:
-        return "User";
+        return "Borrower";
       case 2:
         return "Lender";
       case 3:
