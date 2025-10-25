@@ -11,7 +11,7 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:project_mobile/Staff/manage_assets_page2.dart';
 import 'package:project_mobile/identify_page.dart';
 
-int role = 2; // 1 = borrower, 2 = Lender, 3 = Staff
+int role = 3; // 1 = borrower, 2 = Lender, 3 = Staff
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   const AppBarNaja({super.key});
 
