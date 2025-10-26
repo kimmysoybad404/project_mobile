@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Chewy',
       ),
-      home: BottomBar(),
+      home: IdentifyPage(),
     );
   }
 }
