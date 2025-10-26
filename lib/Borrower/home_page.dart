@@ -101,34 +101,42 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       ),
       padding: const EdgeInsets.all(15),
       margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        children: const [
-          AssetCard(
-            name: 'Notebook',
-            id: '00001',
-            imagePath: 'assets/images/notebook.png',
-            status: 'Available',
-          ),
-          AssetCard(
-            name: 'Ipad',
-            id: '00002',
-            imagePath: 'assets/images/ipad.png',
-            status: 'Available',
-          ),
-          AssetCard(
-            name: 'Board game',
-            id: '00003',
-            imagePath: 'assets/images/boardgame.png',
-            status: 'Available',
-          ),
-          AssetCard(
-            name: 'Power bank',
-            id: '00004',
-            imagePath: 'assets/images/powerbank.png',
-            status: 'Available',
+      child: Column(
+        children: [
+          _buildSearchBar(),
+          SizedBox(height: 10,),
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              children: const [
+                AssetCard(
+                  name: 'Notebook',
+                  id: '00001',
+                  imagePath: 'assets/images/notebook.png',
+                  status: 'Available',
+                ),
+                AssetCard(
+                  name: 'Ipad',
+                  id: '00002',
+                  imagePath: 'assets/images/ipad.png',
+                  status: 'Available',
+                ),
+                AssetCard(
+                  name: 'Board game',
+                  id: '00003',
+                  imagePath: 'assets/images/boardgame.png',
+                  status: 'Available',
+                ),
+                AssetCard(
+                  name: 'Power bank',
+                  id: '00004',
+                  imagePath: 'assets/images/powerbank.png',
+                  status: 'Available',
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -145,115 +153,132 @@ Widget _history() {
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView( // ✅ เพิ่มให้ scroll ได้ในกรณีข้อมูลยาว
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ID + Name
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('ID: 0003', style: TextStyle(color: Colors.white)),
-                Text('Name: Board game', style: TextStyle(color: Colors.white)),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // 🔸 ข้อมูลการยืม - คืน
+            _buildSearchBar(),
+            SizedBox(height: 10,),
             Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF8B5B46),
-                borderRadius: BorderRadius.circular(15),
+                border: Border.all(
+                  color: Color(0xFFF6C68E),
+                  width: 5.0,
+                  
+                ),
+                borderRadius: BorderRadius.circular(30)
               ),
-              child: Row(
+              child: Column(              
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // รูป
+                  // ID + Name
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('ID: 0003', style: TextStyle(color: Colors.white)),
+                      Text('Name: Board game', style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+              
+                  // 🔸 ข้อมูลการยืม - คืน
                   Container(
-                    width: 100,
-                    height: 100,
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Color(0xFF8B5B46),
-                      borderRadius: BorderRadius.circular(10),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/boardgame.png'),
-                        fit: BoxFit.cover,
+                      color: const Color(0xFF8B5B46),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // รูป
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF8B5B46),
+                            borderRadius: BorderRadius.circular(10),
+                            image: const DecorationImage(
+                              image: AssetImage('assets/images/boardgame.png'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+              
+                        // ข้อมูลวันที่
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Borrow',
+                                  style: TextStyle(
+                                    color: Color(0xFFF6C68E),
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                _buildDateTag('25/1/2568'),
+                              ],
+                            ),
+                            const SizedBox(height: 15),
+                            Row(
+                              children: [
+                                const Text(
+                                  'Return',
+                                  style: TextStyle(
+                                    color: Color(0xFFF6C68E),
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                _buildDateTag('25/1/2568'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+              
+                  // 🔸 ข้อมูลผู้อนุมัติและผู้รับทรัพย์
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEDE6E1),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: const Text(
+                      'Approve by: Lender001',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color(0xFF8B5B46),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 20),
-
-                  // ข้อมูลวันที่
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Borrow',
-                            style: TextStyle(
-                              color: Color(0xFFF6C68E),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          _buildDateTag('25/1/2568'),
-                        ],
+                  const SizedBox(height: 15),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEDE6E1),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: const Text(
+                      'Received asset by: Staff001',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color(0xFF8B5B46),
                       ),
-                      const SizedBox(height: 15),
-                      Row(
-                        children: [
-                          const Text(
-                            'Return',
-                            style: TextStyle(
-                              color: Color(0xFFF6C68E),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          _buildDateTag('25/1/2568'),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                 ],
-              ),
-            ),
-
-            // 🔸 ข้อมูลผู้อนุมัติและผู้รับทรัพย์
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEDE6E1),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: const Text(
-                'Approve by: Lender001',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Color(0xFF8B5B46),
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEDE6E1),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: const Text(
-                'Received asset by: Staff001',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Color(0xFF8B5B46),
-                ),
               ),
             ),
           ],
@@ -283,6 +308,57 @@ Widget _buildDateTag(String date) {
     ),
   );
 }
+
+Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          ElevatedButton( 
+            onPressed: () {
+              // ใส่ logic การค้นหาตรงนี้
+
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFFF6C68E), 
+              foregroundColor: const Color(0xFF4A3831),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              elevation: 0,
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.search, size: 18),
+                SizedBox(width: 8),
+                Text(
+                  "Search",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "search here...", hintStyle: TextStyle(color: Colors.grey),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
 class AssetCard extends StatelessWidget {
   final String name;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
 class RequestPage extends StatefulWidget {
   const RequestPage({super.key});
 
@@ -14,50 +13,9 @@ class _RequestPageState extends State<RequestPage> {
   Color DarkBrown = const Color(0xFF8B5B46);
   Color LightBrown = const Color(0xFFFEC785);
 
-  // --- CHANGED: ตั้งค่าเริ่มต้นให้เป็นวันปัจจุบันทั้งคู่ ---
+
   DateTime _borrowDate = DateTime.now();
   DateTime _returnDate = DateTime.now();
-
-  // --- UPDATED: อัปเดตฟังก์ชันเลือกวันให้มีเงื่อนไขตามที่ต้องการ ---
-  Future<void> _selectDate(BuildContext context, bool isBorrowDate) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isBorrowDate ? _borrowDate : _returnDate,
-      // เงื่อนไข: ถ้าเป็นวันยืม (Borrow) ให้เริ่มที่วันนี้, ถ้าเป็นวันคืน (Return) ให้เริ่มที่วันที่ยืม
-      firstDate: isBorrowDate ? DateTime.now() : _borrowDate,
-      lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: DarkBrown,
-              onPrimary: Colors.white,
-              onSurface: DarkBrown,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: DarkBrown,
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        if (isBorrowDate) {
-          _borrowDate = picked;
-          // ถ้าวันยืมที่เลือกใหม่ อยู่หลังวันคืนปัจจุบัน ให้ปรับวันคืนเป็นวันเดียวกัน
-          if (_borrowDate.isAfter(_returnDate)) {
-            _returnDate = _borrowDate;
-          }
-        } else {
-          _returnDate = picked;
-        }
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +45,6 @@ class _RequestPageState extends State<RequestPage> {
                       style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
                     ),
                     const SizedBox(height: 12),
-                    _buildSearchBar(),
-                    const SizedBox(height: 16),
                     IndexedStack(
                       index: _selectedTabIndex,
                       children: [_buildRequestInfoCard(), _buildStatusCard()],
@@ -147,56 +103,6 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
-    Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        children: [
-          ElevatedButton( 
-            onPressed: () {
-              // ใส่ logic การค้นหาตรงนี้
-
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: LightBrown, 
-              foregroundColor: const Color(0xFF4A3831),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              elevation: 0,
-            ),
-            child: Row(
-              children: const [
-                Icon(Icons.search, size: 18),
-                SizedBox(width: 8),
-                Text(
-                  "Search",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "search here...", hintStyle: TextStyle(color: Colors.grey),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildRequestInfoCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -247,15 +153,15 @@ class _RequestPageState extends State<RequestPage> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 "ID: 00001",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
+              Text(
                 "Name: Notebook",
                 style: TextStyle(
                   color: Colors.white,
@@ -270,8 +176,10 @@ class _RequestPageState extends State<RequestPage> {
               SizedBox(
                 width: 100,
                 height: 100,
-                child:
-                    Container(width: 100,height: 100,child: Image.asset("assets/images/notebook.png")),
+                child: Container(
+                    width: 100,
+                    height: 100,
+                    child: Image.asset("assets/images/notebook.png")),
               ),
               Expanded(
                 child: Column(
@@ -319,7 +227,7 @@ class _RequestPageState extends State<RequestPage> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Icon(
                   Icons.calendar_today,
@@ -424,11 +332,11 @@ class _RequestPageState extends State<RequestPage> {
           ),
           child: Row(
             children: [
-              IconButton(
-                icon: Icon(Icons.calendar_today_rounded, color: DarkBrown),
-                onPressed: () {
-                  _selectDate(context, isBorrowDate);
-                },
+              // --- CHANGED: Replaced IconButton with a clickable Icon ---
+              SizedBox(
+                width: 48, // Provides a balanced tap area
+                height: 48,
+                child: Icon(Icons.calendar_today_rounded, color: DarkBrown)
               ),
               Expanded(
                 child: Text(
@@ -440,7 +348,7 @@ class _RequestPageState extends State<RequestPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 48), // To balance the IconButton space
+              const SizedBox(width: 48), // To balance the clickable Icon
             ],
           ),
         )
@@ -474,4 +382,3 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 }
-

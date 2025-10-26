@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class RequestPage extends StatefulWidget {
   const RequestPage({super.key});
 
@@ -64,11 +63,7 @@ class _RequestPageState extends State<RequestPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
       ),
-      child: Row(
-        children: [
-          _buildTabItem("Request", 0),
-        ],
-      ),
+      child: Row(children: [_buildTabItem("Request", 0)]),
     );
   }
 
@@ -109,13 +104,12 @@ class _RequestPageState extends State<RequestPage> {
       ),
       child: Row(
         children: [
-          ElevatedButton( 
+          ElevatedButton(
             onPressed: () {
               // ใส่ logic การค้นหาตรงนี้
-
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: LightBrown, 
+              backgroundColor: LightBrown,
               foregroundColor: const Color(0xFF4A3831),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -127,12 +121,7 @@ class _RequestPageState extends State<RequestPage> {
               children: const [
                 Icon(Icons.search, size: 18),
                 SizedBox(width: 8),
-                Text(
-                  "Search",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text("Search", style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -140,7 +129,8 @@ class _RequestPageState extends State<RequestPage> {
             child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: "search here...", hintStyle: TextStyle(color: Colors.grey),
+                hintText: "search here...",
+                hintStyle: TextStyle(color: Colors.grey),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
@@ -151,21 +141,14 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Widget _buildStatusCard() {
-    return Column(
-      children: [
-        _buildStatusItem(),
-      ],
-    );
+    return Column(children: [_buildStatusItem()]);
   }
 
-  Widget _buildStatusItem() {
+Widget _buildStatusItem() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: LightBrown,
-          width: 5,
-        ),
+        border: Border.all(color: LightBrown, width: 5),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
@@ -195,8 +178,11 @@ class _RequestPageState extends State<RequestPage> {
               SizedBox(
                 width: 100,
                 height: 100,
-                child:
-                    Container(width: 100,height: 100,child: Image.asset("assets/images/notebook.png")), // Make sure this path is in your pubspec.yaml
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  child: Image.asset("assets/images/notebook.png"),
+                ), // Make sure this path is in your pubspec.yaml
               ),
               Expanded(
                 child: Column(
@@ -229,7 +215,63 @@ class _RequestPageState extends State<RequestPage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Handle reject logic
+                      // --- FIX: Create both a controller and a focus node ---
+                      final TextEditingController reasonController =
+                          TextEditingController();
+
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext dialogContext) {
+                          return AlertDialog(
+                            title: Text(
+                              "Reason for Rejection",
+                              style: TextStyle(color: LightBrown),
+                            ),
+                            backgroundColor: DarkBrown,
+                            content: TextField(
+                              style: TextStyle(color: LightBrown),
+                              controller: reasonController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                hintText: "Enter reason here...",
+                                hintStyle: TextStyle(color: LightBrown),
+                              ),
+                              maxLines: 3,
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(color: LightBrown),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(
+                                    dialogContext,
+                                  ).pop(); // Close the dialog
+                                },
+                              ),
+                              // Reject Button
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFF48A8A),
+                                ),
+                                child: Text(
+                                  "Reject",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                onPressed: () {
+
+                                  Navigator.of(
+                                    dialogContext,
+                                  ).pop(); // Close the dialog
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF48A8A), // Red
@@ -237,7 +279,9 @@ class _RequestPageState extends State<RequestPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14), // Adjusted padding
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                      ), // Adjusted padding
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: const Text("Reject", style: TextStyle(fontSize: 14)),
@@ -253,10 +297,15 @@ class _RequestPageState extends State<RequestPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14), // Adjusted padding
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                      ), // Adjusted padding
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text("Approve", style: TextStyle(fontSize: 14)),
+                    child: const Text(
+                      "Approve",
+                      style: TextStyle(fontSize: 14),
+                    ),
                   ),
                 ],
               ),
