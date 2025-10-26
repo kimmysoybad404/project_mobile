@@ -5,15 +5,14 @@ import 'package:project_mobile/Borrower/home_page.dart' as homepageborrower;
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
 import 'package:project_mobile/Lender/home_page.dart' as homepageLender;
 import 'package:project_mobile/Lender/request_page.dart' as requestlender;
-import 'package:project_mobile/Loginpage.dart';
 import 'package:project_mobile/Staff/home_page.dart' as homepageStaff;
-import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:project_mobile/Staff/manage_assets_page2.dart';
 import 'package:project_mobile/identify_page.dart';
 
-int role = 3; // 1 = borrower, 2 = Lender, 3 = Staff
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
-  const AppBarNaja({super.key});
+  final int role;
+  final String name;
+  const AppBarNaja({super.key, required this.role, required this.name});
 
   @override
   Size get preferredSize => const Size.fromHeight(100);
@@ -21,13 +20,13 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   String GetRoleTxt() {
     switch (role) {
       case 1:
-        return "User";
+        return "Borrower";
       case 2:
         return "Lender";
       case 3:
         return "Staff";
       default:
-        return "ม่ายรู้ Who r u จ้ะ ???";
+        return "Unknown";
     }
   }
 
@@ -47,7 +46,6 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     width: 50,
@@ -64,14 +62,13 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                   const SizedBox(width: 20),
-
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Tigar",
-                        style: const TextStyle(
+                       Text(
+                        name,
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF3E2C23),
@@ -86,9 +83,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ],
                   ),
-
-                  Spacer(),
-
+                  const Spacer(),
                   Container(
                     width: 50,
                     height: 50,
@@ -110,7 +105,6 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.3),
                                     blurRadius: 10,
-                                    offset: const Offset(0, 5),
                                   ),
                                 ],
                               ),
@@ -119,7 +113,6 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // รูปภาพ
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.asset(
@@ -129,40 +122,14 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 24),
-
-                                    // ข้อความหลัก
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: Color(0xFFFEC785),
+                                        color: const Color(0xFFFEC785),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: const Text(
-                                          'Logout',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(
-                                              0xFF8B5B46,
-                                            ), // น้ำตาลเข้ม
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 12),
-
-                                    // ข้อความยืนยัน
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFFEC785),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: const Text(
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
                                           'Are you sure to logout?',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
@@ -172,10 +139,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                                         ),
                                       ),
                                     ),
-
                                     const SizedBox(height: 28),
-
-                                    // ปุ่ม
                                     Row(
                                       children: [
                                         Expanded(
@@ -183,27 +147,22 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                                             onPressed: () =>
                                                 Navigator.pop(context),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xFF8B5B46),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 12,
-                                                  ),
+                                              backgroundColor: const Color(
+                                                0xFF8B5B46,
+                                              ),
                                               shape: RoundedRectangleBorder(
-                                                side: BorderSide(
+                                                side: const BorderSide(
                                                   color: Color(0xFFFEC785),
-                                                  width: 2
+                                                  width: 2,
                                                 ),
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                               ),
-                                              elevation: 2,
                                             ),
                                             child: const Text(
                                               "Cancel",
                                               style: TextStyle(
                                                 color: Color(0xFFFEC785),
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                           ),
@@ -212,32 +171,28 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                                         Expanded(
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              Navigator.push(
+                                              Navigator.pushAndRemoveUntil(
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       const IdentifyPage(),
                                                 ),
+                                                (route) => false,
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xFFFEC785),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 12,
-                                                  ),
+                                              backgroundColor: const Color(
+                                                0xFFFEC785,
+                                              ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                               ),
-                                              elevation: 2,
                                             ),
                                             child: const Text(
                                               "Logout",
                                               style: TextStyle(
                                                 color: Color(0xFF8B5B46),
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                           ),
@@ -251,7 +206,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                           ),
                         );
                       },
-                      icon: Icon(Icons.logout, color: Colors.white),
+                      icon: const Icon(Icons.logout, color: Colors.white),
                     ),
                   ),
                 ],
@@ -265,30 +220,24 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class BottomBar extends StatefulWidget {
-  const BottomBar({super.key});
+  final int role;
+  final String name;
+  const BottomBar({super.key, required this.role, required this.name});
 
   @override
   State<BottomBar> createState() => _BottomBarState();
 }
 
 class _BottomBarState extends State<BottomBar> {
-  // 1 = borrower, 2 = Lender, 3 = Staff
   final PageController _pageController = PageController(initialPage: 1);
   final NotchBottomBarController _controller = NotchBottomBarController(
     index: 1,
   );
-  Color DarkBrown = Color(0xFF8B5B46);
-  Color LightBrown = Color(0xFFFEC785);
 
-  final List<List<IconData>> roleIcons = [
-    [],
-    [Icons.receipt_long, Icons.home_filled, Icons.dashboard],
-    [Icons.receipt_long, Icons.home, Icons.dashboard],
-    [Icons.edit, Icons.home, Icons.dashboard],
-  ];
+  Color LightBrown = const Color(0xFFFEC785);
 
   List<Widget> CheckRole() {
-    switch (role) {
+    switch (widget.role) {
       case 1:
         return [
           const requestborrower.RequestPage(),
@@ -296,16 +245,38 @@ class _BottomBarState extends State<BottomBar> {
           const DashboardPage(),
         ];
       case 2:
-        return [requestlender.RequestPage(), const homepageLender.Homelender(), const DashboardPage()];
+        return [
+          requestlender.RequestPage(),
+          const homepageLender.Homelender(),
+          const DashboardPage(),
+        ];
       case 3:
-        return [const ManageAssetsPage2(), homepageStaff.HomeStaff(), const DashboardPage()];
+        return [
+          const ManageAssetsPage2(),
+          homepageStaff.HomeStaff(),
+          const DashboardPage(),
+        ];
       default:
-        return [Scaffold()];
+        return [const Scaffold()];
     }
   }
 
-  List<BottomBarItem> BottomBar() {
-    final icons = roleIcons[role];
+  List<BottomBarItem> BottomBarItems() {
+    List<IconData> icons;
+    switch (widget.role) {
+      case 1:
+        icons = [Icons.receipt_long, Icons.home_filled, Icons.dashboard];
+        break;
+      case 2:
+        icons = [Icons.receipt_long, Icons.home, Icons.dashboard];
+        break;
+      case 3:
+        icons = [Icons.edit, Icons.home, Icons.dashboard];
+        break;
+      default:
+        icons = [Icons.home];
+    }
+
     return List.generate(
       icons.length,
       (index) => BottomBarItem(
@@ -317,19 +288,21 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    final Pages = CheckRole();
-    final BottomBarNAJA = BottomBar();
+    final pages = CheckRole();
+    final bottomItems = BottomBarItems();
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: LightBrown,
         extendBody: true,
-        appBar: AppBarNaja(),
+        appBar: AppBarNaja(role: widget.role, name: widget.name),
         body: PageView(
           controller: _pageController,
-          children: Pages,
+          children: pages,
           onPageChanged: (index) {
-            _controller.index = index;
+            setState(() {
+              _controller.index = index;
+            });
           },
         ),
         bottomNavigationBar: AnimatedNotchBottomBar(
@@ -337,12 +310,9 @@ class _BottomBarState extends State<BottomBar> {
           kIconSize: 24,
           kBottomRadius: 20,
           shadowElevation: 5,
-          removeMargins: false,
           bottomBarHeight: 50,
-          bottomBarItems: BottomBarNAJA,
-          onTap: (index) {
-            _pageController.jumpToPage(index);
-          },
+          bottomBarItems: bottomItems,
+          onTap: (index) => _pageController.jumpToPage(index),
         ),
       ),
     );

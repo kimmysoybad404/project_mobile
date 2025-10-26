@@ -9,14 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
-  archive:
+  args:
     dependency: transitive
     description:
-      name: archive
-      sha256: "2fde1607386ab523f7a36bb3e7edb43bd58e6edaf2ffb29d8a6d578b297fdbbd"
+      name: args
+      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.7"
+    version: "2.7.0"
   async:
     dependency: transitive
     description:
@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  awesome_dialog:
+    dependency: "direct main"
+    description:
+      name: awesome_dialog
+      sha256: "4c5821a0a637ceee022084e78c1b8237dd4b8bfca4dd24ac2484662a56707338"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -57,14 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
-  crypto:
-    dependency: transitive
-    description:
-      name: crypto
-      sha256: "1e445881f28f22d6140f181e07737b22f1e099a5e1ff94b0af2f9e4a463f4855"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.6"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -128,14 +128,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  giffy_dialog:
-    dependency: "direct dev"
-    description:
-      name: giffy_dialog
-      sha256: "55509ff0530f83dff57bd0ce6dc59737b61e36e3fbc2fd6259788dafb0175062"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
   graphs:
     dependency: transitive
     description:
@@ -145,7 +137,7 @@ packages:
     source: hosted
     version: "2.3.2"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: bb2ce4590bc2667c96f318d68cac1b5a7987ec819351d32b1c987239a815e007
@@ -172,26 +164,26 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
+      sha256: "33e2e26bdd85a0112ec15400c8cbffea70d0f9c3407491f672a2fad47915e2de"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.9"
+    version: "11.0.2"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
       name: leak_tracker_flutter_testing
-      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
+      sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.9"
+    version: "3.0.10"
   leak_tracker_testing:
     dependency: transitive
     description:
       name: leak_tracker_testing
-      sha256: "6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3"
+      sha256: "8d5a2d49f4a66b49744b23b018848400d23e54caf9463f4eb20df3eb8acb2eb1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   lints:
     dependency: transitive
     description:
@@ -200,14 +192,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
-  lottie:
-    dependency: transitive
-    description:
-      name: lottie
-      sha256: c5fa04a80a620066c15cf19cc44773e19e9b38e989ff23ea32e5903ef1015950
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.1"
   matcher:
     dependency: transitive
     description:
@@ -248,30 +232,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  posix:
-    dependency: transitive
-    description:
-      name: posix
-      sha256: "6323a5b0fa688b6a010df4905a56b00181479e6d10534cecfecede2aa55add61"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.3"
   rive:
     dependency: transitive
     description:
       name: rive
-      sha256: "2551a44fa766a7ed3f52aa2b94feda6d18d00edc25dee5f66e72e9b365bb6d6c"
+      sha256: "8c6059dfc1aa0e89d9f1107f735f3114f9d1d06dcba798f823aeac55e7584295"
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.20"
-  rive_common:
+    version: "0.14.0-dev.12"
+  rive_native:
     dependency: transitive
     description:
-      name: rive_common
-      sha256: "2ba42f80d37a4efd0696fb715787c4785f8a13361e8aea9227c50f1e78cf763a"
+      name: rive_native
+      sha256: f9c258c28b65e97e442290637b87de6eb0910665584269263153af56045a0ef7
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.15"
+    version: "0.0.15"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -321,10 +297,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
+      sha256: "522f00f556e73044315fa4585ec3270f1808a4b186c936e612cab0b565ff1e00"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.4"
+    version: "0.7.6"
   typed_data:
     dependency: transitive
     description:
@@ -337,10 +313,10 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
+      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   vm_service:
     dependency: transitive
     description:
@@ -359,4 +335,4 @@ packages:
     version: "1.1.1"
 sdks:
   dart: ">=3.8.1 <4.0.0"
-  flutter: ">=3.27.0"
+  flutter: ">=3.18.0-18.0.pre.54"

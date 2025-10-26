@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_mobile/LoginPage.dart';
 
 class IdentifyPage extends StatefulWidget {
   const IdentifyPage({super.key});
@@ -9,8 +10,8 @@ class IdentifyPage extends StatefulWidget {
 
 class _IdentifyPageState extends State<IdentifyPage> {
   int? selectedIndex;
-  Color DarkBrown = Color(0xFF8B5B46);
-  Color LightBrown = Color(0xFFFEC785);
+  final Color DarkBrown = Color(0xFF8B5B46);
+  final Color LightBrown = Color(0xFFFEC785);
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +23,16 @@ class _IdentifyPageState extends State<IdentifyPage> {
         "description": "Join as a Borrower",
       },
       {
-        "icon": Icons.school,
-        "title": "Staff",
-        "color": DarkBrown,
-        "description": "Join as Staff member",
-      },
-      {
         "icon": Icons.library_books,
         "title": "Lender",
         "color": DarkBrown,
         "description": "Join as a Lender",
+      },
+      {
+        "icon": Icons.school,
+        "title": "Staff",
+        "color": DarkBrown,
+        "description": "Join as Staff member",
       },
     ];
 
@@ -176,66 +177,47 @@ class _IdentifyPageState extends State<IdentifyPage> {
               ),
             ),
           ),
-          if (selectedIndex != null)
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle role selection
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "You selected ${roles[selectedIndex!]["title"]}",
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: roles[selectedIndex!]["color"],
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Continue",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: selectedIndex == null
+                    ? null
+                    : () {
+                        int roleValue = selectedIndex! + 1;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                LoginPage(selectRole: roleValue),
+                          ),
+                        );
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: selectedIndex == null
+                      ? Colors.grey[300]
+                      : roles[selectedIndex!]["color"],
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ),
-            )
-          else
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    disabledBackgroundColor: Colors.grey[300],
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Select a role to continue",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
+                child: Text(
+                  selectedIndex == null
+                      ? "Select a role to continue"
+                      : "Continue",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: selectedIndex == null
+                        ? Colors.grey[600]
+                        : Colors.white,
                   ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
