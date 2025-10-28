@@ -16,8 +16,8 @@ class _RequestPageState extends State<RequestPage> {
   final Color DarkBrown = const Color(0xFF8B5B46);
   final Color LightBrown = const Color(0xFFFEC785);
 
-  DateTime _borrowDate = DateTime.now();
-  DateTime _returnDate = DateTime.now().add(const Duration(days: 3));
+  final DateTime _borrowDate = DateTime.now();
+  final DateTime _returnDate = DateTime.now().add(const Duration(days: 3));
 
   List<RequestItem> requestItems = [];
 

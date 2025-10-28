@@ -14,7 +14,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   int _selectedTabIndex = 0;
 
   // ✅ เก็บรายการสินค้าที่ผู้ใช้กด +
-  List<RequestItem> _requestedItems = [];
+  final List<RequestItem> _requestedItems = [];
 
   @override
   Widget build(BuildContext context) {
@@ -464,15 +464,20 @@ class AssetCard extends StatelessWidget {
             child: RichText(
               text: TextSpan(
                 children: [
-                  const TextSpan(
+                  TextSpan(
                     text: 'Status: ',
-                    style: TextStyle(color: Colors.black87, fontSize: 12),
+                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Colors.black87,
+          fontSize: 12,
+        
+                    ),
                   ),
                   TextSpan(
                     text: status,
-                    style: const TextStyle(
-                      color: Color.fromARGB(221, 17, 172, 51),
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: const Color.fromARGB(221, 20, 162, 39),
+          fontSize: 12,
+        
                     ),
                   ),
                 ],
