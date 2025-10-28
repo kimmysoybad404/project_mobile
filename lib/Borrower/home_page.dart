@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_mobile/BottomBar.dart';
 import 'request_page.dart';
 import 'request_item.dart'; // เพิ่ม import model
 
@@ -43,10 +44,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
             Expanded(
               child: IndexedStack(
                 index: _selectedTabIndex,
-                children: [
-                  _assetlist(),
-                  _history(),
-                ],
+                children: [_assetlist(), _history()],
               ),
             ),
           ],
@@ -164,9 +162,10 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                         const Text(
                           "Requested Items:",
                           style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                         const SizedBox(height: 10),
                         ListView.builder(
@@ -178,17 +177,24 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                             return Card(
                               color: const Color(0xFFF6C68E),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20)),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                               child: ListTile(
                                 leading: Image.asset(item.image, width: 60),
-                                title: Text(item.name,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold)),
+                                title: Text(
+                                  item.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 subtitle: Text(
-                                    "Borrow: ${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year}"),
+                                  "Borrow: ${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year}",
+                                ),
                                 trailing: IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.brown),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.brown,
+                                  ),
                                   onPressed: () {
                                     setState(() {
                                       _requestedItems.removeAt(index);
@@ -224,10 +230,17 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       _requestedItems.add(newItem);
     });
 
-    // แสดง Snackbar แจ้งเตือน
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("$name added to request list ✅")),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BottomBar(role: 1, name: name, newItem: newItem),
+      ),
     );
+
+    // แสดง Snackbar แจ้งเตือน
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("$name added to request list ✅")));
   }
 }
 
@@ -257,8 +270,10 @@ Widget _history() {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
                       Text('ID: 0003', style: TextStyle(color: Colors.white)),
-                      Text('Name: Board game',
-                          style: TextStyle(color: Colors.white)),
+                      Text(
+                        'Name: Board game',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -282,11 +297,14 @@ Widget _history() {
                         children: [
                           Row(
                             children: [
-                              const Text('Borrow',
-                                  style: TextStyle(
-                                      color: Color(0xFFF6C68E),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500)),
+                              const Text(
+                                'Borrow',
+                                style: TextStyle(
+                                  color: Color(0xFFF6C68E),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                               const SizedBox(width: 15),
                               _buildDateTag('25/1/2568'),
                             ],
@@ -294,11 +312,14 @@ Widget _history() {
                           const SizedBox(height: 15),
                           Row(
                             children: [
-                              const Text('Return',
-                                  style: TextStyle(
-                                      color: Color(0xFFF6C68E),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500)),
+                              const Text(
+                                'Return',
+                                style: TextStyle(
+                                  color: Color(0xFFF6C68E),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                               const SizedBox(width: 15),
                               _buildDateTag('25/1/2568'),
                             ],
@@ -333,8 +354,9 @@ Widget _buildSearchBar() {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFF6C68E),
             foregroundColor: const Color(0xFF4A3831),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             elevation: 0,
           ),
@@ -372,8 +394,7 @@ Widget _buildDateTag(String date) {
       children: [
         const Icon(Icons.calendar_today, color: Colors.black87, size: 20),
         const SizedBox(width: 8),
-        Text(date,
-            style: const TextStyle(color: Colors.black87, fontSize: 18)),
+        Text(date, style: const TextStyle(color: Colors.black87, fontSize: 18)),
       ],
     ),
   );
@@ -415,23 +436,27 @@ class AssetCard extends StatelessWidget {
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: GestureDetector(
-                  onTap: () => onAdd(id, name, imagePath),
+                  onTap: () {
+                    print("✅ Add pressed: $name");
+                    onAdd(id, name, imagePath);
+                  },
                   child: const Icon(Icons.add, size: 26, color: Colors.black),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(name,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          Text('ID:$id',
-              style:
-                  const TextStyle(fontSize: 12, color: Colors.black54)),
+          Text(
+            name,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          Text(
+            'ID:$id',
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
+          ),
           const Spacer(),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: Colors.white70,
               borderRadius: BorderRadius.circular(10),
@@ -446,8 +471,9 @@ class AssetCard extends StatelessWidget {
                   TextSpan(
                     text: status,
                     style: const TextStyle(
-                        color: Color.fromARGB(221, 17, 172, 51),
-                        fontSize: 12),
+                      color: Color.fromARGB(221, 17, 172, 51),
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),

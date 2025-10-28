@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:project_mobile/Borrower/dashboard_page.dart';
+import 'package:project_mobile/Borrower/request_item.dart';
 import 'package:project_mobile/Borrower/home_page.dart' as homepageborrower;
 import 'package:project_mobile/Borrower/request_page.dart' as requestborrower;
 import 'package:project_mobile/Lender/home_page.dart' as homepageLender;
@@ -66,7 +67,7 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       Text(
+                      Text(
                         name,
                         style: TextStyle(
                           fontSize: 22,
@@ -222,17 +223,38 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
 class BottomBar extends StatefulWidget {
   final int role;
   final String name;
-  const BottomBar({super.key, required this.role, required this.name});
+  final RequestItem? newItem;
+  const BottomBar({
+    super.key,
+    required this.role,
+    required this.name,
+    this.newItem,
+  });
 
   @override
   State<BottomBar> createState() => _BottomBarState();
 }
 
 class _BottomBarState extends State<BottomBar> {
-  final PageController _pageController = PageController(initialPage: 1);
+  final PageController _pageController = PageController();
   final NotchBottomBarController _controller = NotchBottomBarController(
-    index: 1,
+    index: 0,
   );
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.newItem != null) {
+        _pageController.jumpToPage(0);
+        _controller.index = 0;
+      } else {
+        _pageController.jumpToPage(1);
+        _controller.index = 1;
+      }
+    });
+  }
 
   Color LightBrown = const Color(0xFFFEC785);
 
@@ -240,7 +262,7 @@ class _BottomBarState extends State<BottomBar> {
     switch (widget.role) {
       case 1:
         return [
-          const requestborrower.RequestPage(),
+          requestborrower.RequestPage(newItem: widget.newItem),
           const homepageborrower.HomeBorrower(),
           const DashboardPage(),
         ];
