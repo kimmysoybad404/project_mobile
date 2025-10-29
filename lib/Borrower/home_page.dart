@@ -257,302 +257,50 @@ Widget _history() {
             _buildSearchBar(),
             const SizedBox(height: 10),
 
-            // ✅ สินค้าชิ้นที่ 1 : Ipad (ย้ายขึ้นมาแทน Power bank)
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFF6C68E), width: 5.0),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('ID: 00002', style: TextStyle(color: Colors.white)),
-                      Text('Name: Ipad', style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/ipad.png'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'Borrow',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('10/10/2568'),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            children: [
-                              const Text(
-                                'Return',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('10/10/2568'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            // ✅ ฟังก์ชันย่อย: ช่อง Approve/Received (ใช้ซ้ำได้)
+            const SizedBox.shrink(),
+            const SizedBox(height: 0),
+
+            // ✅ สินค้าชิ้นที่ 1 : Ipad
+            _buildHistoryCard(
+              id: '00002',
+              name: 'Ipad',
+              image: 'assets/images/ipad.png',
+              borrowDate: '10/10/2568',
+              returnDate: '10/10/2568',
             ),
 
             const SizedBox(height: 20),
 
             // ✅ สินค้าชิ้นที่ 2 : Board game
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFF6C68E), width: 5.0),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('ID: 00003', style: TextStyle(color: Colors.white)),
-                      Text('Name: Board game', style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/boardgame.png'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'Borrow',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('10/8/2568'),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            children: [
-                              const Text(
-                                'Return',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('10/8/2568'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            _buildHistoryCard(
+              id: '00003',
+              name: 'Board game',
+              image: 'assets/images/boardgame.png',
+              borrowDate: '10/8/2568',
+              returnDate: '10/8/2568',
             ),
 
             const SizedBox(height: 20),
 
-            // ✅ สินค้าชิ้นที่ 3 : Power bank (ย้ายมาหลัง Board game)
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFF6C68E), width: 5.0),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('ID: 00004', style: TextStyle(color: Colors.white)),
-                      Text('Name: Power bank', style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/powerbank.png'),
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'Borrow',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('20/2/2568'),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            children: [
-                              const Text(
-                                'Return',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('20/2/2568'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            // ✅ สินค้าชิ้นที่ 3 : Power bank
+            _buildHistoryCard(
+              id: '00004',
+              name: 'Power bank',
+              image: 'assets/images/powerbank.png',
+              borrowDate: '20/2/2568',
+              returnDate: '20/2/2568',
             ),
 
             const SizedBox(height: 20),
 
             // ✅ สินค้าชิ้นที่ 4 : Notebook
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFF6C68E), width: 5.0),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('ID: 00001', style: TextStyle(color: Colors.white)),
-                      Text('Name: Notebook', style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/notebook.png'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'Borrow',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('25/1/2568'),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            children: [
-                              const Text(
-                                'Return',
-                                style: TextStyle(
-                                  color: Color(0xFFF6C68E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              _buildDateTag('25/1/2568'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            _buildHistoryCard(
+              id: '00001',
+              name: 'Notebook',
+              image: 'assets/images/notebook.png',
+              borrowDate: '25/1/2568',
+              returnDate: '25/1/2568',
             ),
           ],
         ),
@@ -560,6 +308,117 @@ Widget _history() {
     ),
   );
 }
+
+/// ✅ ฟังก์ชันสร้างการ์ดสินค้าแบบเดียวกันทั้งหมด
+Widget _buildHistoryCard({
+  required String id,
+  required String name,
+  required String image,
+  required String borrowDate,
+  required String returnDate,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(20.0),
+    decoration: BoxDecoration(
+      border: Border.all(color: const Color(0xFFF6C68E), width: 5.0),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('ID: $id', style: const TextStyle(color: Colors.white)),
+            Text('Name: $name', style: const TextStyle(color: Colors.white)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: AssetImage(image),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      'Borrow',
+                      style: TextStyle(
+                        color: Color(0xFFF6C68E),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    _buildDateTag(borrowDate),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    const Text(
+                      'Return',
+                      style: TextStyle(
+                        color: Color(0xFFF6C68E),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    _buildDateTag(returnDate),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 20),
+
+        // ✅ เพิ่มส่วน Approve by / Received asset by
+        _buildInfoBar('Approve by: Lender001'),
+        const SizedBox(height: 10),
+        _buildInfoBar('Received asset by: Staff001'),
+      ],
+    ),
+  );
+}
+
+/// ✅ ฟังก์ชันส่วนแสดงแถบข้อมูลสีเทาอ่อน
+Widget _buildInfoBar(String text) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color(0xFFDCCFCC),
+      borderRadius: BorderRadius.circular(25),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFF4A3831),
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  );
+}
+
 
 
 // ---------------------------------------------

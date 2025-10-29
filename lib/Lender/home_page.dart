@@ -143,45 +143,96 @@ class _HomelenderState extends State<Homelender> {
     // ),
   }
 }
+//  ------------------------------------------------------------------------------------------------------------------------
 
 Widget _history() {
-  return Card(
+  final List<Map<String, dynamic>> historyItems = [
+    {
+      'borrower': 'Tigar',
+      'id': '0001',
+      'name': 'Notebook',
+      'image': 'assets/images/notebook.png',
+      'borrowDate': '25/10/2568',
+      'returnDate': '25/10/2568',
+      'approve': 'Lender01',
+      'receive': 'Staff01',
+      'width': 100.0,
+      'height': 120.0,
+    },
+    {
+      'borrower': 'May',
+      'id': '0002',
+      'name': 'iPad',
+      'image': 'assets/images/ipad.png',
+      'borrowDate': '21/8/2568',
+      'returnDate': '21/8/2568',
+      'approve': 'Lender01',
+      'receive': 'Staff01',
+      'width': 80.0,
+      'height': 80.0,
+    },
+    {
+      'borrower': 'Tigar',
+      'id': '0003',
+      'name': 'Board game',
+      'image': 'assets/images/boardgame.png',
+      'borrowDate': '25/2/2568',
+      'returnDate': '25/2/2568',
+      'approve': 'Lender01',
+      'receive': 'Staff01',
+      'width': 90.0,
+      'height': 100.0,
+    },
+    {
+      'borrower': 'Jane',
+      'id': '0004',
+      'name': 'Power bank',
+      'image': 'assets/images/powerbank.png',
+      'borrowDate': '22/1/2568',
+      'returnDate': '22/1/2568',
+      'approve': 'Lender01',
+      'receive': 'Staff01',
+      'width': 60.0,
+      'height': 90.0,
+    },
+  ];
+
+  return Container(
     color: const Color(0xFF8B5B46),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    child: Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        children: [
-          Column(
-            children: [
-              _buildSearchBar(),
-              SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(20.0),
+    child: Column(
+      children: [
+        const SizedBox(height: 10),
+        _buildSearchBar(),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            itemCount: historyItems.length,
+            itemBuilder: (context, index) {
+              final item = historyItems[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                border: Border.all(
-                  color: Color(0xFFF6C68E),
-                  width: 5.0,
-                  
+                  border: Border.all(color: const Color(0xFFF6C68E), width: 4),
+                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFF8B5B46),
                 ),
-                borderRadius: BorderRadius.circular(30)
-              ),
                 child: Column(
-                  
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 🔸 Borrower ด้านบน
+                    // 🔸 Borrower
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: Color(0xFFFEC785),
+                        color: const Color(0xFFFEC785),
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          'Borrower: Tigar',
-                          style: TextStyle(
+                          'Borrower: ${item['borrower']}',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF5D3A1A),
@@ -190,88 +241,78 @@ Widget _history() {
                       ),
                     ),
                     const SizedBox(height: 10),
-                          
-                    // 🔸 ID + Name
+
+                    // 🔸 ID & Name
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('ID: 0003', style: TextStyle(color: Colors.white)),
+                      children: [
                         Text(
-                          'Name: Board game',
-                          style: TextStyle(color: Colors.white),
+                          'ID: ${item['id']}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          'Name: ${item['name']}',
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
                     const SizedBox(height: 15),
-                          
-                    // 🔸 กล่องข้อมูลยืมคืน
-                    Container(
-                      margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF8B5B46),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // รูปภาพ
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF8B5B46),
-                              borderRadius: BorderRadius.circular(10),
-                              image: const DecorationImage(
-                                image: AssetImage(
-                                  'assets/images/boardgame.png',
-                                ),
-                                fit: BoxFit.cover,
-                              ),
+
+                    // 🔸 รูปภาพ + วันที่
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: item['width'] as double,
+                          height: item['height'] as double,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: DecorationImage(
+                              image: AssetImage(item['image']!),
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          const SizedBox(width: 20),
-                          
-                          // วันที่ยืม - คืน
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Borrow',
-                                    style: TextStyle(
-                                      color: Color(0xFFFEC785),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                        ),
+                        const SizedBox(width: 15),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Borrow',
+                                  style: TextStyle(
+                                    color: Color(0xFFFEC785),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  const SizedBox(width: 15),
-                                  _buildDateTag('25/1/2568'),
-                                ],
-                              ),
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Return',
-                                    style: TextStyle(
-                                      color: Color(0xFFFEC785),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                ),
+                                const SizedBox(width: 10),
+                                _buildDateTag(item['borrowDate']!),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text(
+                                  'Return',
+                                  style: TextStyle(
+                                    color: Color(0xFFFEC785),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  const SizedBox(width: 15),
-                                  _buildDateTag('25/1/2568'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                                ),
+                                const SizedBox(width: 10),
+                                _buildDateTag(item['returnDate']!),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                          
-                    // 🔸 Approve / Received
+                    const SizedBox(height: 15),
+
+                    // 🔸 Approve / Receive
                     // Container(
                     //   width: double.infinity,
                     //   padding: const EdgeInsets.all(10),
@@ -279,16 +320,16 @@ Widget _history() {
                     //     color: const Color(0xFFEDE6E1),
                     //     borderRadius: BorderRadius.circular(25),
                     //   ),
-                    //   child: const Text(
-                    //     'Approve by: Lender001',
+                    //   child: Text(
+                    //     'Approve by: ${item['approve']}',
                     //     textAlign: TextAlign.center,
-                    //     style: TextStyle(
-                    //       fontSize: 20,
+                    //     style: const TextStyle(
+                    //       fontSize: 18,
                     //       color: Color(0xFF8B5B46),
                     //     ),
                     //   ),
                     // ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(10),
@@ -296,25 +337,27 @@ Widget _history() {
                         color: const Color(0xFFEDE6E1),
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      child: const Text(
-                        'Received asset by: Staff001',
+                      child: Text(
+                        'Received asset by: ${item['receive']}',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20,
+                        style: const TextStyle(
+                          fontSize: 18,
                           color: Color(0xFF8B5B46),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }
+
+// ------------------------------------------------------------------------------------------------------------------------
 
 Widget _buildDateTag(String date) {
   return Container(
