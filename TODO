@@ -1,5 +1,5 @@
 //if main update type in terminal --> git pull origin main
-//font
+//font Chewy
 mobile project
 Asset borrowing system
 
@@ -29,11 +29,43 @@ First week
     -Managing assets page(staff only)
      -Staff (add, edit, disable assets, get returning assets and available its)
 
-   -Dashboard page
-    -show how many borrow assets, available assets, and disabled assets today
-
    -Approve all page
-   
 - design a database(if have time)
+- create git hub and invite every member(if have time)
 - link log in/register page to database and do log out function(if have time)
+
+Week 2
+Link UI
+
+*Fix: history make multiple
+
+-Identify page
+ -keep role and link to login
+
+-Login page
+ -put username and password then link to bottombar of that role
+
+-Sign up page
+ -put fullname username and password then link to login page
+
+-logout page
+ -Link to identify page
+
+-home page
+ -Link + button to request page
+	
+Week 3
+Borrower function
+
+-Can request and check status
+
+-Search bar
+
+-History page(real link to database)
+
+-Browse asset page(real link to database)
+
+-dashboard(real link to database)
+
+-Session
 
