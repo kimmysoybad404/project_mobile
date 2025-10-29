@@ -68,7 +68,8 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => BottomBar(role: Role, name: Name),
+            builder: (context) =>
+                BottomBar(role: Role, name: Name, newItem: null),
           ),
         );
       } else {

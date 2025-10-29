@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'request_item.dart';
 
 class RequestPage extends StatefulWidget {
-  const RequestPage({super.key});
+  final RequestItem? newItem;
+
+  const RequestPage({super.key, this.newItem});
 
   @override
   State<RequestPage> createState() => _RequestPageState();
@@ -10,47 +13,61 @@ class RequestPage extends StatefulWidget {
 
 class _RequestPageState extends State<RequestPage> {
   int _selectedTabIndex = 0;
-  Color DarkBrown = const Color(0xFF8B5B46);
-  Color LightBrown = const Color(0xFFFEC785);
+  final Color DarkBrown = const Color(0xFF8B5B46);
+  final Color LightBrown = const Color(0xFFFEC785);
 
+  final DateTime _borrowDate = DateTime.now();
+  final DateTime _returnDate = DateTime.now().add(const Duration(days: 3));
 
-  DateTime _borrowDate = DateTime.now();
-  DateTime _returnDate = DateTime.now();
+  List<RequestItem> requestItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.newItem != null) {
+      final newItem = RequestItem(
+        id: widget.newItem!.id,
+        name: widget.newItem!.name,
+        image: widget.newItem!.image,
+        borrowDate: DateTime.now(),
+        returnDate: DateTime.now().add(const Duration(days: 3)),
+        status: 'Pending',
+      );
+      requestItems.add(newItem);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        height: 585,
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 380),
-              child: Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: DarkBrown,
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTabs(),
-                    const SizedBox(height: 12),
-                    const Text(
-                      "*You can only request once a day.",
-                      style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
-                    ),
-                    const SizedBox(height: 12),
-                    IndexedStack(
-                      index: _selectedTabIndex,
-                      children: [_buildRequestInfoCard(), _buildStatusCard()],
-                    ),
-                  ],
-                ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 380),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: DarkBrown,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTabs(),
+                  const SizedBox(height: 12),
+                  const Text("*You can only request once a day.",
+                      style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13)),
+                  const SizedBox(height: 12),
+                  IndexedStack(
+                    index: _selectedTabIndex,
+                    children: [
+                      _buildAllRequestCards(),
+                      _buildStatusCard(),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -62,10 +79,8 @@ class _RequestPageState extends State<RequestPage> {
   Widget _buildTabs() {
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-      ),
+      decoration:
+          BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
       child: Row(
         children: [
           _buildTabItem("Request info", 0),
@@ -79,11 +94,7 @@ class _RequestPageState extends State<RequestPage> {
     bool isActive = _selectedTabIndex == index;
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedTabIndex = index;
-          });
-        },
+        onTap: () => setState(() => _selectedTabIndex = index),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
@@ -103,108 +114,188 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
-  Widget _buildRequestInfoCard() {
+  /// 🔹 แสดงสินค้าทั้งหมดในแท็บ Request info
+  Widget _buildAllRequestCards() {
+    if (requestItems.isEmpty) {
+      return const Center(
+        child: Text("No item selected", style: TextStyle(color: Colors.white)),
+      );
+    }
+
+    return Column(
+      children: requestItems.map((item) => _buildRequestInfoCard(item)).toList(),
+    );
+  }
+
+  Widget _buildRequestInfoCard(RequestItem item) {
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: LightBrown,
-        borderRadius: BorderRadius.circular(24),
-      ),
+      decoration: BoxDecoration(color: LightBrown, borderRadius: BorderRadius.circular(24)),
       child: Column(
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDeviceImage(),
+              _buildDeviceImage(item),
               const SizedBox(width: 16),
-              _buildDeviceInfo(),
+              _buildDeviceInfo(item),
             ],
           ),
           const SizedBox(height: 16),
-          _buildDateField("Borrow", _borrowDate, true),
+          _buildDateField("Borrow", _borrowDate),
           const SizedBox(height: 12),
-          _buildDateField("Return", _returnDate, false),
+          _buildDateField("Return", _returnDate),
           const SizedBox(height: 20),
-          _buildRequestButton(),
+          _buildRequestButton(item),
         ],
       ),
     );
   }
 
-  Widget _buildStatusCard() {
+  Widget _buildDeviceImage(RequestItem item) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: DarkBrown, borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration:
+            BoxDecoration(color: const Color(0xFFFADDB9), borderRadius: BorderRadius.circular(12)),
+        child: SizedBox(width: 100, height: 100, child: Image.asset(item.image)),
+      ),
+    );
+  }
+
+  Widget _buildDeviceInfo(RequestItem item) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(item.name,
+              style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w600)),
+          Text("ID:${item.id}", style: const TextStyle(color: Colors.white70, fontSize: 14)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration:
+                BoxDecoration(color: const Color(0xFFE2F0D9), borderRadius: BorderRadius.circular(20)),
+            child: Text("Status: ${item.status}",
+                style: const TextStyle(color: Color(0xFF5A8E41), fontWeight: FontWeight.bold, fontSize: 12)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateField(String label, DateTime date) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildStatusItem(),
+        Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(color: const Color(0xFFFCE9D3), borderRadius: BorderRadius.circular(30)),
+          child: Row(
+            children: [
+              SizedBox(width: 48, height: 48, child: Icon(Icons.calendar_today_rounded, color: DarkBrown)),
+              Expanded(
+                  child: Text(DateFormat('d/M/yyyy').format(date),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF4A3831)))),
+              const SizedBox(width: 48),
+            ],
+          ),
+        )
       ],
     );
   }
 
-  Widget _buildStatusItem() {
+  Widget _buildRequestButton(RequestItem item) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: DarkBrown,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        ),
+        onPressed: () {
+          setState(() {
+            final newItem = RequestItem(
+              id: item.id,
+              name: item.name,
+              image: item.image,
+              borrowDate: _borrowDate,
+              returnDate: _returnDate,
+              status: 'Pending',
+            );
+            requestItems.add(newItem);
+            _selectedTabIndex = 1;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("${item.name} added to Request List ✅")),
+          );
+        },
+        child: Text("Request now",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: LightBrown)),
+      ),
+    );
+  }
+
+  Widget _buildStatusCard() {
+    if (requestItems.isEmpty) {
+      return const Center(
+        child: Text("No items requested yet", style: TextStyle(color: Colors.white)),
+      );
+    }
+
+    return Column(
+      children: requestItems.map((item) => _buildStatusItemCard(item)).toList(),
+    );
+  }
+
+  Widget _buildStatusItemCard(RequestItem item) {
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: LightBrown,
-          width: 5,
-        ),
+        border: Border.all(color: LightBrown, width: 5),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                "ID: 00001",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                "Name: Notebook",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            children: [
+              Text("ID: ${item.id}",
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Text("Name: ${item.name}",
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             children: [
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: Container(
-                    width: 100,
-                    height: 100,
-                    child: Image.asset("assets/images/notebook.png")),
-              ),
+              SizedBox(width: 100, height: 100, child: Image.asset(item.image)),
               Expanded(
                 child: Column(
                   children: [
-                    _buildStatusDateRow("Borrow", "25/1/2568"),
+                    _buildStatusDateRow("Borrow", DateFormat('d/M/yyyy').format(item.borrowDate)),
                     const SizedBox(height: 12),
-                    _buildStatusDateRow("Return", "25/1/2568"),
+                    _buildStatusDateRow("Return", DateFormat('d/M/yyyy').format(item.returnDate)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: const [
-              Text(
-                "Waiting for approve",
+          const Align(
+            alignment: Alignment.centerRight,
+            child: Text("Waiting for approve",
                 style: TextStyle(
-                  color: Color(0xFFF9E076),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
+                    color: Color(0xFFF9E076),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16)),
           ),
         ],
       ),
@@ -214,171 +305,27 @@ class _RequestPageState extends State<RequestPage> {
   Widget _buildStatusDateRow(String label, String date) {
     return Row(
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 14),
-        ),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
         const SizedBox(width: 8),
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: LightBrown,
-              borderRadius: BorderRadius.circular(20),
-            ),
+            decoration: BoxDecoration(color: LightBrown, borderRadius: BorderRadius.circular(20)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: Color(0xFF4A3831),
-                ),
+                const Icon(Icons.calendar_today, size: 16, color: Color(0xFF4A3831)),
                 const SizedBox(width: 8),
-                Text(
-                  date,
-                  style: const TextStyle(
-                    color: Color(0xFF4A3831),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
+                Text(date,
+                    style: const TextStyle(
+                        color: Color(0xFF4A3831),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12)),
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDeviceImage() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: DarkBrown,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFADDB9),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: Image.asset("assets/images/notebook.png"),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDeviceInfo() {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Notebook",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const Text(
-            "ID:00001",
-            style: TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE2F0D9),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              "Status: Available",
-              style: TextStyle(
-                color: Color(0xFF5A8E41),
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateField(String label, DateTime date, bool isBorrowDate) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFCE9D3),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            children: [
-              // --- CHANGED: Replaced IconButton with a clickable Icon ---
-              SizedBox(
-                width: 48, // Provides a balanced tap area
-                height: 48,
-                child: Icon(Icons.calendar_today_rounded, color: DarkBrown)
-              ),
-              Expanded(
-                child: Text(
-                  DateFormat('d/M/yyyy').format(date),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4A3831),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 48), // To balance the clickable Icon
-            ],
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildRequestButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: DarkBrown,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-        ),
-        onPressed: () {
-          // Handle request logic here
-        },
-        child: Text(
-          "Request now",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: LightBrown,
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ManageAssetsPage2 extends StatefulWidget {
-  const ManageAssetsPage2({Key? key}) : super(key: key);
+  const ManageAssetsPage2({super.key});
 
   @override
   State<ManageAssetsPage2> createState() => _ManageAssetsPage2State();
