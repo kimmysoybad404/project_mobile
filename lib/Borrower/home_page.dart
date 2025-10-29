@@ -256,18 +256,18 @@ Widget _history() {
           children: [
             _buildSearchBar(),
             const SizedBox(height: 10),
-
-            // ✅ ฟังก์ชันย่อย: ช่อง Approve/Received (ใช้ซ้ำได้)
             const SizedBox.shrink(),
             const SizedBox(height: 0),
 
-            // ✅ สินค้าชิ้นที่ 1 : Ipad
+            // ✅ สินค้าชิ้นที่ 1 : Ipad (กำหนดขนาดเอง)
             _buildHistoryCard(
               id: '00002',
               name: 'Ipad',
               image: 'assets/images/ipad.png',
               borrowDate: '10/10/2568',
               returnDate: '10/10/2568',
+              width: 100,
+              height: 100,
             ),
 
             const SizedBox(height: 20),
@@ -279,6 +279,8 @@ Widget _history() {
               image: 'assets/images/boardgame.png',
               borrowDate: '10/8/2568',
               returnDate: '10/8/2568',
+              width: 100,
+              height: 100,
             ),
 
             const SizedBox(height: 20),
@@ -290,6 +292,8 @@ Widget _history() {
               image: 'assets/images/powerbank.png',
               borrowDate: '20/2/2568',
               returnDate: '20/2/2568',
+              width: 70,
+              height: 100,
             ),
 
             const SizedBox(height: 20),
@@ -301,6 +305,8 @@ Widget _history() {
               image: 'assets/images/notebook.png',
               borrowDate: '25/1/2568',
               returnDate: '25/1/2568',
+              width: 100,
+              height: 100,
             ),
           ],
         ),
@@ -309,13 +315,15 @@ Widget _history() {
   );
 }
 
-/// ✅ ฟังก์ชันสร้างการ์ดสินค้าแบบเดียวกันทั้งหมด
+/// ✅ ฟังก์ชันสร้างการ์ดสินค้าแบบกำหนดขนาดได้
 Widget _buildHistoryCard({
   required String id,
   required String name,
   required String image,
   required String borrowDate,
   required String returnDate,
+  required double width, // 👈 เพิ่มขนาด
+  required double height, // 👈 เพิ่มขนาด
 }) {
   return Container(
     padding: const EdgeInsets.all(20.0),
@@ -334,12 +342,13 @@ Widget _buildHistoryCard({
           ],
         ),
         const SizedBox(height: 10),
+
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 100,
-              height: 100,
+              width: width, // ✅ ใช้ค่าที่กำหนดเอง
+              height: height, // ✅ ใช้ค่าที่กำหนดเอง
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 image: DecorationImage(
@@ -388,7 +397,7 @@ Widget _buildHistoryCard({
 
         const SizedBox(height: 20),
 
-        // ✅ เพิ่มส่วน Approve by / Received asset by
+        // ✅ แถบ Approve / Received
         _buildInfoBar('Approve by: Lender001'),
         const SizedBox(height: 10),
         _buildInfoBar('Received asset by: Staff001'),
@@ -397,7 +406,6 @@ Widget _buildHistoryCard({
   );
 }
 
-/// ✅ ฟังก์ชันส่วนแสดงแถบข้อมูลสีเทาอ่อน
 Widget _buildInfoBar(String text) {
   return Container(
     width: double.infinity,
@@ -418,8 +426,6 @@ Widget _buildInfoBar(String text) {
     ),
   );
 }
-
-
 
 // ---------------------------------------------
 // ส่วน UI ย่อยเดิม (searchbar / date)
