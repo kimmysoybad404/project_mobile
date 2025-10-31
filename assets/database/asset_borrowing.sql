@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 31, 2025 at 09:44 AM
+-- Generation Time: Oct 31, 2025 at 10:22 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,8 +35,17 @@ CREATE TABLE `history` (
   `ReturnDate` date NOT NULL,
   `BorrowBy` smallint(5) UNSIGNED NOT NULL,
   `ApproveBy` smallint(5) UNSIGNED NOT NULL,
-  `ReceiveBy` smallint(5) UNSIGNED DEFAULT NULL
+  `ReceiveBy` smallint(5) UNSIGNED DEFAULT NULL,
+  `RejectBy` smallint(5) UNSIGNED DEFAULT NULL,
+  `RejectReason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `history`
+--
+
+INSERT INTO `history` (`ID`, `AssetID`, `AssetName`, `BorrowDate`, `ReturnDate`, `BorrowBy`, `ApproveBy`, `ReceiveBy`, `RejectBy`, `RejectReason`) VALUES
+(2, 1, 'Notebook', '2025-10-18', '2025-10-19', 4, 5, 6, NULL, NULL);
 
 --
 -- Triggers `history`
@@ -59,8 +68,16 @@ DELIMITER ;
 CREATE TABLE `storage` (
   `ID` smallint(5) UNSIGNED NOT NULL,
   `Name` varchar(20) NOT NULL,
+  `imageName` varchar(255) NOT NULL,
   `Status` enum('Available','Borrowed','Pending','Disabled') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `storage`
+--
+
+INSERT INTO `storage` (`ID`, `Name`, `imageName`, `Status`) VALUES
+(1, 'Notebook', 'notebook.png', 'Available');
 
 -- --------------------------------------------------------
 
@@ -81,9 +98,9 @@ CREATE TABLE `userdata` (
 --
 
 INSERT INTO `userdata` (`UserID`, `Role`, `Name`, `Username`, `Password`) VALUES
-(14, '1', 'BR', 'BRNAJA', '$argon2id$v=19$m=65536,t=3,p=1$UUoLJhH+BicYtK7/AkIzCQ$Y5S315VYUviOd8xslJkMWgA/yH8SvOVAnVaQsGLcIzg'),
-(15, '2', 'LD', 'LDNAJA', '$argon2id$v=19$m=65536,t=3,p=1$JLxFZLQ69ds2wNgaigjdbw$FyJLm3WGq2eOXUyliG6AgVZz2/OP61VvVt/Ti96qa1Q'),
-(16, '3', 'ST', 'STNAJA', '$argon2id$v=19$m=65536,t=3,p=1$lPR0r2r6CE9KdjBnW7t/Ng$8KFnHPVROFLQE2OUo0ZT1Dzisv425wfM3KnsmiC78TI');
+(4, '1', 'Borrower', 'BR', '$argon2id$v=19$m=65536,t=3,p=1$UUoLJhH+BicYtK7/AkIzCQ$Y5S315VYUviOd8xslJkMWgA/yH8SvOVAnVaQsGLcIzg'),
+(5, '2', 'Lender', 'LD', '$argon2id$v=19$m=65536,t=3,p=1$UUoLJhH+BicYtK7/AkIzCQ$Y5S315VYUviOd8xslJkMWgA/yH8SvOVAnVaQsGLcIzg'),
+(6, '3', 'Staff', 'ST', '$argon2id$v=19$m=65536,t=3,p=1$UUoLJhH+BicYtK7/AkIzCQ$Y5S315VYUviOd8xslJkMWgA/yH8SvOVAnVaQsGLcIzg');
 
 --
 -- Indexes for dumped tables
@@ -131,7 +148,7 @@ ALTER TABLE `storage`
 -- AUTO_INCREMENT for table `userdata`
 --
 ALTER TABLE `userdata`
-  MODIFY `UserID` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `UserID` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
