@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:project_mobile/RegisterPage.dart';
 import 'package:project_mobile/BottomBar.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   final int selectRole;
@@ -61,15 +62,22 @@ class _LoginPageState extends State<LoginPage> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        Role = int.parse(data['user']['role'].toString());
-        Name = data['user']['name'].toString();
+        final user = data['user'];
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString('username', user['name']);
+        await prefs.setInt('role', user['role']);
+        await prefs.setString('userid', user['id'].toString());
 
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                BottomBar(role: Role, name: Name, newItem: null),
+            builder: (context) => BottomBar(
+              role: user['role'],
+              username: user['name'],
+              userid: user["id"],
+              newItem: null,
+            ),
           ),
         );
       } else {
@@ -77,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       _showErrorDialog("🚫 Server not responding");
+      print(e);
     }
   }
 
