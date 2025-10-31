@@ -9,11 +9,18 @@ import 'package:project_mobile/Lender/request_page.dart' as requestlender;
 import 'package:project_mobile/Staff/home_page.dart' as homepageStaff;
 import 'package:project_mobile/Staff/manage_assets_page2.dart';
 import 'package:project_mobile/identify_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+//////////////////////////////////////////////////////////////
+
+// AppBar Section
+
+//////////////////////////////////////////////////////////////
 class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   final int role;
-  final String name;
-  const AppBarNaja({super.key, required this.role, required this.name});
+  final String username;
+
+  const AppBarNaja({super.key, required this.role, required this.username});
 
   @override
   Size get preferredSize => const Size.fromHeight(100);
@@ -68,8 +75,8 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
-                        style: TextStyle(
+                        username,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF3E2C23),
@@ -93,7 +100,10 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
                       color: Colors.redAccent,
                     ),
                     child: IconButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.clear(); // ✅ ลบข้อมูลตอน Logout
+
                         showDialog(
                           context: context,
                           builder: (context) => Dialog(
@@ -220,14 +230,22 @@ class AppBarNaja extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
+//////////////////////////////////////////////////////////////
+
+// Bottom Bar Section
+
+//////////////////////////////////////////////////////////////
 class BottomBar extends StatefulWidget {
   final int role;
-  final String name;
+  final String username;
   final RequestItem? newItem;
+  final int? userid;
+
   const BottomBar({
     super.key,
     required this.role,
-    required this.name,
+    required this.username,
+    this.userid,
     this.newItem,
   });
 
@@ -241,9 +259,14 @@ class _BottomBarState extends State<BottomBar> {
     index: 0,
   );
 
+  RequestItem? _initialNewItem;
+  String? savedUsername;
+
   @override
   void initState() {
     super.initState();
+    _initialNewItem = widget.newItem;
+    _loadUserData(); // ✅ โหลดชื่อจาก SharedPreferences
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.newItem != null) {
@@ -256,16 +279,25 @@ class _BottomBarState extends State<BottomBar> {
     });
   }
 
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      savedUsername = prefs.getString('username') ?? widget.username;
+    });
+  }
+
   Color LightBrown = const Color(0xFFFEC785);
 
   List<Widget> CheckRole() {
     switch (widget.role) {
       case 1:
-        return [
-          requestborrower.RequestPage(newItem: widget.newItem),
+        final pages = [
+          requestborrower.RequestPage(newItem: _initialNewItem),
           const homepageborrower.HomeBorrower(),
           const DashboardPage(),
         ];
+        _initialNewItem = null;
+        return pages;
       case 2:
         return [
           requestlender.RequestPage(),
@@ -317,7 +349,10 @@ class _BottomBarState extends State<BottomBar> {
       child: Scaffold(
         backgroundColor: LightBrown,
         extendBody: true,
-        appBar: AppBarNaja(role: widget.role, name: widget.name),
+        appBar: AppBarNaja(
+          role: widget.role,
+          username: savedUsername ?? widget.username, // ✅ ใช้ชื่อที่ดึงได้
+        ),
         body: PageView(
           controller: _pageController,
           children: pages,

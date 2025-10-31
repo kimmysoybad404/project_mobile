@@ -13,7 +13,6 @@ class HomeBorrower extends StatefulWidget {
 class _HomeBorrowerState extends State<HomeBorrower> {
   int _selectedTabIndex = 0;
 
-  // ✅ เก็บรายการสินค้าที่ผู้ใช้กด +
   List<RequestItem> _requestedItems = [];
 
   @override
@@ -233,7 +232,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BottomBar(role: 1, name: name, newItem: newItem),
+        builder: (context) => BottomBar(role: 1, username : name, newItem: newItem),
       ),
     );
 
