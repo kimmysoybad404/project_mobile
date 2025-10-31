@@ -16,7 +16,7 @@ class _RequestPageState extends State<RequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
+      body: SizedBox(
         height: 585,
         child: Center(
           child: SingleChildScrollView(
@@ -178,7 +178,7 @@ Widget _buildStatusItem() {
               SizedBox(
                 width: 100,
                 height: 100,
-                child: Container(
+                child: SizedBox(
                   width: 100,
                   height: 100,
                   child: Image.asset("assets/images/notebook.png"),
