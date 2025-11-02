@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'request_item.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class RequestPage extends StatefulWidget {
   final RequestItem? newItem;
@@ -17,10 +19,53 @@ class _RequestPageState extends State<RequestPage> {
   final Color LightBrown = const Color(0xFFFEC785);
 
   final DateTime _borrowDate = DateTime.now();
-  final DateTime _returnDate = DateTime.now().add(const Duration(days: 3));
+  final DateTime _returnDate = DateTime.now().add(const Duration(days: 1));
 
   RequestItem? _pendingItem;
   List<RequestItem> requestItems = [];
+
+Future<bool> requestItemAndUpdateStatus(
+  String itemId,
+  DateTime borrowDate, 
+  DateTime returnDate,
+  String userId, // The ID of the user who is borrowing
+) async {
+  
+  final url = Uri.parse('http://10.0.2.2:3000/update-storage'); // Your endpoint
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id': itemId, // For the UPDATE
+        'status': 'Pending', // For the UPDATE
+        'assetID': itemId, // For the INSERT
+        'borrowDate': borrowDate.toIso8601String(), // For the INSERT
+        'returnDate': returnDate.toIso8601String(), // For the INSERT
+        'borrowBy': userId, // For the INSERT
+      }),
+    );
+
+      if (response.statusCode == 200) {
+        // Success
+        print('Update successful!');
+        print('Response body: ${response.body}');
+        return true;
+        // You can parse the response.body if your server sends back data
+        // final data = jsonDecode(response.body);
+      } else {
+        // Server error
+        print('Failed to update status. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      // Network or other error
+      print('Error sending request: $e');
+      return false;
+    }
+  }
 
   @override
   void initState() {
@@ -32,7 +77,7 @@ class _RequestPageState extends State<RequestPage> {
         image: widget.newItem!.image,
         borrowDate: _borrowDate,
         returnDate: _returnDate,
-        status: 'Pending',
+        status: 'Available',
       );
     }
   }
@@ -43,7 +88,7 @@ class _RequestPageState extends State<RequestPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Align(
-        alignment: Alignment.topCenter, 
+        alignment: Alignment.topCenter,
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(
             top: 16,
@@ -276,28 +321,51 @@ class _RequestPageState extends State<RequestPage> {
             borderRadius: BorderRadius.circular(24),
           ),
         ),
-        onPressed: () {
-          setState(() {
-            final exists = requestItems.any((i) => i.id == item.id);
-            if (!exists) {
-              requestItems.add(
-                RequestItem(
-                  id: item.id,
-                  name: item.name,
-                  image: item.image,
-                  borrowDate: _borrowDate,
-                  returnDate: _returnDate,
-                  status: 'Pending',
+        onPressed: () async {
+          bool updateSucceeded = false;
+          try {
+            updateSucceeded = await requestItemAndUpdateStatus(item.id, _borrowDate, _returnDate, "4");
+          } catch (e) {
+            updateSucceeded = false;
+          }
+
+          if (updateSucceeded) {
+            setState(() {
+              final exists = requestItems.any((i) => i.id == item.id);
+              if (!exists) {
+                requestItems.add(
+                  RequestItem(
+                    id: item.id,
+                    name: item.name,
+                    image: item.image,
+                    borrowDate: _borrowDate,
+                    returnDate: _returnDate,
+                    status: 'Pending',
+                  ),
+                );
+              }
+
+              _pendingItem = null; // ✅ ลบออกจาก Request info
+              _selectedTabIndex = 1; // ✅ สลับไป Status
+            });
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("${item.name} added to Request List ✅")),
+              );
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Error: Failed to update item. Please try again.",
+                  ),
+                  backgroundColor: Colors.red,
                 ),
               );
             }
-            _pendingItem = null; // ✅ ลบออกจาก Request info
-            _selectedTabIndex = 1; // ✅ สลับไป Status
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("${item.name} added to Request List ✅")),
-          );
+          }
         },
         child: Text(
           "Request now",
