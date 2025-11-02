@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:project_mobile/BottomBar.dart';
 import 'request_page.dart';
-import 'request_item.dart'; // เพิ่ม import model
+import 'request_item.dart';
 
 class HomeBorrower extends StatefulWidget {
   const HomeBorrower({super.key});
@@ -12,9 +14,34 @@ class HomeBorrower extends StatefulWidget {
 
 class _HomeBorrowerState extends State<HomeBorrower> {
   int _selectedTabIndex = 0;
-
-  // ✅ เก็บรายการสินค้าที่ผู้ใช้กด +
   List<RequestItem> _requestedItems = [];
+  List<dynamic> _assets = [];
+  bool _isLoading = true;
+  String _searchQuery = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAssets();
+  }
+
+  Future<void> _fetchAssets() async {
+    try {
+      final url = Uri.parse("http://10.0.2.2:3000/storage");
+      final res = await http.get(url);
+
+      if (res.statusCode == 200) {
+        setState(() {
+          _assets = json.decode(res.body);
+          _isLoading = false;
+        });
+      } else {
+        print("Failed to fetch assets: ${res.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,27 +51,26 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-
-            // --- Tab Buttons ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5B46),
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 padding: const EdgeInsets.all(10),
                 child: Row(children: [Expanded(child: _buildTabs())]),
               ),
             ),
-
             const SizedBox(height: 15),
-
-            // --- Asset Cards Grid ---
             Expanded(
-              child: IndexedStack(
-                index: _selectedTabIndex,
-                children: [_assetlist(), _history()],
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                switchInCurve: Curves.easeInOut,
+                switchOutCurve: Curves.easeInOut,
+                child: _selectedTabIndex == 0
+                    ? (_isLoading ? _loadingUI() : _assetListFromAPI())
+                    : _history(),
               ),
             ),
           ],
@@ -52,6 +78,9 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       ),
     );
   }
+
+  Widget _loadingUI() =>
+      const Center(child: CircularProgressIndicator(color: Color(0xFF8B5B46)));
 
   Widget _buildTabs() {
     return Container(
@@ -73,11 +102,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     bool isActive = _selectedTabIndex == index;
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedTabIndex = index;
-          });
-        },
+        onTap: () => setState(() => _selectedTabIndex = index),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
@@ -97,7 +122,15 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
-  Widget _assetlist() {
+  Widget _assetListFromAPI() {
+    final filteredAssets = _assets
+        .where(
+          (item) =>
+              item['Status'] == 'Available' &&
+              item['Name'].toString().toLowerCase().contains(_searchQuery),
+        )
+        .toList();
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF8B5B46),
@@ -109,104 +142,51 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         children: [
           _buildSearchBar(),
           const SizedBox(height: 10),
+
+          if (filteredAssets.isEmpty)
+            Expanded(
+              child: Center(
+                child: Text(
+                  "No availible items right now",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // ✅ GridView สินค้าหลัก
-                  GridView.count(
+                  GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    children: [
-                      AssetCard(
-                        name: 'Notebook',
-                        id: '00001',
-                        imagePath: 'assets/images/notebook.png',
-                        status: 'Available',
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.85,
+                        ),
+                    itemCount: filteredAssets.length,
+                    itemBuilder: (context, index) {
+                      final asset = filteredAssets[index];
+                      final name = asset['Name'];
+                      final id = asset['ID'].toString();
+                      final imageName = asset['imageName'];
+                      final status = asset['Status'];
+
+                      return AssetCard(
+                        name: name,
+                        id: id,
+                        imagePath: "assets/images/$imageName",
+                        status: status,
                         onAdd: _addItem,
-                      ),
-                      AssetCard(
-                        name: 'Ipad',
-                        id: '00002',
-                        imagePath: 'assets/images/ipad.png',
-                        status: 'Available',
-                        onAdd: _addItem,
-                      ),
-                      AssetCard(
-                        name: 'Board game',
-                        id: '00003',
-                        imagePath: 'assets/images/boardgame.png',
-                        status: 'Available',
-                        onAdd: _addItem,
-                      ),
-                      AssetCard(
-                        name: 'Power bank',
-                        id: '00004',
-                        imagePath: 'assets/images/powerbank.png',
-                        status: 'Available',
-                        onAdd: _addItem,
-                      ),
-                    ],
+                      );
+                    },
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // ✅ แสดงรายการสินค้าที่ถูกกด + (1–3 ช่องหรือมากกว่า)
-                  if (_requestedItems.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Requested Items:",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _requestedItems.length,
-                          itemBuilder: (context, index) {
-                            final item = _requestedItems[index];
-                            return Card(
-                              color: const Color(0xFFF6C68E),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: ListTile(
-                                leading: Image.asset(item.image, width: 60),
-                                title: Text(
-                                  item.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  "Borrow: ${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year}",
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.brown,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _requestedItems.removeAt(index);
-                                    });
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
                 ],
               ),
             ),
@@ -216,7 +196,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
-  void _addItem(String id, String name, String imagePath) async {
+  void _addItem(String id, String name, String imagePath) {
     final newItem = RequestItem(
       id: id,
       name: name,
@@ -233,33 +213,62 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BottomBar(role: 1, username : name, newItem: newItem),
+        builder: (context) =>
+            BottomBar(role: 1, username: name, newItem: newItem),
       ),
     );
 
-    // แสดง Snackbar แจ้งเตือน
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text("$name added to request list ✅")));
   }
-}
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Widget _history() {
-  return Card(
-    color: const Color(0xFF8B5B46),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Icon(Icons.search, color: Colors.grey),
+          ),
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: "search here...",
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _history() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF8B5B46),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.all(15),
       child: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSearchBar(),
-            const SizedBox(height: 10),
-            const SizedBox.shrink(),
-            const SizedBox(height: 0),
-
-            // ✅ สินค้าชิ้นที่ 1 : Ipad (กำหนดขนาดเอง)
+            const SizedBox(height: 20),
             _buildHistoryCard(
               id: '00002',
               name: 'Ipad',
@@ -269,10 +278,7 @@ Widget _history() {
               width: 100,
               height: 100,
             ),
-
             const SizedBox(height: 20),
-
-            // ✅ สินค้าชิ้นที่ 2 : Board game
             _buildHistoryCard(
               id: '00003',
               name: 'Board game',
@@ -282,221 +288,132 @@ Widget _history() {
               width: 100,
               height: 100,
             ),
-
-            const SizedBox(height: 20),
-
-            // ✅ สินค้าชิ้นที่ 3 : Power bank
-            _buildHistoryCard(
-              id: '00004',
-              name: 'Power bank',
-              image: 'assets/images/powerbank.png',
-              borrowDate: '20/2/2568',
-              returnDate: '20/2/2568',
-              width: 70,
-              height: 100,
-            ),
-
-            const SizedBox(height: 20),
-
-            // ✅ สินค้าชิ้นที่ 4 : Notebook
-            _buildHistoryCard(
-              id: '00001',
-              name: 'Notebook',
-              image: 'assets/images/notebook.png',
-              borrowDate: '25/1/2568',
-              returnDate: '25/1/2568',
-              width: 100,
-              height: 100,
-            ),
           ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-/// ✅ ฟังก์ชันสร้างการ์ดสินค้าแบบกำหนดขนาดได้
-Widget _buildHistoryCard({
-  required String id,
-  required String name,
-  required String image,
-  required String borrowDate,
-  required String returnDate,
-  required double width, // 👈 เพิ่มขนาด
-  required double height, // 👈 เพิ่มขนาด
-}) {
-  return Container(
-    padding: const EdgeInsets.all(20.0),
-    decoration: BoxDecoration(
-      border: Border.all(color: const Color(0xFFF6C68E), width: 5.0),
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('ID: $id', style: const TextStyle(color: Colors.white)),
-            Text('Name: $name', style: const TextStyle(color: Colors.white)),
-          ],
-        ),
-        const SizedBox(height: 10),
-
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: width, // ✅ ใช้ค่าที่กำหนดเอง
-              height: height, // ✅ ใช้ค่าที่กำหนดเอง
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: AssetImage(image),
-                  fit: BoxFit.cover,
+  Widget _buildHistoryCard({
+    required String id,
+    required String name,
+    required String image,
+    required String borrowDate,
+    required String returnDate,
+    required double width,
+    required double height,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFF6C68E), width: 5.0),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('ID: $id', style: const TextStyle(color: Colors.white)),
+              Text('Name: $name', style: const TextStyle(color: Colors.white)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: AssetImage(image),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      'Borrow',
-                      style: TextStyle(
-                        color: Color(0xFFF6C68E),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    _buildDateTag(borrowDate),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                Row(
-                  children: [
-                    const Text(
-                      'Return',
-                      style: TextStyle(
-                        color: Color(0xFFF6C68E),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    _buildDateTag(returnDate),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+              const SizedBox(width: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDateTag('Borrow', borrowDate),
+                  const SizedBox(height: 10),
+                  _buildDateTag('Return', returnDate),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildInfoBar('Approve by: Lender001'),
+          const SizedBox(height: 10),
+          _buildInfoBar('Received asset by: Staff001'),
+        ],
+      ),
+    );
+  }
 
-        const SizedBox(height: 20),
-
-        // ✅ แถบ Approve / Received
-        _buildInfoBar('Approve by: Lender001'),
-        const SizedBox(height: 10),
-        _buildInfoBar('Received asset by: Staff001'),
-      ],
-    ),
-  );
-}
-
-Widget _buildInfoBar(String text) {
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-    decoration: BoxDecoration(
-      color: const Color(0xFFDCCFCC),
-      borderRadius: BorderRadius.circular(25),
-    ),
-    child: Center(
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF4A3831),
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
+  Widget _buildInfoBar(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFDCCFCC),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFF4A3831),
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-// ---------------------------------------------
-// ส่วน UI ย่อยเดิม (searchbar / date)
-Widget _buildSearchBar() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
+  Widget _buildDateTag(String label, String date) {
+    return Row(
       children: [
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFF6C68E),
-            foregroundColor: const Color(0xFF4A3831),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            elevation: 0,
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFF6C68E),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
           ),
-          child: const Row(
+        ),
+        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFCC80),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
             children: [
-              Icon(Icons.search, size: 18),
-              SizedBox(width: 8),
-              Text("Search", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Icon(Icons.calendar_today, color: Colors.black87, size: 18),
+              const SizedBox(width: 6),
+              Text(
+                date,
+                style: const TextStyle(color: Colors.black87, fontSize: 16),
+              ),
             ],
           ),
         ),
-        const Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "search here...",
-              hintStyle: TextStyle(color: Colors.grey),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16),
-            ),
-          ),
-        ),
       ],
-    ),
-  );
+    );
+  }
 }
 
-Widget _buildDateTag(String date) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    decoration: BoxDecoration(
-      color: const Color(0xFFFFCC80),
-      borderRadius: BorderRadius.circular(25),
-    ),
-    child: Row(
-      children: [
-        const Icon(Icons.calendar_today, color: Colors.black87, size: 20),
-        const SizedBox(width: 8),
-        Text(date, style: const TextStyle(color: Colors.black87, fontSize: 18)),
-      ],
-    ),
-  );
-}
-
-// ---------------------------------------------
-// ✅ AssetCard (กด + แล้วเพิ่มรายการในหน้า)
 class AssetCard extends StatelessWidget {
   final String name;
   final String id;
   final String imagePath;
   final String status;
-  final Function(String, String, String) onAdd; // callback
+  final Function(String, String, String) onAdd;
 
   const AssetCard({
     super.key,
@@ -512,66 +429,171 @@ class AssetCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF2BE83),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(imagePath, height: 90),
-              Transform.translate(
-                offset: const Offset(0, -30),
-                child: GestureDetector(
-                  onTap: () {
-                    print("✅ Add pressed: $name");
-                    onAdd(id, name, imagePath);
-                  },
-                  child: const Icon(Icons.add, size: 26, color: Colors.black),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -20,
+              right: -20,
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          Text(
-            'ID:$id',
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: Colors.white70,
-              borderRadius: BorderRadius.circular(10),
             ),
-            child: RichText(
-              text: TextSpan(
+            Positioned(
+              bottom: -30,
+              left: -30,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextSpan(
-                    text: 'Status: ',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  Stack(
+                    children: [
+                      Center(
+                        child: Container(
+                          height: 100,
+                          alignment: Alignment.center,
+                          child: Image.asset(
+                            imagePath,
+                            height: 95,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () => onAdd(id, name, imagePath),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.add_rounded,
+                              size: 22,
+                              color: Color(0xFFF2BE83),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                       color: Colors.black87,
-                      fontSize: 12,
+                      letterSpacing: 0.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'ID: $id',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                  TextSpan(
-                    text: status,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color.fromARGB(221, 20, 162, 39),
-                      fontSize: 12,
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 255, 244, 231),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: status == "Available"
+                                ? Colors.green[600]
+                                : Colors.red[600],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          status,
+                          style: TextStyle(
+                            color: status == "Available"
+                                ? Colors.green[800]
+                                : Colors.red[800],
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

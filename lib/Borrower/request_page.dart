@@ -159,40 +159,44 @@ class _RequestPageState extends State<RequestPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double bottomPadding = MediaQuery.of(context).padding.bottom + 80;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Align(
-        alignment: Alignment.topCenter,
+      body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
+          padding: EdgeInsets.only(
             top: 16,
             left: 16,
             right: 16,
-            bottom: 32,
+            bottom: bottomPadding,
           ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 380),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: DarkBrown,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTabs(),
-                  const SizedBox(height: 12),
-                  const Text(
-                    "*You can only request once a day.",
-                    style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
-                  ),
-                  const SizedBox(height: 12),
-                  IndexedStack(
-                    index: _selectedTabIndex,
-                    children: [_buildAllRequestCards(), _buildStatusCard()],
-                  ),
-                ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 380),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5B46),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTabs(),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "*You can only request once a day.",
+                      style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _selectedTabIndex == 0
+                          ? _buildAllRequestCards()
+                          : _buildStatusCard(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -483,7 +487,7 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
- Widget _buildStatusItemCard(HistoryItem item) {
+  Widget _buildStatusItemCard(HistoryItem item) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -559,6 +563,7 @@ class _RequestPageState extends State<RequestPage> {
       ),
     );
   }
+
   Widget _buildStatusDateRow(String label, String date) {
     return Row(
       children: [
