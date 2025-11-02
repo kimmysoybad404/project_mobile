@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:project_mobile/Borrower/history_item.dart';
 import 'request_item.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -16,6 +17,9 @@ class RequestPage extends StatefulWidget {
 
 class _RequestPageState extends State<RequestPage> {
   String? _userId;
+  String? _errortxt;
+  String? _statusError;
+  bool _isStatusLoading = false;
   int _selectedTabIndex = 0;
   final Color DarkBrown = const Color(0xFF8B5B46);
   final Color LightBrown = const Color(0xFFFEC785);
@@ -25,12 +29,56 @@ class _RequestPageState extends State<RequestPage> {
 
   RequestItem? _pendingItem;
   List<RequestItem> requestItems = [];
+  List<HistoryItem> _historyItems = [];
+  List<HistoryItem> historyItemFromJson(String str) {
+    final List<dynamic> decodedJson = jsonDecode(str);
+    return decodedJson
+        .map((item) => HistoryItem.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> _fetchStatusRequests(String userId) async {
+    // Set loading state
+    setState(() {
+      _isStatusLoading = true;
+      _statusError = null;
+    });
+
+    final url = Uri.parse('http://10.0.2.2:3000/user-requests/$userId');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Use your existing parser
+        final List<HistoryItem> items = historyItemFromJson(response.body);
+        setState(() {
+          _historyItems = items;
+          _isStatusLoading = false;
+        });
+      } else {
+        setState(() {
+          _statusError = "Server error: ${response.statusCode}";
+          _isStatusLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching status: $e');
+      setState(() {
+        _statusError = "Failed to load data. Check connection.";
+        _isStatusLoading = false;
+      });
+    }
+  }
 
   Future<bool> requestItemAndUpdateStatus(
     String itemId,
     DateTime borrowDate,
     DateTime returnDate,
-    String userId, // The ID of the user who is borrowing
+    String userId,
   ) async {
     final url = Uri.parse(
       'http://10.0.2.2:3000/update-storage',
@@ -61,6 +109,9 @@ class _RequestPageState extends State<RequestPage> {
         // Server error
         print('Failed to update status. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
+        setState(() {
+          _errortxt = response.body;
+        });
         return false;
       }
     } catch (e) {
@@ -89,6 +140,21 @@ class _RequestPageState extends State<RequestPage> {
   Future<void> loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userid') ?? '';
+
+    setState(() {
+      _userId = userId;
+    });
+
+    if (userId.isNotEmpty) {
+      // This will now run every time the page loads
+      _fetchStatusRequests(userId);
+    } else {
+      // Handle case where user is not logged in
+      setState(() {
+        _isStatusLoading = false;
+        _statusError = "User not logged in.";
+      });
+    }
   }
 
   @override
@@ -343,24 +409,17 @@ class _RequestPageState extends State<RequestPage> {
           }
 
           if (updateSucceeded) {
-            setState(() {
-              final exists = requestItems.any((i) => i.id == item.id);
-              if (!exists) {
-                requestItems.add(
-                  RequestItem(
-                    id: item.id,
-                    name: item.name,
-                    image: item.image,
-                    borrowDate: _borrowDate,
-                    returnDate: _returnDate,
-                    status: 'Pending',
-                  ),
-                );
-              }
+            // 🔽 --- REFRESH LOGIC --- 🔽
+            if (_userId != null) {
+              // Refetch the list from the server
+              _fetchStatusRequests(_userId!);
+            }
 
-              _pendingItem = null; // ✅ ลบออกจาก Request info
-              _selectedTabIndex = 1; // ✅ สลับไป Status
+            setState(() {
+              _pendingItem = null; // Clear Request info tab
+              _selectedTabIndex = 1; // Switch to Status tab
             });
+            // 🔼 --- END REFRESH --- 🔼
 
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -371,9 +430,7 @@ class _RequestPageState extends State<RequestPage> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    "Error: Failed to update item. Please try again.",
-                  ),
+                  content: Text(_errortxt ?? "Request failed"), // Use _errortxt
                   backgroundColor: Colors.red,
                 ),
               );
@@ -394,7 +451,22 @@ class _RequestPageState extends State<RequestPage> {
 
   // 🔹 Status Tab
   Widget _buildStatusCard() {
-    if (requestItems.isEmpty) {
+    if (_isStatusLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (_statusError != null) {
+      return Center(
+        child: Text(
+          _statusError!,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      );
+    }
+
+    if (_historyItems.isEmpty) {
       return const Center(
         child: Text(
           "No items requested yet",
@@ -403,12 +475,15 @@ class _RequestPageState extends State<RequestPage> {
       );
     }
 
+    // Data is loaded, display the list using _historyItems
     return Column(
-      children: requestItems.map((item) => _buildStatusItemCard(item)).toList(),
+      children: _historyItems
+          .map((item) => _buildStatusItemCard(item)) // Pass HistoryItem
+          .toList(),
     );
   }
 
-  Widget _buildStatusItemCard(RequestItem item) {
+ Widget _buildStatusItemCard(HistoryItem item) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -429,7 +504,8 @@ class _RequestPageState extends State<RequestPage> {
                 ),
               ),
               Text(
-                "Name: ${item.name}",
+                // ✅ FIX 1: Use item.assetName
+                "Name: ${item.assetName}",
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -440,7 +516,15 @@ class _RequestPageState extends State<RequestPage> {
           const SizedBox(height: 20),
           Row(
             children: [
-              SizedBox(width: 100, height: 100, child: Image.asset(item.image)),
+              SizedBox(
+                width: 100,
+                height: 100,
+                // ✅ FIX 2: Use item.image
+                // This uses the image path from the HistoryItem
+                child: Image.asset(item.image ?? 'assets/placeholder.png'),
+                // Note: If your image path is a URL, use Image.network()
+              ),
+              const SizedBox(width: 8), // Added space
               Expanded(
                 child: Column(
                   children: [
@@ -459,12 +543,13 @@ class _RequestPageState extends State<RequestPage> {
             ],
           ),
           const SizedBox(height: 20),
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
             child: Text(
-              "Waiting for approve",
+              // ✅ FIX 3: Use the dynamic status from your model
+              item.statusString,
               style: TextStyle(
-                color: Color(0xFFF9E076),
+                color: item.statusColor, // and the dynamic color
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -474,7 +559,6 @@ class _RequestPageState extends State<RequestPage> {
       ),
     );
   }
-
   Widget _buildStatusDateRow(String label, String date) {
     return Row(
       children: [
