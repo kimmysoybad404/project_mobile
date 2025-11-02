@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'request_item.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RequestPage extends StatefulWidget {
   final RequestItem? newItem;
@@ -14,6 +15,7 @@ class RequestPage extends StatefulWidget {
 }
 
 class _RequestPageState extends State<RequestPage> {
+  String? _userId;
   int _selectedTabIndex = 0;
   final Color DarkBrown = const Color(0xFF8B5B46);
   final Color LightBrown = const Color(0xFFFEC785);
@@ -24,28 +26,29 @@ class _RequestPageState extends State<RequestPage> {
   RequestItem? _pendingItem;
   List<RequestItem> requestItems = [];
 
-Future<bool> requestItemAndUpdateStatus(
-  String itemId,
-  DateTime borrowDate, 
-  DateTime returnDate,
-  String userId, // The ID of the user who is borrowing
-) async {
-  
-  final url = Uri.parse('http://10.0.2.2:3000/update-storage'); // Your endpoint
+  Future<bool> requestItemAndUpdateStatus(
+    String itemId,
+    DateTime borrowDate,
+    DateTime returnDate,
+    String userId, // The ID of the user who is borrowing
+  ) async {
+    final url = Uri.parse(
+      'http://10.0.2.2:3000/update-storage',
+    ); // Your endpoint
 
-  try {
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'id': itemId, // For the UPDATE
-        'status': 'Pending', // For the UPDATE
-        'assetID': itemId, // For the INSERT
-        'borrowDate': borrowDate.toIso8601String(), // For the INSERT
-        'returnDate': returnDate.toIso8601String(), // For the INSERT
-        'borrowBy': userId, // For the INSERT
-      }),
-    );
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id': itemId, // For the UPDATE
+          'status': 'Pending', // For the UPDATE
+          'assetID': itemId, // For the INSERT
+          'borrowDate': borrowDate.toIso8601String(), // For the INSERT
+          'returnDate': returnDate.toIso8601String(), // For the INSERT
+          'borrowBy': userId, // For the INSERT
+        }),
+      );
 
       if (response.statusCode == 200) {
         // Success
@@ -70,6 +73,7 @@ Future<bool> requestItemAndUpdateStatus(
   @override
   void initState() {
     super.initState();
+    loadUserData();
     if (widget.newItem != null) {
       _pendingItem = RequestItem(
         id: widget.newItem!.id,
@@ -82,7 +86,11 @@ Future<bool> requestItemAndUpdateStatus(
     }
   }
 
-  @override
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userid') ?? '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -324,7 +332,12 @@ Future<bool> requestItemAndUpdateStatus(
         onPressed: () async {
           bool updateSucceeded = false;
           try {
-            updateSucceeded = await requestItemAndUpdateStatus(item.id, _borrowDate, _returnDate, "4");
+            updateSucceeded = await requestItemAndUpdateStatus(
+              item.id,
+              _borrowDate,
+              _returnDate,
+              _userId ?? "",
+            );
           } catch (e) {
             updateSucceeded = false;
           }
