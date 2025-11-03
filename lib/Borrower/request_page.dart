@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:project_mobile/Borrower/history_item.dart';
 import 'request_item.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RequestPage extends StatefulWidget {
   final RequestItem? newItem;
@@ -12,38 +16,141 @@ class RequestPage extends StatefulWidget {
 }
 
 class _RequestPageState extends State<RequestPage> {
+  String? _userId;
+  String? _errortxt;
+  String? _statusError;
+  bool _isStatusLoading = false;
   int _selectedTabIndex = 0;
   final Color DarkBrown = const Color(0xFF8B5B46);
   final Color LightBrown = const Color(0xFFFEC785);
 
   final DateTime _borrowDate = DateTime.now();
-  final DateTime _returnDate = DateTime.now().add(const Duration(days: 3));
+  final DateTime _returnDate = DateTime.now().add(const Duration(days: 1));
 
   List<RequestItem> requestItems = [];
+  List<HistoryItem> _historyItems = [];
+  List<HistoryItem> historyItemFromJson(String str) {
+    final List<dynamic> decodedJson = jsonDecode(str);
+    return decodedJson
+        .map((item) => HistoryItem.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> _fetchStatusRequests(String userId) async {
+    // Set loading state
+    setState(() {
+      _isStatusLoading = true;
+      _statusError = null;
+    });
+
+    final url = Uri.parse('http://10.0.2.2:3000/user-requests/$userId');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Use your existing parser
+        final List<HistoryItem> items = historyItemFromJson(response.body);
+        setState(() {
+          _historyItems = items;
+          _isStatusLoading = false;
+        });
+      } else {
+        setState(() {
+          _statusError = "Server error: ${response.statusCode}";
+          _isStatusLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching status: $e');
+      setState(() {
+        _statusError = "Failed to load data. Check connection.";
+        _isStatusLoading = false;
+      });
+    }
+  }
+
+  Future<bool> requestItemAndUpdateStatus(
+    String itemId,
+    DateTime borrowDate,
+    DateTime returnDate,
+    String userId,
+  ) async {
+    final url = Uri.parse(
+      'http://10.0.2.2:3000/update-storage',
+    ); // Your endpoint
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id': itemId, // For the UPDATE
+          'status': 'Pending', // For the UPDATE
+          'assetID': itemId, // For the INSERT
+          'borrowDate': borrowDate.toIso8601String(), // For the INSERT
+          'returnDate': returnDate.toIso8601String(), // For the INSERT
+          'borrowBy': userId, // For the INSERT
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Success
+        print('Update successful!');
+        print('Response body: ${response.body}');
+        return true;
+        // You can parse the response.body if your server sends back data
+        // final data = jsonDecode(response.body);
+      } else {
+        // Server error
+        print('Failed to update status. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        setState(() {
+          _errortxt = response.body;
+        });
+        return false;
+      }
+    } catch (e) {
+      // Network or other error
+      print('Error sending request: $e');
+      return false;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    loadUserData();
     if (widget.newItem != null) {
       final newItem = RequestItem(
         id: widget.newItem!.id,
         name: widget.newItem!.name,
         image: widget.newItem!.image,
-        borrowDate: DateTime.now(),
-        returnDate: DateTime.now().add(const Duration(days: 3)),
+        borrowDate: _borrowDate,
+        returnDate: _returnDate,
         status: 'Pending',
       );
-      requestItems.add(newItem);
     }
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final double bottomPadding = MediaQuery.of(context).padding.bottom + 80;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter, 
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: 32,
+          ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 380),
             child: Container(
@@ -57,15 +164,14 @@ class _RequestPageState extends State<RequestPage> {
                 children: [
                   _buildTabs(),
                   const SizedBox(height: 12),
-                  const Text("*You can only request once a day.",
-                      style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13)),
+                  const Text(
+                    "*You can only request once a day.",
+                    style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
+                  ),
                   const SizedBox(height: 12),
                   IndexedStack(
                     index: _selectedTabIndex,
-                    children: [
-                      _buildAllRequestCards(),
-                      _buildStatusCard(),
-                    ],
+                    children: [_buildAllRequestCards(), _buildStatusCard()],
                   ),
                 ],
               ),
@@ -221,17 +327,23 @@ class _RequestPageState extends State<RequestPage> {
         ),
         onPressed: () {
           setState(() {
-            final newItem = RequestItem(
-              id: item.id,
-              name: item.name,
-              image: item.image,
-              borrowDate: _borrowDate,
-              returnDate: _returnDate,
-              status: 'Pending',
-            );
-            requestItems.add(newItem);
-            _selectedTabIndex = 1;
+            final exists = requestItems.any((i) => i.id == item.id);
+            if (!exists) {
+              requestItems.add(
+                RequestItem(
+                  id: item.id,
+                  name: item.name,
+                  image: item.image,
+                  borrowDate: _borrowDate,
+                  returnDate: _returnDate,
+                  status: 'Pending',
+                ),
+              );
+            }
+            _pendingItem = null; // ✅ ลบออกจาก Request info
+            _selectedTabIndex = 1; // ✅ สลับไป Status
           });
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("${item.name} added to Request List ✅")),
           );
@@ -243,18 +355,36 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Widget _buildStatusCard() {
-    if (requestItems.isEmpty) {
+    if (_isStatusLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (_statusError != null) {
+      return Center(
+        child: Text(
+          _statusError!,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      );
+    }
+
+    if (_historyItems.isEmpty) {
       return const Center(
         child: Text("No items requested yet", style: TextStyle(color: Colors.white)),
       );
     }
 
+    // Data is loaded, display the list using _historyItems
     return Column(
-      children: requestItems.map((item) => _buildStatusItemCard(item)).toList(),
+      children: _historyItems
+          .map((item) => _buildStatusItemCard(item)) // Pass HistoryItem
+          .toList(),
     );
   }
 
-  Widget _buildStatusItemCard(RequestItem item) {
+  Widget _buildStatusItemCard(HistoryItem item) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -267,16 +397,34 @@ class _RequestPageState extends State<RequestPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("ID: ${item.id}",
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              Text("Name: ${item.name}",
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Text(
+                "ID: ${item.id}",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "Name: ${item.name}",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             children: [
-              SizedBox(width: 100, height: 100, child: Image.asset(item.image)),
+              SizedBox(
+                width: 100,
+                height: 100,
+                // ✅ FIX 2: Use item.image
+                // This uses the image path from the HistoryItem
+                child: Image.asset(item.image ?? 'assets/placeholder.png'),
+                // Note: If your image path is a URL, use Image.network()
+              ),
+              const SizedBox(width: 8), // Added space
               Expanded(
                 child: Column(
                   children: [
@@ -289,13 +437,16 @@ class _RequestPageState extends State<RequestPage> {
             ],
           ),
           const SizedBox(height: 20),
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
-            child: Text("Waiting for approve",
-                style: TextStyle(
-                    color: Color(0xFFF9E076),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16)),
+            child: Text(
+              "Waiting for approve",
+              style: TextStyle(
+                color: Color(0xFFF9E076),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ),
         ],
       ),
