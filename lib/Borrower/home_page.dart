@@ -25,23 +25,24 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     _fetchAssets();
   }
 
-  Future<void> _fetchAssets() async {
-    try {
-      final url = Uri.parse("http://10.0.2.2:3000/storage");
-      final res = await http.get(url);
+  Future<void> _fetchAssets([String query = ""]) async {
+  try {
+    final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
+    final res = await http.get(url);
 
-      if (res.statusCode == 200) {
-        setState(() {
-          _assets = json.decode(res.body);
-          _isLoading = false;
-        });
-      } else {
-        print("Failed to fetch assets: ${res.statusCode}");
-      }
-    } catch (e) {
-      print("Error: $e");
+    if (res.statusCode == 200) {
+      setState(() {
+        _assets = json.decode(res.body);
+        _isLoading = false;
+      });
+    } else {
+      print("Failed to fetch assets: ${res.statusCode}");
     }
+  } catch (e) {
+    print("Error: $e");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -224,36 +225,38 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(Icons.search, color: Colors.grey),
-          ),
-          Expanded(
-            child: TextField(
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                hintText: "search here...",
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                });
-              },
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 4),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: Icon(Icons.search, color: Colors.grey),
+        ),
+        Expanded(
+          child: TextField(
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: "search here...",
+              hintStyle: TextStyle(color: Colors.grey),
             ),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.toLowerCase();
+              });
+              _fetchAssets(_searchQuery); // 🔥 เรียก API พร้อมคำค้นหา
+            },
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _history() {
     return Container(
