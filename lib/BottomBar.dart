@@ -317,7 +317,7 @@ class _BottomBarState extends State<BottomBar> {
       child: Scaffold(
         backgroundColor: LightBrown,
         extendBody: true,
-        appBar: AppBarNaja(role: widget.role, name: widget.name),
+        appBar: AppBarNaja(role: widget.role, name: "User"),
         body: PageView(
           controller: _pageController,
           children: pages,
