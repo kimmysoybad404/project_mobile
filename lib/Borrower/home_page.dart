@@ -2,11 +2,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_mobile/BottomBar.dart';
-import 'request_page.dart';
+// import 'request_page.dart'; // ไม่ได้ใช้ request_page.dart โดยตรง
 import 'request_item.dart';
+import 'history_item.dart'; // 1. ✅ Import history_item.dart
 
 class HomeBorrower extends StatefulWidget {
-  const HomeBorrower({super.key});
+  // 2. ✅ เพิ่ม userId เข้ามา
+  final int userId;
+
+  const HomeBorrower({
+    super.key,
+    required this.userId, // 3. ✅ ทำให้เป็น required
+  });
 
   @override
   State<HomeBorrower> createState() => _HomeBorrowerState();
@@ -16,13 +23,19 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   int _selectedTabIndex = 0;
   List<RequestItem> _requestedItems = [];
   List<dynamic> _assets = [];
-  bool _isLoading = true;
+  bool _isLoadingAssets = true; // 4. ✅ แยก state การ loading
   String _searchQuery = "";
+
+  // 5. ✅ เพิ่ม state สำหรับ History
+  List<HistoryItem> _historyItems = [];
+  bool _isLoadingHistory = true;
+  String _searchHistoryQuery = "";
 
   @override
   void initState() {
     super.initState();
     _fetchAssets();
+    _fetchHistory(); // 6. ✅ เรียกดึงข้อมูล history ตอนเริ่ม
   }
 
   Future<void> _fetchAssets([String query = ""]) async {
@@ -30,19 +43,56 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
     final res = await http.get(url);
 
-    if (res.statusCode == 200) {
-      setState(() {
-        _assets = json.decode(res.body);
-        _isLoading = false;
-      });
-    } else {
-      print("Failed to fetch assets: ${res.statusCode}");
+      if (res.statusCode == 200) {
+        setState(() {
+          _assets = json.decode(res.body);
+          _isLoadingAssets = false; // 7. ✅ อัปเดต state
+        });
+      } else {
+        print("Failed to fetch assets: ${res.statusCode}");
+        setState(() => _isLoadingAssets = false);
+      }
+    } catch (e) {
+      print("Error: $e");
+      setState(() => _isLoadingAssets = false);
     }
   } catch (e) {
     print("Error: $e");
   }
 }
 
+
+  // 8. ✅ ฟังก์ชันใหม่สำหรับดึงข้อมูล History
+  Future<void> _fetchHistory() async {
+    if (!mounted) return;
+    setState(() => _isLoadingHistory = true);
+
+    try {
+      // 🚨 ตรวจสอบให้แน่ใจว่า widget.userId มีค่าที่ถูกต้อง
+      final url = Uri.parse("http://10.0.2.2:3000/history/${widget.userId}");
+      final res = await http.get(url);
+
+      if (res.statusCode == 200) {
+        final List<dynamic> rawData = json.decode(res.body);
+        setState(() {
+          _historyItems =
+              rawData.map((json) => HistoryItem.fromJson(json)).toList();
+          _isLoadingHistory = false;
+        });
+      } else {
+        print("Failed to fetch history: ${res.statusCode}");
+        setState(() => _isLoadingHistory = false);
+      }
+    } catch (e) {
+      print("Error fetching history: $e");
+      setState(() => _isLoadingHistory = false);
+    }
+  }
+
+  // 9. ✅ ฟังก์ชันช่วยแปลงวันที่ให้เป็น "วัน/เดือน/ปี(พ.ศ.)"
+  String _formatThaiDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year + 543}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +120,8 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                 switchInCurve: Curves.easeInOut,
                 switchOutCurve: Curves.easeInOut,
                 child: _selectedTabIndex == 0
-                    ? (_isLoading ? _loadingUI() : _assetListFromAPI())
-                    : _history(),
+                    ? (_isLoadingAssets ? _loadingUI() : _assetListFromAPI())
+                    : _history(), // 10. ✅ สลับไปที่ _history()
               ),
             ),
           ],
@@ -141,14 +191,21 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
       child: Column(
         children: [
-          _buildSearchBar(),
+          _buildSearchBar(
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.toLowerCase();
+              });
+            },
+          ),
           const SizedBox(height: 10),
-
           if (filteredAssets.isEmpty)
             Expanded(
               child: Center(
                 child: Text(
-                  "No availible items right now",
+                  _searchQuery.isEmpty
+                      ? "No availible items right now"
+                      : "No items found for '$_searchQuery'",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -166,11 +223,11 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.85,
-                        ),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.85,
+                    ),
                     itemCount: filteredAssets.length,
                     itemBuilder: (context, index) {
                       final asset = filteredAssets[index];
@@ -207,15 +264,19 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       status: 'Pending',
     );
 
-    setState(() {
-      _requestedItems.add(newItem);
-    });
-
+    // ถ้าต้องการใช้ชื่อ user ที่ login อยู่ ต้องส่ง username มาให้ HomeBorrower ด้วย
+    // แล้วเปลี่ยน 'username: name' เป็น 'username: widget.username'
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            BottomBar(role: 1, username: name, newItem: newItem),
+        builder: (context) => BottomBar(
+            role: 1,
+            username: name, // <-- นี่คือชื่อ asset
+            newItem: newItem,
+            //
+            // ⭐️⭐️⭐️ FIX: แก้จาก userId: เป็น userid: ⭐️⭐️⭐️
+            //
+            userid: widget.userId),
       ),
     );
 
@@ -224,25 +285,28 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     ).showSnackBar(SnackBar(content: Text("$name added to request list ✅")));
   }
 
-  Widget _buildSearchBar() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Icon(Icons.search, color: Colors.grey),
-        ),
-        Expanded(
-          child: TextField(
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: "search here...",
-              hintStyle: TextStyle(color: Colors.grey),
+  Widget _buildSearchBar({required ValueChanged<String> onChanged}) {
+    // 11. ✅ แก้ไข _buildSearchBar ให้รับ onChanged
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Icon(Icons.search, color: Colors.grey),
+          ),
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: "search here...",
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+              onChanged: onChanged, // 12. ✅ ใช้งาน onChanged
             ),
             onChanged: (value) {
               setState(() {
@@ -258,7 +322,22 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 }
 
 
+  // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
   Widget _history() {
+    // 14. ✅ กรองผลลัพธ์ตามการค้นหา
+    final filteredHistory = _historyItems
+        .where(
+          (item) =>
+              item.assetName
+                  .toLowerCase()
+                  .contains(_searchHistoryQuery.toLowerCase()) ||
+              item.id
+                  .toString()
+                  .padLeft(5, '0')
+                  .contains(_searchHistoryQuery.toLowerCase()),
+        )
+        .toList();
+
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
       decoration: BoxDecoration(
@@ -266,46 +345,59 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.all(15),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            _buildHistoryCard(
-              id: '00002',
-              name: 'Ipad',
-              image: 'assets/images/ipad.png',
-              borrowDate: '10/10/2568',
-              returnDate: '10/10/2568',
-              width: 100,
-              height: 100,
-            ),
-            const SizedBox(height: 20),
-            _buildHistoryCard(
-              id: '00003',
-              name: 'Board game',
-              image: 'assets/images/boardgame.png',
-              borrowDate: '10/8/2568',
-              returnDate: '10/8/2568',
-              width: 100,
-              height: 100,
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildSearchBar(
+            onChanged: (value) {
+              setState(() {
+                _searchHistoryQuery = value;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: _isLoadingHistory
+                ? _loadingUI() // 15. ✅ แสดง loading
+                : filteredHistory.isEmpty
+                    ? Center(
+                        // 16. ✅ แสดงผลเมื่อไม่พบข้อมูล
+                        child: Text(
+                          _searchHistoryQuery.isEmpty
+                              ? "No history found."
+                              : "No history found for '$_searchHistoryQuery'",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : RefreshIndicator(
+                        // 17. ✅ เพิ่ม RefreshIndicator
+                        onRefresh: _fetchHistory,
+                        color: Color(0xFF8B5B46),
+                        child: ListView.builder(
+                          key: const PageStorageKey(
+                              'historyList'), // 18. ✅ ใช้ ListView.builder
+                          padding: const EdgeInsets.only(top: 10),
+                          itemCount: filteredHistory.length,
+                          itemBuilder: (context, index) {
+                            final item = filteredHistory[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: _buildHistoryCard(
+                                  item: item), // 19. ✅ ส่ง HistoryItem ทั้งก้อน
+                            );
+                          },
+                        ),
+                      ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildHistoryCard({
-    required String id,
-    required String name,
-    required String image,
-    required String borrowDate,
-    required String returnDate,
-    required double width,
-    required double height,
-  }) {
+  Widget _buildHistoryCard({required HistoryItem item}) {
+    // 21. ✅ รับเป็น HistoryItem
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
@@ -316,23 +408,37 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            // ... (ส่วนแสดง ID และ Name เหมือนเดิม) ...
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('ID: $id', style: const TextStyle(color: Colors.white)),
-              Text('Name: $name', style: const TextStyle(color: Colors.white)),
+              Text(
+                'ID: ${item.id.toString().padLeft(5, '0')}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Name: ${item.assetName}',
+                style: const TextStyle(color: Colors.white),
+              ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
+            // ... (ส่วนแสดง รูปภาพ และ วันที่ เหมือนเดิม) ...
             children: [
               Container(
-                width: width,
-                height: height,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage(image),
-                    fit: BoxFit.cover,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    item.image ?? 'assets/images/placeholder.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.image_not_supported, color: Colors.grey),
                   ),
                 ),
               ),
@@ -340,35 +446,80 @@ class _HomeBorrowerState extends State<HomeBorrower> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDateTag('Borrow', borrowDate),
+                  _buildDateTag('Borrow', _formatThaiDate(item.borrowDate)),
                   const SizedBox(height: 10),
-                  _buildDateTag('Return', returnDate),
+                  _buildDateTag('Return', _formatThaiDate(item.returnDate)),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
-          _buildInfoBar('Approve by: Lender001'),
-          const SizedBox(height: 10),
-          _buildInfoBar('Received asset by: Staff001'),
+
+          //  status
+          _buildInfoBar(
+            'Status: ${item.displayStatus}',
+            backgroundColor: item.statusColor,
+            textColor: item.displayStatus.toLowerCase() == 'pending'
+                ? Colors.black87
+                : Colors.white,
+          ),
+
+          //  ApproveBy (ถ้ามี)
+          if (item.approverName != null) ...[
+            const SizedBox(height: 10),
+            _buildInfoBar('Approve by: ${item.approverName}'),
+          ],
+
+          //  ReceiveBy (ถ้ามี)
+          if (item.receiverName != null) ...[
+            const SizedBox(height: 10),
+            _buildInfoBar('Received asset by: ${item.receiverName}'),
+          ],
+
+          
+          //  แสดง "ผู้ปฏิเสธ" 
+          
+          if (item.rejecterName != null) ...[
+            const SizedBox(height: 10),
+            _buildInfoBar(
+              'Reject by: ${item.rejecterName}',
+            ),
+          ],
+          
+         
+          
+
+          // แสดง "เหตุผลที่ Reject" (ถ้ามี)
+          if (item.rejectReason != null) ...[
+            const SizedBox(height: 10),
+            _buildInfoBar('Reason: ${item.rejectReason}',
+                backgroundColor: Colors.red.withOpacity(0.2),
+                textColor: const Color.fromARGB(255, 255, 255, 255)),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildInfoBar(String text) {
+  // 35. ✅ แก้ไข _buildInfoBar ให้รับสีได้
+  Widget _buildInfoBar(
+    String text, {
+    Color backgroundColor = const Color(0xFFDCCFCC),
+    Color? textColor = const Color(0xFF4A3831),
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFDCCFCC),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(25),
       ),
       child: Center(
         child: Text(
           text,
-          style: const TextStyle(
-            color: Color(0xFF4A3831),
+          textAlign: TextAlign.center, // 36. ✅ เผื่อข้อความยาว
+          style: TextStyle(
+            color: textColor,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -377,6 +528,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
+  // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
   Widget _buildDateTag(String label, String date) {
     return Row(
       children: [
@@ -412,6 +564,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 }
 
 class AssetCard extends StatelessWidget {
+  // ... (โค้ด AssetCard ไม่ต้องแก้) ...
   final String name;
   final String id;
   final String imagePath;
@@ -484,6 +637,9 @@ class AssetCard extends StatelessWidget {
                             imagePath,
                             height: 95,
                             fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.image_not_supported,
+                                    color: Colors.grey[700]),
                           ),
                         ),
                       ),
