@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Import for 'Color'
 
 class HistoryItem {
   final int id;
@@ -8,14 +8,9 @@ class HistoryItem {
   final DateTime borrowDate;
   final DateTime returnDate;
   final int? borrowBy;
-  final int? approveBy;
   final int? receiveBy;
   final int? rejectBy;
   final String? rejectReason;
-  // final String? status; // ไม่ได้ใช้แล้ว
-  final String? approverName;
-  final String? receiverName;
-  final String? rejecterName; // ✅ 1. เพิ่มตัวแปรนี้
 
   HistoryItem({
     required this.id,
@@ -24,77 +19,50 @@ class HistoryItem {
     required this.borrowDate,
     required this.returnDate,
     this.borrowBy,
-    this.approveBy,
     this.receiveBy,
     this.rejectBy,
     this.rejectReason,
     this.image,
-    // this.status, // ไม่ได้ใช้แล้ว
-    this.approverName,
-    this.receiverName,
-    this.rejecterName, // ✅ 2. เพิ่มใน constructor
   });
 
-  // Factory constructor to parse JSON
-  // Factory constructor to parse JSON
+// Factory constructor to parse JSON
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
     return HistoryItem(
+      // ✅ Use lowercase keys
       id: json['id'],
       assetID: json['assetID'],
-      assetName: json['assetName'] ?? 'No Name',
+      assetName: json['assetName'],
       image: json["image"],
-      
-      borrowDate: DateTime.parse(json['BorrowDate']).toLocal(),
-      returnDate: DateTime.parse(json['ReturnDate']).toLocal(),
-      
+      borrowDate: DateTime.parse(json['BorrowDate']),
+      returnDate: DateTime.parse(json['ReturnDate']),
       borrowBy: json['BorrowBy'],
-      approveBy: json['ApproveBy'],
       receiveBy: json['ReceiveBy'],
       rejectBy: json['RejectBy'],
       rejectReason: json['RejectReason'],
-      approverName: json['approverName'],
-      receiverName: json['receiverName'],
-      rejecterName: json['rejecterName'],
     );
   }
 
+  // --- 🔽 ADD THESE GETTERS 🔽 ---
+
   // Get the status as a displayable string
-  String get displayStatus {
-    // Logic หลัก: เช็คจากค่า NULL
+  String get statusString {
     if (rejectBy != null) {
       return 'Rejected';
     }
     if (receiveBy != null) {
-      return 'Returned';
-    }
-    if (approveBy != null) {
       return 'Approved';
     }
-    
-    // (กันเหนียว) ถ้าทุกอย่างเป็น NULL
-    return 'Pending';
+    return 'Waiting for approve';
   }
 
   // Get the status color for your UI
   Color get statusColor {
-    final s = displayStatus.toLowerCase();
-
-    if (s == 'rejected') {
-      return Colors.red[700]!; // 🟥 Rejected = สีแดง
+    if (rejectBy != null) {
+      return Colors.red;
     }
-
-    if (s == 'returned') {
-      return Colors.orange[800]!; // 🟧 Returned = สีส้ม
+    if (receiveBy != null) {
+      return Colors.green;
     }
-
-    if (s == 'approved') {
-      return Colors.green[700]!; // 🟩 Approved = สีเขียว
-    }
-
-    if (s == 'pending') {
-      return const Color(0xFFF9E076); // 🟨 Pending = สีเหลือง
-    }
-
-    return Colors.grey[600]!; // อื่นๆ = สีเทา
+    return const Color(0xFFF9E076); // Yellow for 'Pending'
   }
 }
