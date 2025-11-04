@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -9,6 +11,84 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  int totalAssets = 0;
+  int available = 0;
+  int borrowed = 0;
+  int disabled = 0;
+  int pending = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStorageData();
+  }
+
+  Future<void> fetchStorageData() async {
+    try {
+      final response = await http.get(Uri.parse("http://10.0.2.2:3000/storage"));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        int a = 0, b = 0, d = 0, p = 0;
+        for (var item in data) {
+          switch (item['Status']) {
+            case 'Available':
+              a++;
+              break;
+            case 'Borrowed':
+              b++;
+              break;
+            case 'Disabled':
+              d++;
+              break;
+            case 'Pending':
+              p++;
+              break;
+          }
+        }
+
+        setState(() {
+          totalAssets = data.length;
+          available = a;
+          borrowed = b;
+          disabled = d;
+          pending = p;
+        });
+      } else {
+        throw Exception('Failed to load storage data');
+      }
+    } catch (e) {
+      print('Error fetching storage data: $e');
+    }
+  }
+
+  Widget _strokedText(String text, {double fontSize = 16, double strokeWidth = 2}) {
+    return Stack(
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            foreground: Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = strokeWidth
+              ..color = Colors.black,
+          ),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,9 +99,6 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 🟧 Header Row (Box + Avatar)
-
-              // 🟧 Pie Chart Section
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFC68A),
@@ -30,16 +107,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const Text(
-                      "Total Assets Today : 45",
-                      style: TextStyle(
+                    Text(
+                      "Total Assets Today : $totalAssets",
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
+                        fontSize: 20,
                       ),
                     ),
                     const SizedBox(height: 12),
-
-                    // Pie Chart
                     SizedBox(
                       height: 180,
                       child: PieChart(
@@ -49,47 +125,68 @@ class _DashboardPageState extends State<DashboardPage> {
                           sections: [
                             PieChartSectionData(
                               color: Colors.green,
-                              value: 70,
-                              title: '70%',
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              value: available.toDouble(),
+                              title: totalAssets > 0
+                                  ? '${((available / totalAssets) * 100).toStringAsFixed(0)}%'
+                                  : '0%',
+                              titlePositionPercentageOffset: 0.6,
+                              badgeWidget: _strokedText(
+                                totalAssets > 0
+                                    ? '${((available / totalAssets) * 100).toStringAsFixed(0)}%'
+                                    : '0%',
                                 fontSize: 20,
                               ),
+                              showTitle: false,
                             ),
                             PieChartSectionData(
-                              color: Colors.orange,
-                              value: 20,
-                              title: '20%',
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                              value: borrowed.toDouble(),
+                              title: '',
+                              badgeWidget: _strokedText(
+                                totalAssets > 0
+                                    ? '${((borrowed / totalAssets) * 100).toStringAsFixed(0)}%'
+                                    : '0%',
                                 fontSize: 20,
                               ),
+                              showTitle: false,
+                            ),
+                            PieChartSectionData(
+                              color: const Color.fromARGB(255, 255, 234, 0),
+                              value: pending.toDouble(),
+                              title: '',
+                              badgeWidget: _strokedText(
+                                totalAssets > 0
+                                    ? '${((pending / totalAssets) * 100).toStringAsFixed(0)}%'
+                                    : '0%',
+                                fontSize: 20,
+                              ),
+                              showTitle: false,
                             ),
                             PieChartSectionData(
                               color: Colors.red,
-                              value: 10,
-                              title: '10%',
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              value: disabled.toDouble(),
+                              title: '',
+                              badgeWidget: _strokedText(
+                                totalAssets > 0
+                                    ? '${((disabled / totalAssets) * 100).toStringAsFixed(0)}%'
+                                    : '0%',
                                 fontSize: 20,
                               ),
+                              showTitle: false,
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 10),
-
-                    // Legend
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildLegend(Colors.green, "Available"),
                         const SizedBox(width: 16),
-                        _buildLegend(Colors.orange, "Borrowed"),
+                        _buildLegend(Colors.blue, "Borrowed"),
+                        const SizedBox(width: 16),
+                        _buildLegend(const Color.fromARGB(255, 255, 234, 0), "Pending"),
                         const SizedBox(width: 16),
                         _buildLegend(Colors.red, "Disabled"),
                       ],
@@ -98,17 +195,13 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // 🟩 Available Card
-              _buildStatusCard(Colors.green, "Available", 17),
+              _buildStatusCard(Colors.green, "Available", available),
               const SizedBox(height: 10),
-
-              // 🟧 Borrowed Card
-              _buildStatusCard(Colors.orange, "Borrowed", 8),
+              _buildStatusCard(Colors.blue, "Borrowed", borrowed),
               const SizedBox(height: 10),
-
-              // 🟥 Disabled Card
-              _buildStatusCard(Colors.red, "Disabled", 3),
+              _buildStatusCard(const Color.fromARGB(255, 255, 234, 0), "Pending", pending),
+              const SizedBox(height: 10),
+              _buildStatusCard(Colors.red, "Disabled", disabled),
             ],
           ),
         ),
@@ -116,7 +209,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // 🔸 Legend Builder
   Widget _buildLegend(Color color, String label) {
     return Row(
       children: [
@@ -127,7 +219,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // 🔸 Status Card Builder
   Widget _buildStatusCard(Color color, String label, int count) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -138,20 +229,8 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            count.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          _strokedText(label, fontSize: 24, strokeWidth: 2),
+          _strokedText(count.toString(), fontSize: 24, strokeWidth: 2),
         ],
       ),
     );
