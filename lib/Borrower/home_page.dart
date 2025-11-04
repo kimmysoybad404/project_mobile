@@ -36,17 +36,17 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         if (!mounted) return; // 2. ✅ เพิ่ม check mounted
         setState(() {
           _assets = json.decode(res.body);
-          _isLoadingAssets = false; 
+          _isLoading = false; 
         });
       } else {
         print("Failed to fetch assets: ${res.statusCode}");
         if (!mounted) return; // 3. ✅ เพิ่ม check mounted
-        setState(() => _isLoadingAssets = false);
+        setState(() => _isLoading = false);
       }
     } catch (e) {
       print("Error: $e");
       if (!mounted) return; // 4. ✅ เพิ่ม check mounted
-      setState(() => _isLoadingAssets = false);
+      setState(() => _isLoading = false);
     }
   }
 
@@ -148,7 +148,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
       child: Column(
         children: [
-          _buildSearchBar(),
+          _buildSearchBar(onChanged: (String value) {  }),
           const SizedBox(height: 10),
 
           if (filteredAssets.isEmpty)
@@ -273,7 +273,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSearchBar(),
+            _buildSearchBar(onChanged: (String value) {  }),
             const SizedBox(height: 20),
             _buildHistoryCard(
               id: '00002',
