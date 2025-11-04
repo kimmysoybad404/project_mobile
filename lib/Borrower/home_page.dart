@@ -48,7 +48,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         if (!mounted) return; // 2. ✅ เพิ่ม check mounted
         setState(() {
           _assets = json.decode(res.body);
-          _isLoadingAssets = false; 
+          _isLoadingAssets = false;
         });
       } else {
         print("Failed to fetch assets: ${res.statusCode}");
@@ -61,7 +61,6 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       setState(() => _isLoadingAssets = false);
     }
   }
-
 
   // 8. ✅ ฟังก์ชันใหม่สำหรับดึงข้อมูล History
   Future<void> _fetchHistory() async {
@@ -76,8 +75,9 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       if (res.statusCode == 200) {
         final List<dynamic> rawData = json.decode(res.body);
         setState(() {
-          _historyItems =
-              rawData.map((json) => HistoryItem.fromJson(json)).toList();
+          _historyItems = rawData
+              .map((json) => HistoryItem.fromJson(json))
+              .toList();
           _isLoadingHistory = false;
         });
       } else {
@@ -200,53 +200,64 @@ class _HomeBorrowerState extends State<HomeBorrower> {
             },
           ),
           const SizedBox(height: 10),
-          if (filteredAssets.isEmpty)
-            Expanded(
-              child: Center(
-                child: Text(
-                  _searchQuery.isEmpty
-                      ? "No availible items right now"
-                      : "No items found for '$_searchQuery'",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.85,
-                    ),
-                    itemCount: filteredAssets.length,
-                    itemBuilder: (context, index) {
-                      final asset = filteredAssets[index];
-                      final name = asset['Name'];
-                      final id = asset['ID'].toString();
-                      final imageName = asset['imageName'];
-                      final status = asset['Status'];
 
-                      return AssetCard(
-                        name: name,
-                        id: id,
-                        imagePath: "assets/images/$imageName",
-                        status: status,
-                        onAdd: _addItem,
-                      );
-                    },
-                  ),
-                ],
+          Expanded(
+            child: RefreshIndicator(
+              color: Color(0xFF8B5B46),
+              onRefresh: () async {
+                await _fetchAssets(_searchQuery);
+              },
+              child: SingleChildScrollView(
+                physics:
+                    const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    if (filteredAssets.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: Center(
+                          child: Text(
+                            _searchQuery.isEmpty
+                                ? "No available items right now"
+                                : "No items found for '$_searchQuery'",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.85,
+                            ),
+                        itemCount: filteredAssets.length,
+                        itemBuilder: (context, index) {
+                          final asset = filteredAssets[index];
+                          final name = asset['Name'];
+                          final id = asset['ID'].toString();
+                          final imageName = asset['imageName'];
+                          final status = asset['Status'];
+
+                          return AssetCard(
+                            name: name,
+                            id: id,
+                            imagePath: "assets/images/$imageName",
+                            status: status,
+                            onAdd: _addItem,
+                          );
+                        },
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -271,13 +282,14 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       context,
       MaterialPageRoute(
         builder: (context) => BottomBar(
-            role: 1,
-            username: name, // <-- นี่คือชื่อ asset
-            newItem: newItem,
-            //
-            // ⭐️⭐️⭐️ FIX: แก้จาก userId: เป็น userid: ⭐️⭐️⭐️
-            //
-            userid: widget.userId),
+          role: 1,
+          username: name, // <-- นี่คือชื่อ asset
+          newItem: newItem,
+          //
+          // ⭐️⭐️⭐️ FIX: แก้จาก userId: เป็น userid: ⭐️⭐️⭐️
+          //
+          userid: widget.userId,
+        ),
       ),
     );
 
@@ -315,16 +327,15 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
-
   // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
   Widget _history() {
     // 14. ✅ กรองผลลัพธ์ตามการค้นหา
     final filteredHistory = _historyItems
         .where(
           (item) =>
-              item.assetName
-                  .toLowerCase()
-                  .contains(_searchHistoryQuery.toLowerCase()) ||
+              item.assetName.toLowerCase().contains(
+                _searchHistoryQuery.toLowerCase(),
+              ) ||
               item.id
                   .toString()
                   .padLeft(5, '0')
@@ -353,37 +364,40 @@ class _HomeBorrowerState extends State<HomeBorrower> {
             child: _isLoadingHistory
                 ? _loadingUI() // 15. ✅ แสดง loading
                 : filteredHistory.isEmpty
-                    ? Center(
-                        // 16. ✅ แสดงผลเมื่อไม่พบข้อมูล
-                        child: Text(
-                          _searchHistoryQuery.isEmpty
-                              ? "No history found."
-                              : "No history found for '$_searchHistoryQuery'",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        // 17. ✅ เพิ่ม RefreshIndicator
-                        onRefresh: _fetchHistory,
-                        color: Color(0xFF8B5B46),
-                        child: ListView.builder(
-                          key: const PageStorageKey(
-                              'historyList'), // 18. ✅ ใช้ ListView.builder
-                          padding: const EdgeInsets.only(top: 10),
-                          itemCount: filteredHistory.length,
-                          itemBuilder: (context, index) {
-                            final item = filteredHistory[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: _buildHistoryCard(
-                                  item: item), // 19. ✅ ส่ง HistoryItem ทั้งก้อน
-                            );
-                          },
-                        ),
+                ? Center(
+                    // 16. ✅ แสดงผลเมื่อไม่พบข้อมูล
+                    child: Text(
+                      _searchHistoryQuery.isEmpty
+                          ? "No history found."
+                          : "No history found for '$_searchHistoryQuery'",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    // 17. ✅ เพิ่ม RefreshIndicator
+                    onRefresh: _fetchHistory,
+                    color: Color(0xFF8B5B46),
+                    child: ListView.builder(
+                      key: const PageStorageKey(
+                        'historyList',
+                      ), // 18. ✅ ใช้ ListView.builder
+                      padding: const EdgeInsets.only(top: 10),
+                      itemCount: filteredHistory.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredHistory[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: _buildHistoryCard(
+                            item: item,
+                          ), // 19. ✅ ส่ง HistoryItem ทั้งก้อน
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -470,25 +484,20 @@ class _HomeBorrowerState extends State<HomeBorrower> {
             _buildInfoBar('Received asset by: ${item.receiverName}'),
           ],
 
-          
-          //  แสดง "ผู้ปฏิเสธ" 
-          
+          //  แสดง "ผู้ปฏิเสธ"
           if (item.rejecterName != null) ...[
             const SizedBox(height: 10),
-            _buildInfoBar(
-              'Reject by: ${item.rejecterName}',
-            ),
+            _buildInfoBar('Reject by: ${item.rejecterName}'),
           ],
-          
-         
-          
 
           // แสดง "เหตุผลที่ Reject" (ถ้ามี)
           if (item.rejectReason != null) ...[
             const SizedBox(height: 10),
-            _buildInfoBar('Reason: ${item.rejectReason}',
-                backgroundColor: Colors.red.withOpacity(0.2),
-                textColor: const Color.fromARGB(255, 255, 255, 255)),
+            _buildInfoBar(
+              'Reason: ${item.rejectReason}',
+              backgroundColor: Colors.red.withOpacity(0.2),
+              textColor: const Color.fromARGB(255, 255, 255, 255),
+            ),
           ],
         ],
       ),
@@ -631,9 +640,10 @@ class AssetCard extends StatelessWidget {
                             imagePath,
                             height: 95,
                             fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(Icons.image_not_supported,
-                                    color: Colors.grey[700]),
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ),
                       ),
