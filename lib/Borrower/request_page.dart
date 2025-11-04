@@ -464,10 +464,7 @@ class _RequestPageState extends State<RequestPage> {
 
     if (_statusError != null) {
       return Center(
-        child: Text(
-          _statusError!,
-          style: const TextStyle(color: Colors.red, fontSize: 16),
-        ),
+        child: Text(_statusError!, style: const TextStyle(color: Colors.red)),
       );
     }
 
@@ -480,11 +477,25 @@ class _RequestPageState extends State<RequestPage> {
       );
     }
 
-    // Data is loaded, display the list using _historyItems
-    return Column(
-      children: _historyItems
-          .map((item) => _buildStatusItemCard(item)) // Pass HistoryItem
-          .toList(),
+    return Container(
+      height: 250, 
+      child: RefreshIndicator(
+        color: DarkBrown,
+        backgroundColor: Colors.white,
+        onRefresh: () async {
+          if (_userId != null && _userId!.isNotEmpty) {
+            await _fetchStatusRequests(_userId!);
+          }
+        },
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: _historyItems.length,
+          itemBuilder: (context, index) {
+            final item = _historyItems[index];
+            return _buildStatusItemCard(item);
+          },
+        ),
+      ),
     );
   }
 
