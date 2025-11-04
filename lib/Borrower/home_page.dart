@@ -5,6 +5,7 @@ import 'package:project_mobile/BottomBar.dart';
 // import 'request_page.dart'; // ไม่ได้ใช้ request_page.dart โดยตรง
 import 'request_item.dart';
 import 'history_item.dart'; // 1. ✅ Import history_item.dart
+import 'package:intl/intl.dart';
 
 class HomeBorrower extends StatefulWidget {
   // 2. ✅ เพิ่ม userId เข้ามา
@@ -64,31 +65,25 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 
   // 8. ✅ ฟังก์ชันใหม่สำหรับดึงข้อมูล History
   Future<void> _fetchHistory() async {
-    if (!mounted) return;
-    setState(() => _isLoadingHistory = true);
+  setState(() => _isLoadingHistory = true);
 
-    try {
-      // 🚨 ตรวจสอบให้แน่ใจว่า widget.userId มีค่าที่ถูกต้อง
-      final url = Uri.parse("http://10.0.2.2:3000/history/${widget.userId}");
-      final res = await http.get(url);
+  final search = _searchHistoryQuery.trim();
+  final url = Uri.parse(
+    "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
+  );
 
-      if (res.statusCode == 200) {
-        final List<dynamic> rawData = json.decode(res.body);
-        setState(() {
-          _historyItems = rawData
-              .map((json) => HistoryItem.fromJson(json))
-              .toList();
-          _isLoadingHistory = false;
-        });
-      } else {
-        print("Failed to fetch history: ${res.statusCode}");
-        setState(() => _isLoadingHistory = false);
-      }
-    } catch (e) {
-      print("Error fetching history: $e");
-      setState(() => _isLoadingHistory = false);
-    }
+  final res = await http.get(url);
+  if (res.statusCode == 200) {
+    final List<dynamic> rawData = json.decode(res.body);
+    setState(() {
+      _historyItems = rawData.map((json) => HistoryItem.fromJson(json)).toList();
+      _isLoadingHistory = false;
+    });
+  } else {
+    setState(() => _isLoadingHistory = false);
   }
+}
+
 
   // 9. ✅ ฟังก์ชันช่วยแปลงวันที่ให้เป็น "วัน/เดือน/ปี(พ.ศ.)"
   String _formatThaiDate(DateTime date) {
@@ -174,97 +169,103 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
-  Widget _assetListFromAPI() {
-    final filteredAssets = _assets
-        .where(
-          (item) =>
-              item['Status'] == 'Available' &&
-              item['Name'].toString().toLowerCase().contains(_searchQuery),
-        )
-        .toList();
+Widget _assetListFromAPI() {
+  final filteredAssets = _assets.where((item) {
+    final name = item['Name']?.toString().toLowerCase() ?? '';
+    final id = item['ID']?.toString() ?? '';
+    final status = item['Status']?.toString() ?? '';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF8B5B46),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(15),
-      margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-      child: Column(
-        children: [
-          _buildSearchBar(
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value.toLowerCase();
-              });
+    // ✅ ค้นหาได้ทั้งชื่อและไอดี
+    final matchesQuery = name.contains(_searchQuery) || id.contains(_searchQuery);
+
+    // ✅ ต้องมีสถานะ Available และตรงกับคำค้นหา
+    return status == 'Available' && matchesQuery;
+  }).toList();
+
+  return Container(
+    decoration: BoxDecoration(
+      color: const Color(0xFF8B5B46),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    padding: const EdgeInsets.all(15),
+    margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+    child: Column(
+      children: [
+        _buildSearchBar(
+          onChanged: (value) {
+            setState(() {
+              _searchQuery = value.toLowerCase();
+            });
+            _fetchAssets(value.isEmpty ? "" : value); // ✅ ป้องกัน error ตอนค้นหา
+          },
+        ),
+
+        const SizedBox(height: 10),
+
+        Expanded(
+          child: RefreshIndicator(
+            color: const Color(0xFF8B5B46),
+            onRefresh: () async {
+              await _fetchAssets(_searchQuery);
             },
-          ),
-          const SizedBox(height: 10),
-
-          Expanded(
-            child: RefreshIndicator(
-              color: Color(0xFF8B5B46),
-              onRefresh: () async {
-                await _fetchAssets(_searchQuery);
-              },
-              child: SingleChildScrollView(
-                physics:
-                    const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    if (filteredAssets.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 40),
-                        child: Center(
-                          child: Text(
-                            _searchQuery.isEmpty
-                                ? "No available items right now"
-                                : "No items found for '$_searchQuery'",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  if (filteredAssets.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: Text(
+                          _searchQuery.isEmpty
+                              ? "No available items right now"
+                              : "No items found for '$_searchQuery'",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
-                    else
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.85,
-                            ),
-                        itemCount: filteredAssets.length,
-                        itemBuilder: (context, index) {
-                          final asset = filteredAssets[index];
-                          final name = asset['Name'];
-                          final id = asset['ID'].toString();
-                          final imageName = asset['imageName'];
-                          final status = asset['Status'];
-
-                          return AssetCard(
-                            name: name,
-                            id: id,
-                            imagePath: "assets/images/$imageName",
-                            status: status,
-                            onAdd: _addItem,
-                          );
-                        },
                       ),
-                  ],
-                ),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.85,
+                      ),
+                      itemCount: filteredAssets.length,
+                      itemBuilder: (context, index) {
+                        final asset = filteredAssets[index];
+                        final name = asset['Name'] ?? 'Unknown';
+                        final id = asset['ID']?.toString() ?? '';
+                        final imageName = asset['imageName'] ?? 'placeholder.png';
+                        final status = asset['Status'] ?? 'Unknown';
+
+                        return AssetCard(
+                          name: name,
+                          id: id,
+                          imagePath: "assets/images/$imageName",
+                          status: status,
+                          onAdd: _addItem,
+                        );
+                      },
+                    ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   void _addItem(String id, String name, String imagePath) {
     final newItem = RequestItem(
@@ -285,7 +286,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           role: 1,
           username: name, // <-- นี่คือชื่อ asset
           newItem: newItem,
-          //
+          //`
           // ⭐️⭐️⭐️ FIX: แก้จาก userId: เป็น userid: ⭐️⭐️⭐️
           //
           userid: widget.userId,
@@ -328,28 +329,52 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   }
 
   // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
-  Widget _history() {
-    // 14. ✅ กรองผลลัพธ์ตามการค้นหา
-    final filteredHistory = _historyItems
-        .where(
-          (item) =>
-              item.assetName.toLowerCase().contains(
-                _searchHistoryQuery.toLowerCase(),
-              ) ||
-              item.id
-                  .toString()
-                  .padLeft(5, '0')
-                  .contains(_searchHistoryQuery.toLowerCase()),
-        )
-        .toList();
+ Widget _history() {
+  final filteredHistory = _historyItems.where((item) {
+    final assetID = item.assetID.toString().replaceAll(' ', '').toLowerCase();
+    final assetName = item.assetName.replaceAll(' ', '').toLowerCase();
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF8B5B46),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(15),
+    // 🔹 วันที่จาก backend (เป็น ค.ศ.)
+    final borrowDate = DateFormat('dd/MM/yyyy').format(item.borrowDate);
+    final returnDate = DateFormat('dd/MM/yyyy').format(item.returnDate);
+
+    // 🔹 แปลง ค.ศ. → พ.ศ.
+    final borrowYearAD = item.borrowDate.year;
+    final borrowYearBE = borrowYearAD + 543;
+    final returnYearAD = item.returnDate.year;
+    final returnYearBE = returnYearAD + 543;
+
+    // ✅ สร้างวันที่แบบพ.ศ. เพื่อให้ค้นหาได้ทั้งสองแบบ
+    final borrowDateBE = borrowDate.replaceAll(
+      borrowYearAD.toString(),
+      borrowYearBE.toString(),
+    );
+    final returnDateBE = returnDate.replaceAll(
+      returnYearAD.toString(),
+      returnYearBE.toString(),
+    );
+
+    final approver = (item.approverName ?? '').replaceAll(' ', '').toLowerCase();
+    final receiver = (item.receiverName ?? '').replaceAll(' ', '').toLowerCase();
+    final query = _searchHistoryQuery.replaceAll(' ', '').toLowerCase();
+
+    // ✅ เทียบทั้งแบบ ค.ศ. และ พ.ศ.
+    return item.id.toString().contains(query) ||
+        assetID.contains(query) ||
+        assetName.contains(query) ||
+        borrowDate.toLowerCase().contains(query) ||
+        returnDate.toLowerCase().contains(query) ||
+        borrowDateBE.toLowerCase().contains(query) ||
+        returnDateBE.toLowerCase().contains(query) ||
+        approver.contains(query) ||
+        receiver.contains(query);
+  }).toList();
+
+  return Card(
+    color: const Color(0xFF8B5B46),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           _buildSearchBar(
@@ -362,47 +387,34 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           const SizedBox(height: 10),
           Expanded(
             child: _isLoadingHistory
-                ? _loadingUI() // 15. ✅ แสดง loading
+                ? const Center(child: CircularProgressIndicator(color: Colors.white))
                 : filteredHistory.isEmpty
-                ? Center(
-                    // 16. ✅ แสดงผลเมื่อไม่พบข้อมูล
-                    child: Text(
-                      _searchHistoryQuery.isEmpty
-                          ? "No history found."
-                          : "No history found for '$_searchHistoryQuery'",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    ? const Center(
+                        child: Text(
+                          "ไม่พบข้อมูลที่ค้นหา",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredHistory.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredHistory[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: _buildHistoryCard(item: item),
+                          );
+                        },
                       ),
-                    ),
-                  )
-                : RefreshIndicator(
-                    // 17. ✅ เพิ่ม RefreshIndicator
-                    onRefresh: _fetchHistory,
-                    color: Color(0xFF8B5B46),
-                    child: ListView.builder(
-                      key: const PageStorageKey(
-                        'historyList',
-                      ), // 18. ✅ ใช้ ListView.builder
-                      padding: const EdgeInsets.only(top: 10),
-                      itemCount: filteredHistory.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredHistory[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: _buildHistoryCard(
-                            item: item,
-                          ), // 19. ✅ ส่ง HistoryItem ทั้งก้อน
-                        );
-                      },
-                    ),
-                  ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+
+
 
   Widget _buildHistoryCard({required HistoryItem item}) {
     // 21. ✅ รับเป็น HistoryItem
