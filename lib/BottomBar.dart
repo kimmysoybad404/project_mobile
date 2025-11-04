@@ -293,9 +293,7 @@ class _BottomBarState extends State<BottomBar> {
       case 1:
         final pages = [
           requestborrower.RequestPage(newItem: _initialNewItem),
-          // ✅ FIX: ส่ง userId ที่ BottomBar ถืออยู่ (widget.userid)
-          // ไปให้ HomeBorrower
-          homepageborrower.HomeBorrower(userId: widget.userid!),
+          const homepageborrower.HomeBorrower(),
           const DashboardPage(),
         ];
         _initialNewItem = null;
@@ -316,6 +314,7 @@ class _BottomBarState extends State<BottomBar> {
         return [const Scaffold()];
     }
   }
+
   List<BottomBarItem> BottomBarItems() {
     List<IconData> icons;
     switch (widget.role) {
