@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:project_mobile/BottomBar.dart';
 import 'request_page.dart';
 import 'request_item.dart';
+import 'history_item.dart'; //Import history_item.dart
 
 class HomeBorrower extends StatefulWidget {
   const HomeBorrower({super.key});
@@ -26,22 +27,28 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   }
 
   Future<void> _fetchAssets([String query = ""]) async {
-  try {
-    final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
-    final res = await http.get(url);
+    try {
+      // 1. ✅ แก้ URL ให้รับ query
+      final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
+      final res = await http.get(url);
 
-    if (res.statusCode == 200) {
-      setState(() {
-        _assets = json.decode(res.body);
-        _isLoading = false;
-      });
-    } else {
-      print("Failed to fetch assets: ${res.statusCode}");
+      if (res.statusCode == 200) {
+        if (!mounted) return; // 2. ✅ เพิ่ม check mounted
+        setState(() {
+          _assets = json.decode(res.body);
+          _isLoadingAssets = false; 
+        });
+      } else {
+        print("Failed to fetch assets: ${res.statusCode}");
+        if (!mounted) return; // 3. ✅ เพิ่ม check mounted
+        setState(() => _isLoadingAssets = false);
+      }
+    } catch (e) {
+      print("Error: $e");
+      if (!mounted) return; // 4. ✅ เพิ่ม check mounted
+      setState(() => _isLoadingAssets = false);
     }
-  } catch (e) {
-    print("Error: $e");
   }
-}
 
 
   @override
@@ -224,38 +231,34 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     ).showSnackBar(SnackBar(content: Text("$name added to request list ✅")));
   }
 
-  Widget _buildSearchBar() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Icon(Icons.search, color: Colors.grey),
-        ),
-        Expanded(
-          child: TextField(
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: "search here...",
-              hintStyle: TextStyle(color: Colors.grey),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value.toLowerCase();
-              });
-              _fetchAssets(_searchQuery); // 🔥 เรียก API พร้อมคำค้นหา
-            },
+  Widget _buildSearchBar({required ValueChanged<String> onChanged}) {
+    // 11. ✅ แก้ไข _buildSearchBar ให้รับ onChanged
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Icon(Icons.search, color: Colors.grey),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: "search here...",
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+              onChanged: onChanged, // 12. ✅ ใช้งาน onChanged ที่รับเข้ามา
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
 
   Widget _history() {
