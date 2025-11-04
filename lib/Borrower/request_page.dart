@@ -508,7 +508,6 @@ class _RequestPageState extends State<RequestPage> {
                 ),
               ),
               Text(
-                // ✅ FIX 1: Use item.assetName
                 "Name: ${item.assetName}",
                 style: const TextStyle(
                   color: Colors.white,
@@ -523,10 +522,8 @@ class _RequestPageState extends State<RequestPage> {
               SizedBox(
                 width: 100,
                 height: 100,
-                // ✅ FIX 2: Use item.image
-                // This uses the image path from the HistoryItem
+                // ✅ FIX 2: ใช้ item.image (เหมือนเดิม แต่ตรวจสอบ)
                 child: Image.asset(item.image ?? 'assets/placeholder.png'),
-                // Note: If your image path is a URL, use Image.network()
               ),
               const SizedBox(width: 8), // Added space
               Expanded(
@@ -550,8 +547,9 @@ class _RequestPageState extends State<RequestPage> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              // ✅ FIX 3: Use the dynamic status from your model
-              item.statusString,
+              // ✅ FIX: เปลี่ยนจาก item.statusString เป็น item.displayStatus
+              // ให้ตรงกับไฟล์ history_item.dart ที่อัปเดตไป
+              item.displayStatus,
               style: TextStyle(
                 color: item.statusColor, // and the dynamic color
                 fontWeight: FontWeight.bold,
