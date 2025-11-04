@@ -39,27 +39,29 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   }
 
   Future<void> _fetchAssets([String query = ""]) async {
-  try {
-    final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
-    final res = await http.get(url);
+    try {
+      // 1. ✅ แก้ URL ให้รับ query
+      final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
+      final res = await http.get(url);
 
       if (res.statusCode == 200) {
+        if (!mounted) return; // 2. ✅ เพิ่ม check mounted
         setState(() {
           _assets = json.decode(res.body);
-          _isLoadingAssets = false; // 7. ✅ อัปเดต state
+          _isLoadingAssets = false; 
         });
       } else {
         print("Failed to fetch assets: ${res.statusCode}");
+        if (!mounted) return; // 3. ✅ เพิ่ม check mounted
         setState(() => _isLoadingAssets = false);
       }
     } catch (e) {
       print("Error: $e");
+      if (!mounted) return; // 4. ✅ เพิ่ม check mounted
       setState(() => _isLoadingAssets = false);
     }
-  } catch (e) {
-    print("Error: $e");
+    // 5. ❌ ลบ 'catch (e) { ... }' และ '}' ที่เกินมาตรงนี้
   }
-}
 
 
   // 8. ✅ ฟังก์ชันใหม่สำหรับดึงข้อมูล History
@@ -306,20 +308,13 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                 hintText: "search here...",
                 hintStyle: TextStyle(color: Colors.grey),
               ),
-              onChanged: onChanged, // 12. ✅ ใช้งาน onChanged
+              onChanged: onChanged, // 12. ✅ ใช้งาน onChanged ที่รับเข้ามา
             ),
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value.toLowerCase();
-              });
-              _fetchAssets(_searchQuery); // 🔥 เรียก API พร้อมคำค้นหา
-            },
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
 
   // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
