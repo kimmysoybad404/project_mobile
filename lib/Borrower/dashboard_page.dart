@@ -63,7 +63,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  Widget _strokedText(String text, {double fontSize = 16, double strokeWidth = 2}) {
+  Widget _strokedText(String text, {double fontSize = 16}) {
     return Stack(
       children: [
         Text(
@@ -71,10 +71,7 @@ class _DashboardPageState extends State<DashboardPage> {
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.bold,
-            foreground: Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = strokeWidth
-              ..color = Colors.black,
+
           ),
         ),
         Text(
@@ -134,7 +131,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 totalAssets > 0
                                     ? '${((available / totalAssets) * 100).toStringAsFixed(0)}%'
                                     : '0%',
-                                fontSize: 20,
+                                fontSize: 15,
                               ),
                               showTitle: false,
                             ),
@@ -146,19 +143,19 @@ class _DashboardPageState extends State<DashboardPage> {
                                 totalAssets > 0
                                     ? '${((borrowed / totalAssets) * 100).toStringAsFixed(0)}%'
                                     : '0%',
-                                fontSize: 20,
+                                fontSize: 15,
                               ),
                               showTitle: false,
                             ),
                             PieChartSectionData(
-                              color: const Color.fromARGB(255, 255, 234, 0),
+                              color: Colors.orange,
                               value: pending.toDouble(),
                               title: '',
                               badgeWidget: _strokedText(
                                 totalAssets > 0
                                     ? '${((pending / totalAssets) * 100).toStringAsFixed(0)}%'
                                     : '0%',
-                                fontSize: 20,
+                                fontSize: 15,
                               ),
                               showTitle: false,
                             ),
@@ -170,7 +167,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 totalAssets > 0
                                     ? '${((disabled / totalAssets) * 100).toStringAsFixed(0)}%'
                                     : '0%',
-                                fontSize: 20,
+                                fontSize: 15,
                               ),
                               showTitle: false,
                             ),
@@ -186,7 +183,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         const SizedBox(width: 16),
                         _buildLegend(Colors.blue, "Borrowed"),
                         const SizedBox(width: 16),
-                        _buildLegend(const Color.fromARGB(255, 255, 234, 0), "Pending"),
+                        _buildLegend(Colors.orange, "Pending"),
                         const SizedBox(width: 16),
                         _buildLegend(Colors.red, "Disabled"),
                       ],
@@ -199,7 +196,7 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 10),
               _buildStatusCard(Colors.blue, "Borrowed", borrowed),
               const SizedBox(height: 10),
-              _buildStatusCard(const Color.fromARGB(255, 255, 234, 0), "Pending", pending),
+              _buildStatusCard(Colors.orange, "Pending", pending),
               const SizedBox(height: 10),
               _buildStatusCard(Colors.red, "Disabled", disabled),
             ],
@@ -229,8 +226,8 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _strokedText(label, fontSize: 24, strokeWidth: 2),
-          _strokedText(count.toString(), fontSize: 24, strokeWidth: 2),
+          _strokedText(label, fontSize: 18),
+          _strokedText(count.toString(), fontSize: 18),
         ],
       ),
     );
