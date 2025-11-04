@@ -51,12 +51,13 @@ class _RequestPageState extends State<RequestPage> {
         url,
         headers: {'Content-Type': 'application/json'},
       );
-
+      print(response.body);
       if (response.statusCode == 200) {
         // Use your existing parser
         final List<HistoryItem> items = historyItemFromJson(response.body);
         setState(() {
           _historyItems = items;
+
           _isStatusLoading = false;
         });
       } else {
@@ -488,6 +489,15 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Widget _buildStatusItemCard(HistoryItem item) {
+    if (item.displayStatus == "Approved" || item.displayStatus == "rejected") {
+      return const Center(
+        child: Text(
+          "No items requested yet",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
