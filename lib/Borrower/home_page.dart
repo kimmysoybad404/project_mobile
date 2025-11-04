@@ -60,7 +60,6 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       if (!mounted) return; // 4. ✅ เพิ่ม check mounted
       setState(() => _isLoadingAssets = false);
     }
-    // 5. ❌ ลบ 'catch (e) { ... }' และ '}' ที่เกินมาตรงนี้
   }
 
 
