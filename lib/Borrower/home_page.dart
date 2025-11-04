@@ -384,7 +384,6 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
-  // 20. ✅ ============ แก้ไข Widget _buildHistoryCard() ทั้งหมด ============
   Widget _buildHistoryCard({required HistoryItem item}) {
     // 21. ✅ รับเป็น HistoryItem
     return Container(
@@ -397,35 +396,35 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            // ... (ส่วนแสดง ID และ Name เหมือนเดิม) ...
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'ID: ${item.id.toString().padLeft(5, '0')}', // 22. ✅ ใช้ข้อมูลจาก item
+                'ID: ${item.id.toString().padLeft(5, '0')}',
                 style: const TextStyle(color: Colors.white),
               ),
               Text(
-                'Name: ${item.assetName}', // 23. ✅ ใช้ข้อมูลจาก item
+                'Name: ${item.assetName}',
                 style: const TextStyle(color: Colors.white),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
+            // ... (ส่วนแสดง รูปภาพ และ วันที่ เหมือนเดิม) ...
             children: [
               Container(
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white, // 24. ✅ เพิ่มสีพื้นหลัง
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: ClipRRect(
-                  // 25. ✅ ใช้ ClipRRect
                   borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
-                    item.image ?? 'assets/images/placeholder.png', // 26. ✅ ใช้ image path
+                    item.image ?? 'assets/images/placeholder.png',
                     fit: BoxFit.contain,
-                    // 27. ✅ เพิ่ม errorBuilder
                     errorBuilder: (context, error, stackTrace) =>
                         Icon(Icons.image_not_supported, color: Colors.grey),
                   ),
@@ -435,48 +434,55 @@ class _HomeBorrowerState extends State<HomeBorrower> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDateTag(
-                      'Borrow',
-                      _formatThaiDate(
-                          item.borrowDate)), // 28. ✅ ใช้ข้อมูลและ format วันที่
+                  _buildDateTag('Borrow', _formatThaiDate(item.borrowDate)),
                   const SizedBox(height: 10),
-                  _buildDateTag(
-                      'Return',
-                      _formatThaiDate(
-                          item.returnDate)), // 29. ✅ ใช้ข้อมูลและ format วันที่
+                  _buildDateTag('Return', _formatThaiDate(item.returnDate)),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // 30. ✅ แสดง status
+          //  status
           _buildInfoBar(
             'Status: ${item.displayStatus}',
-            backgroundColor: item.statusColor, // 31. ✅ ใช้สีตาม status
+            backgroundColor: item.statusColor,
             textColor: item.displayStatus.toLowerCase() == 'pending'
                 ? Colors.black87
                 : Colors.white,
           ),
 
-          // 32. ✅ แสดง ApproveBy (ถ้ามี)
+          //  ApproveBy (ถ้ามี)
           if (item.approverName != null) ...[
             const SizedBox(height: 10),
             _buildInfoBar('Approve by: ${item.approverName}'),
           ],
 
-          // 33. ✅ แสดง ReceiveBy (ถ้ามี)
+          //  ReceiveBy (ถ้ามี)
           if (item.receiverName != null) ...[
             const SizedBox(height: 10),
             _buildInfoBar('Received asset by: ${item.receiverName}'),
           ],
 
-          // 34. ✅ แสดง เหตุผลที่ Reject (ถ้ามี)
+          
+          //  แสดง "ผู้ปฏิเสธ" 
+          
+          if (item.rejecterName != null) ...[
+            const SizedBox(height: 10),
+            _buildInfoBar(
+              'Reject by: ${item.rejecterName}',
+            ),
+          ],
+          
+         
+          
+
+          // แสดง "เหตุผลที่ Reject" (ถ้ามี)
           if (item.rejectReason != null) ...[
             const SizedBox(height: 10),
             _buildInfoBar('Reason: ${item.rejectReason}',
                 backgroundColor: Colors.red.withOpacity(0.2),
-                textColor: Colors.red[100]),
+                textColor: const Color.fromARGB(255, 255, 255, 255)),
           ],
         ],
       ),

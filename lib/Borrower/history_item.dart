@@ -8,13 +8,14 @@ class HistoryItem {
   final DateTime borrowDate;
   final DateTime returnDate;
   final int? borrowBy;
-  final int? approveBy; // เพิ่ม field นี้
+  final int? approveBy;
   final int? receiveBy;
   final int? rejectBy;
   final String? rejectReason;
-  final String? status; // เพิ่ม field นี้
-  final String? approverName; // เพิ่ม field นี้
-  final String? receiverName; // เพิ่ม field นี้
+  // final String? status; // ไม่ได้ใช้แล้ว
+  final String? approverName;
+  final String? receiverName;
+  final String? rejecterName; // ✅ 1. เพิ่มตัวแปรนี้
 
   HistoryItem({
     required this.id,
@@ -23,73 +24,73 @@ class HistoryItem {
     required this.borrowDate,
     required this.returnDate,
     this.borrowBy,
-    this.approveBy, // เพิ่มใน constructor
+    this.approveBy,
     this.receiveBy,
     this.rejectBy,
     this.rejectReason,
     this.image,
-    this.status, // เพิ่มใน constructor
-    this.approverName, // เพิ่มใน constructor
-    this.receiverName, // เพิ่มใน constructor
+    // this.status, // ไม่ได้ใช้แล้ว
+    this.approverName,
+    this.receiverName,
+    this.rejecterName, // ✅ 2. เพิ่มใน constructor
   });
 
+  // Factory constructor to parse JSON
   // Factory constructor to parse JSON
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
     return HistoryItem(
       id: json['id'],
       assetID: json['assetID'],
-      assetName: json['assetName'] ?? 'No Name', // เพิ่ม fallback
+      assetName: json['assetName'] ?? 'No Name',
       image: json["image"],
-      borrowDate: DateTime.parse(json['BorrowDate']),
-      returnDate: DateTime.parse(json['ReturnDate']),
+      
+      borrowDate: DateTime.parse(json['BorrowDate']).toLocal(),
+      returnDate: DateTime.parse(json['ReturnDate']).toLocal(),
+      
       borrowBy: json['BorrowBy'],
-      approveBy: json['ApproveBy'], // ดึงข้อมูล
+      approveBy: json['ApproveBy'],
       receiveBy: json['ReceiveBy'],
       rejectBy: json['RejectBy'],
       rejectReason: json['RejectReason'],
-      status: json['status'], // ดึงข้อมูล
-      approverName: json['approverName'], // ดึงข้อมูล
-      receiverName: json['receiverName'], // ดึงข้อมูล
+      approverName: json['approverName'],
+      receiverName: json['receiverName'],
+      rejecterName: json['rejecterName'],
     );
   }
 
   // Get the status as a displayable string
   String get displayStatus {
-    // ใช้ status จาก DB เป็นหลัก
-    if (status != null && status!.isNotEmpty) {
-      // ทำให้เป็นตัวพิมพ์ใหญ่ตัวแรก
-      return status![0].toUpperCase() + status!.substring(1).toLowerCase();
-    }
-
-    // Logic สำรอง (ถ้า DB ไม่มีคอลัมน์ Status)
+    // Logic หลัก: เช็คจากค่า NULL
     if (rejectBy != null) {
       return 'Rejected';
     }
     if (receiveBy != null) {
-      return 'Returned'; // สมมติว่า ReceiveBy คือการคืนของแล้ว
+      return 'Returned';
     }
     if (approveBy != null) {
       return 'Approved';
     }
+    
+    // (กันเหนียว) ถ้าทุกอย่างเป็น NULL
     return 'Pending';
   }
 
   // Get the status color for your UI
   Color get statusColor {
-    final s = displayStatus.toLowerCase(); // 
-    
+    final s = displayStatus.toLowerCase();
+
     if (s == 'rejected') {
       return Colors.red[700]!; // 🟥 Rejected = สีแดง
     }
 
     if (s == 'returned') {
-      return Colors.orange[800]!; // 🟧 Returned = สีส้ม (ตามที่คุณต้องการ)
+      return Colors.orange[800]!; // 🟧 Returned = สีส้ม
     }
 
     if (s == 'approved') {
       return Colors.green[700]!; // 🟩 Approved = สีเขียว
     }
-    
+
     if (s == 'pending') {
       return const Color(0xFFF9E076); // 🟨 Pending = สีเหลือง
     }
