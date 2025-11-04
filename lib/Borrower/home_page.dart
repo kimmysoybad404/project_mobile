@@ -38,10 +38,10 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     _fetchHistory(); // 6. ✅ เรียกดึงข้อมูล history ตอนเริ่ม
   }
 
-  Future<void> _fetchAssets() async {
-    try {
-      final url = Uri.parse("http://10.0.2.2:3000/storage");
-      final res = await http.get(url);
+  Future<void> _fetchAssets([String query = ""]) async {
+  try {
+    final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
+    final res = await http.get(url);
 
       if (res.statusCode == 200) {
         setState(() {
@@ -56,7 +56,11 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       print("Error: $e");
       setState(() => _isLoadingAssets = false);
     }
+  } catch (e) {
+    print("Error: $e");
   }
+}
+
 
   // 8. ✅ ฟังก์ชันใหม่สำหรับดึงข้อมูล History
   Future<void> _fetchHistory() async {
@@ -304,11 +308,19 @@ class _HomeBorrowerState extends State<HomeBorrower> {
               ),
               onChanged: onChanged, // 12. ✅ ใช้งาน onChanged
             ),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.toLowerCase();
+              });
+              _fetchAssets(_searchQuery); // 🔥 เรียก API พร้อมคำค้นหา
+            },
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
   Widget _history() {
