@@ -218,8 +218,8 @@ Widget _assetListFromAPI() {
                       child: Center(
                         child: Text(
                           _searchQuery.isEmpty
-                              ? "No available items right now"
-                              : "No items found for '$_searchQuery'",
+                              ? "No available items right now or No items found for '$_searchQuery'"
+                              : "No available items right now or No items found for '$_searchQuery'",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
