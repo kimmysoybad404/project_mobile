@@ -30,6 +30,7 @@ class _RequestPageState extends State<RequestPage> {
   RequestItem? _pendingItem;
   List<RequestItem> requestItems = [];
   List<HistoryItem> _historyItems = [];
+
   List<HistoryItem> historyItemFromJson(String str) {
     final List<dynamic> decodedJson = jsonDecode(str);
     return decodedJson
@@ -38,7 +39,6 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Future<void> _fetchStatusRequests(String userId) async {
-    // Set loading state
     setState(() {
       _isStatusLoading = true;
       _statusError = null;
@@ -53,11 +53,9 @@ class _RequestPageState extends State<RequestPage> {
       );
       print(response.body);
       if (response.statusCode == 200) {
-        // Use your existing parser
         final List<HistoryItem> items = historyItemFromJson(response.body);
         setState(() {
           _historyItems = items;
-
           _isStatusLoading = false;
         });
       } else {
@@ -81,33 +79,27 @@ class _RequestPageState extends State<RequestPage> {
     DateTime returnDate,
     String userId,
   ) async {
-    final url = Uri.parse(
-      'http://10.0.2.2:3000/update-storage',
-    ); // Your endpoint
+    final url = Uri.parse('http://10.0.2.2:3000/update-storage');
 
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'id': itemId, // For the UPDATE
-          'status': 'Pending', // For the UPDATE
-          'assetID': itemId, // For the INSERT
-          'borrowDate': borrowDate.toIso8601String(), // For the INSERT
-          'returnDate': returnDate.toIso8601String(), // For the INSERT
-          'borrowBy': userId, // For the INSERT
+          'id': itemId,
+          'status': 'Pending',
+          'assetID': itemId,
+          'borrowDate': borrowDate.toIso8601String(),
+          'returnDate': returnDate.toIso8601String(),
+          'borrowBy': userId,
         }),
       );
 
       if (response.statusCode == 200) {
-        // Success
         print('Update successful!');
         print('Response body: ${response.body}');
         return true;
-        // You can parse the response.body if your server sends back data
-        // final data = jsonDecode(response.body);
       } else {
-        // Server error
         print('Failed to update status. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
         setState(() {
@@ -116,7 +108,6 @@ class _RequestPageState extends State<RequestPage> {
         return false;
       }
     } catch (e) {
-      // Network or other error
       print('Error sending request: $e');
       return false;
     }
@@ -147,10 +138,8 @@ class _RequestPageState extends State<RequestPage> {
     });
 
     if (userId.isNotEmpty) {
-      // This will now run every time the page loads
       _fetchStatusRequests(userId);
     } else {
-      // Handle case where user is not logged in
       setState(() {
         _isStatusLoading = false;
         _statusError = "User not logged in.";
@@ -175,21 +164,58 @@ class _RequestPageState extends State<RequestPage> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 380),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5B46),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildTabs(),
-                    const SizedBox(height: 12),
-                    const Text(
-                      "*You can only request once a day.",
-                      style: TextStyle(color: Color(0xFFF48A8A), fontSize: 13),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF48A8A).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFF48A8A).withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: const Color(0xFFF48A8A),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "You can only request once a day.",
+                              style: TextStyle(
+                                color: const Color(0xFFF48A8A),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: _selectedTabIndex == 0
@@ -208,10 +234,17 @@ class _RequestPageState extends State<RequestPage> {
 
   Widget _buildTabs() {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -227,18 +260,29 @@ class _RequestPageState extends State<RequestPage> {
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedTabIndex = index),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isActive ? LightBrown : Colors.white,
             borderRadius: BorderRadius.circular(30),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: LightBrown.withOpacity(0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [],
           ),
           child: Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: const Color(0xFF4A3831),
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+              fontSize: 15,
             ),
           ),
         ),
@@ -246,11 +290,29 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
-  // 🔹 Request Info Tab
   Widget _buildAllRequestCards() {
     if (_pendingItem == null) {
-      return const Center(
-        child: Text("No item selected", style: TextStyle(color: Colors.white)),
+      return Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            Icon(
+              Icons.inventory_2_outlined,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "No item selected",
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
       );
     }
     return _buildRequestInfoCard(_pendingItem!);
@@ -259,25 +321,36 @@ class _RequestPageState extends State<RequestPage> {
   Widget _buildRequestInfoCard(RequestItem item) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: LightBrown,
-        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [LightBrown, LightBrown.withOpacity(0.9)],
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Row(
             children: [
               _buildDeviceImage(item),
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               _buildDeviceInfo(item),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           _buildDateField("Borrow", _borrowDate),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _buildDateField("Return", _returnDate),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           _buildRequestButton(item),
         ],
       ),
@@ -286,16 +359,23 @@ class _RequestPageState extends State<RequestPage> {
 
   Widget _buildDeviceImage(RequestItem item) {
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: DarkBrown,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: DarkBrown.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: const Color(0xFFFADDB9),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: SizedBox(
           width: 100,
@@ -315,28 +395,64 @@ class _RequestPageState extends State<RequestPage> {
             item.name,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w600,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              letterSpacing: -0.5,
             ),
           ),
-          Text(
-            "ID:${item.id}",
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFE2F0D9),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "Status: ${item.status}",
+              "ID: ${item.id}",
               style: const TextStyle(
-                color: Color(0xFF5A8E41),
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
               ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [const Color(0xFFE2F0D9), const Color(0xFFD4E8C7)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF5A8E41).withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5A8E41),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  item.status,
+                  style: const TextStyle(
+                    color: Color(0xFF5A8E41),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -348,39 +464,56 @@ class _RequestPageState extends State<RequestPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
-        const SizedBox(height: 4),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: const Color(0xFFFCE9D3),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             children: [
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: Icon(Icons.calendar_today_rounded, color: DarkBrown),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: DarkBrown.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.calendar_today_rounded,
+                  color: DarkBrown,
+                  size: 20,
+                ),
               ),
+              const SizedBox(width: 16),
               Expanded(
                 child: Text(
                   DateFormat('d/M/yyyy').format(date),
-                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF4A3831),
+                    fontSize: 16,
                   ),
                 ),
               ),
-              const SizedBox(width: 48),
             ],
           ),
         ),
@@ -388,97 +521,169 @@ class _RequestPageState extends State<RequestPage> {
     );
   }
 
-  // ✅ ปุ่ม Request Now: ย้าย item ไป Status แล้วลบออกจาก Request info
   Widget _buildRequestButton(RequestItem item) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: DarkBrown,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: DarkBrown.withOpacity(0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-        ),
-        onPressed: () async {
-          bool updateSucceeded = false;
-          try {
-            updateSucceeded = await requestItemAndUpdateStatus(
-              item.id,
-              _borrowDate,
-              _returnDate,
-              _userId ?? "",
-            );
-          } catch (e) {
-            updateSucceeded = false;
-          }
-
-          if (updateSucceeded) {
-            // 🔽 --- REFRESH LOGIC --- 🔽
-            if (_userId != null) {
-              // Refetch the list from the server
-              _fetchStatusRequests(_userId!);
-            }
-
-            setState(() {
-              _pendingItem = null; // Clear Request info tab
-              _selectedTabIndex = 1; // Switch to Status tab
-            });
-            // 🔼 --- END REFRESH --- 🔼
-
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("${item.name} added to Request List ✅")),
+        ],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: DarkBrown,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 0,
+          ),
+          onPressed: () async {
+            bool updateSucceeded = false;
+            try {
+              updateSucceeded = await requestItemAndUpdateStatus(
+                item.id,
+                _borrowDate,
+                _returnDate,
+                _userId ?? "",
               );
+            } catch (e) {
+              updateSucceeded = false;
             }
-          } else {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(_errortxt ?? "Request failed"), // Use _errortxt
-                  backgroundColor: Colors.red,
+
+            if (updateSucceeded) {
+              if (_userId != null) {
+                _fetchStatusRequests(_userId!);
+              }
+
+              setState(() {
+                _pendingItem = null;
+                _selectedTabIndex = 1;
+              });
+
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text("${item.name} added to Request List"),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: const Color(0xFF5A8E41),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }
+            } else {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(_errortxt ?? "Request failed")),
+                      ],
+                    ),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Request now",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: LightBrown,
+                  letterSpacing: 0.5,
                 ),
-              );
-            }
-          }
-        },
-        child: Text(
-          "Request now",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: LightBrown,
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.arrow_forward_rounded, color: LightBrown, size: 22),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // 🔹 Status Tab
   Widget _buildStatusCard() {
     if (_isStatusLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+        ),
       );
     }
 
     if (_statusError != null) {
       return Center(
-        child: Text(_statusError!, style: const TextStyle(color: Colors.red)),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.red.withOpacity(0.7),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _statusError!,
+              style: TextStyle(color: Colors.red.shade300, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
       );
     }
 
     if (_historyItems.isEmpty) {
-      return const Center(
-        child: Text(
-          "No items requested yet",
-          style: TextStyle(color: Colors.white),
+      return Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            Icon(Icons.history, size: 64, color: Colors.white.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            Text(
+              "No items requested yet",
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
         ),
       );
     }
 
     return Container(
-      height: 250, 
+      height: 280,
       child: RefreshIndicator(
         color: DarkBrown,
         backgroundColor: Colors.white,
@@ -501,38 +706,70 @@ class _RequestPageState extends State<RequestPage> {
 
   Widget _buildStatusItemCard(HistoryItem item) {
     if (item.displayStatus == "Approved" || item.displayStatus == "rejected") {
-      return const Center(
-        child: Text(
-          "No items requested yet",
-          style: TextStyle(color: Colors.white),
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: LightBrown, width: 5),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [DarkBrown.withOpacity(0.3), DarkBrown.withOpacity(0.2)],
+        ),
+        border: Border.all(color: LightBrown, width: 3),
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "ID: ${item.id}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "ID: ${item.id}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
               ),
-              Text(
-                "Name: ${item.assetName}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    item.assetName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ],
@@ -540,13 +777,22 @@ class _RequestPageState extends State<RequestPage> {
           const SizedBox(height: 20),
           Row(
             children: [
-              SizedBox(
-                width: 100,
-                height: 100,
-                // ✅ FIX 2: ใช้ item.image (เหมือนเดิม แต่ตรวจสอบ)
-                child: Image.asset(item.image ?? 'assets/placeholder.png'),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: SizedBox(
+                  width: 90,
+                  height: 90,
+                  child: Image.asset(
+                    item.image ?? 'assets/placeholder.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
-              const SizedBox(width: 8), // Added space
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   children: [
@@ -567,14 +813,36 @@ class _RequestPageState extends State<RequestPage> {
           const SizedBox(height: 20),
           Align(
             alignment: Alignment.centerRight,
-            child: Text(
-              // ✅ FIX: เปลี่ยนจาก item.statusString เป็น item.displayStatus
-              // ให้ตรงกับไฟล์ history_item.dart ที่อัปเดตไป
-              item.displayStatus,
-              style: TextStyle(
-                color: item.statusColor, // and the dynamic color
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: item.statusColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: item.statusColor.withOpacity(0.5),
+                  width: 2,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    item.displayStatus == "Pending"
+                        ? Icons.schedule
+                        : Icons.check_circle_outline,
+                    color: item.statusColor,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    item.displayStatus,
+                    style: TextStyle(
+                      color: item.statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -586,25 +854,39 @@ class _RequestPageState extends State<RequestPage> {
   Widget _buildStatusDateRow(String label, String date) {
     return Row(
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 14),
+        SizedBox(
+          width: 60,
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: LightBrown,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.calendar_today,
-                  size: 16,
-                  color: Color(0xFF4A3831),
+                  size: 14,
+                  color: const Color(0xFF4A3831),
                 ),
                 const SizedBox(width: 8),
                 Text(
