@@ -300,7 +300,7 @@ class _BottomBarState extends State<BottomBar> {
         return pages;
       case 2:
         return [
-          requestlender.RequestPage(),
+          requestlender.RequestPageLender(),
           const homepageLender.Homelender(),
           const DashboardPage(),
         ];
