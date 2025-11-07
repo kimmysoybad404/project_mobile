@@ -661,7 +661,16 @@ class _RequestPageState extends State<RequestPage> {
       );
     }
 
-    if (_historyItems.isEmpty) {
+    // 🟤 กรองเฉพาะรายการที่ยังไม่ถูก Approve หรือ Reject
+    final activeItems = _historyItems
+        .where(
+          (item) =>
+              item.displayStatus != "Approved" &&
+              item.displayStatus != "Rejected",
+        )
+        .toList();
+
+    if (activeItems.isEmpty) {
       return Center(
         child: Column(
           children: [
@@ -694,9 +703,9 @@ class _RequestPageState extends State<RequestPage> {
         },
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: _historyItems.length,
+          itemCount: activeItems.length,
           itemBuilder: (context, index) {
-            final item = _historyItems[index];
+            final item = activeItems[index];
             return _buildStatusItemCard(item);
           },
         ),
@@ -705,7 +714,6 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Widget _buildStatusItemCard(HistoryItem item) {
-    // ✅ ข้ามการ์ดที่ Approved หรือ Rejected ไปเลย
     if (item.displayStatus == "Approved" || item.displayStatus == "Rejected") {
       return const SizedBox.shrink();
     }

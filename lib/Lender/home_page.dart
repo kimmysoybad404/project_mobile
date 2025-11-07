@@ -187,7 +187,9 @@ class _HomeLenderState extends State<HomeLender> {
                         padding: const EdgeInsets.only(top: 40),
                         child: Center(
                           child: Text(
-                            "No items found.",
+                            _searchQuery.isEmpty
+                                ? "No available items right now or No items found for '$_searchQuery'"
+                                : "No available items right now or No items found for '$_searchQuery'",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -280,10 +282,22 @@ class _HomeLenderState extends State<HomeLender> {
                       child: CircularProgressIndicator(color: Colors.white),
                     )
                   : filteredHistory.isEmpty
-                  ? const Center(
-                      child: Text(
-                        "No History found",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 40),
+                          Icon(
+                            Icons.history,
+                            size: 64,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No History Naja",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
                       ),
                     )
                   : ListView.builder(

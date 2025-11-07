@@ -65,25 +65,26 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 
   // 8. ✅ ฟังก์ชันใหม่สำหรับดึงข้อมูล History
   Future<void> _fetchHistory() async {
-  setState(() => _isLoadingHistory = true);
+    setState(() => _isLoadingHistory = true);
 
-  final search = _searchHistoryQuery.trim();
-  final url = Uri.parse(
-    "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
-  );
+    final search = _searchHistoryQuery.trim();
+    final url = Uri.parse(
+      "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
+    );
 
-  final res = await http.get(url);
-  if (res.statusCode == 200) {
-    final List<dynamic> rawData = json.decode(res.body);
-    setState(() {
-      _historyItems = rawData.map((json) => HistoryItem.fromJson(json)).toList();
-      _isLoadingHistory = false;
-    });
-  } else {
-    setState(() => _isLoadingHistory = false);
+    final res = await http.get(url);
+    if (res.statusCode == 200) {
+      final List<dynamic> rawData = json.decode(res.body);
+      setState(() {
+        _historyItems = rawData
+            .map((json) => HistoryItem.fromJson(json))
+            .toList();
+        _isLoadingHistory = false;
+      });
+    } else {
+      setState(() => _isLoadingHistory = false);
+    }
   }
-}
-
 
   // 9. ✅ ฟังก์ชันช่วยแปลงวันที่ให้เป็น "วัน/เดือน/ปี(พ.ศ.)"
   String _formatThaiDate(DateTime date) {
@@ -169,103 +170,106 @@ class _HomeBorrowerState extends State<HomeBorrower> {
     );
   }
 
-Widget _assetListFromAPI() {
-  final filteredAssets = _assets.where((item) {
-    final name = item['Name']?.toString().toLowerCase() ?? '';
-    final id = item['ID']?.toString() ?? '';
-    final status = item['Status']?.toString() ?? '';
+  Widget _assetListFromAPI() {
+    final filteredAssets = _assets.where((item) {
+      final name = item['Name']?.toString().toLowerCase() ?? '';
+      final id = item['ID']?.toString() ?? '';
+      final status = item['Status']?.toString() ?? '';
 
-    // ✅ ค้นหาได้ทั้งชื่อและไอดี
-    final matchesQuery = name.contains(_searchQuery) || id.contains(_searchQuery);
+      // ✅ ค้นหาได้ทั้งชื่อและไอดี
+      final matchesQuery =
+          name.contains(_searchQuery) || id.contains(_searchQuery);
 
-    // ✅ ต้องมีสถานะ Available และตรงกับคำค้นหา
-    return status == 'Available' && matchesQuery;
-  }).toList();
+      // ✅ ต้องมีสถานะ Available และตรงกับคำค้นหา
+      return status == 'Available' && matchesQuery;
+    }).toList();
 
-  return Container(
-    decoration: BoxDecoration(
-      color: const Color(0xFF8B5B46),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    padding: const EdgeInsets.all(15),
-    margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-    child: Column(
-      children: [
-        _buildSearchBar(
-          onChanged: (value) {
-            setState(() {
-              _searchQuery = value.toLowerCase();
-            });
-            _fetchAssets(value.isEmpty ? "" : value); // ✅ ป้องกัน error ตอนค้นหา
-          },
-        ),
-
-        const SizedBox(height: 10),
-
-        Expanded(
-          child: RefreshIndicator(
-            color: const Color(0xFF8B5B46),
-            onRefresh: () async {
-              await _fetchAssets(_searchQuery);
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF8B5B46),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+      child: Column(
+        children: [
+          _buildSearchBar(
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.toLowerCase();
+              });
+              _fetchAssets(
+                value.isEmpty ? "" : value,
+              ); // ✅ ป้องกัน error ตอนค้นหา
             },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  if (filteredAssets.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 40),
-                      child: Center(
-                        child: Text(
-                          _searchQuery.isEmpty
-                              ? "No available items right now or No items found for '$_searchQuery'"
-                              : "No available items right now or No items found for '$_searchQuery'",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+          ),
+
+          const SizedBox(height: 10),
+
+          Expanded(
+            child: RefreshIndicator(
+              color: const Color(0xFF8B5B46),
+              onRefresh: () async {
+                await _fetchAssets(_searchQuery);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    if (filteredAssets.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: Center(
+                          child: Text(
+                            _searchQuery.isEmpty
+                                ? "No available items right now or No items found for '$_searchQuery'"
+                                : "No available items right now or No items found for '$_searchQuery'",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  else
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.85,
-                      ),
-                      itemCount: filteredAssets.length,
-                      itemBuilder: (context, index) {
-                        final asset = filteredAssets[index];
-                        final name = asset['Name'] ?? 'Unknown';
-                        final id = asset['ID']?.toString() ?? '';
-                        final imageName = asset['imageName'] ?? 'placeholder.png';
-                        final status = asset['Status'] ?? 'Unknown';
+                      )
+                    else
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.85,
+                            ),
+                        itemCount: filteredAssets.length,
+                        itemBuilder: (context, index) {
+                          final asset = filteredAssets[index];
+                          final name = asset['Name'] ?? 'Unknown';
+                          final id = asset['ID']?.toString() ?? '';
+                          final imageName =
+                              asset['imageName'] ?? 'placeholder.png';
+                          final status = asset['Status'] ?? 'Unknown';
 
-                        return AssetCard(
-                          name: name,
-                          id: id,
-                          imagePath: "assets/images/$imageName",
-                          status: status,
-                          onAdd: _addItem,
-                        );
-                      },
-                    ),
-                ],
+                          return AssetCard(
+                            name: name,
+                            id: id,
+                            imagePath: "assets/images/$imageName",
+                            status: status,
+                            onAdd: _addItem,
+                          );
+                        },
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   void _addItem(String id, String name, String imagePath) {
     final newItem = RequestItem(
@@ -329,228 +333,248 @@ Widget _assetListFromAPI() {
   }
 
   // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
- Widget _history() {
-  final filteredHistory = _historyItems.where((item) {
-    final assetID = item.assetID.toString().replaceAll(' ', '').toLowerCase();
-    final assetName = item.assetName.replaceAll(' ', '').toLowerCase();
+  Widget _history() {
+    final filteredHistory = _historyItems.where((item) {
+      final assetID = item.assetID.toString().replaceAll(' ', '').toLowerCase();
+      final assetName = item.assetName.replaceAll(' ', '').toLowerCase();
 
-    // 🔹 วันที่จาก backend (เป็น ค.ศ.)
-    final borrowDate = DateFormat('dd/MM/yyyy').format(item.borrowDate);
-    final returnDate = DateFormat('dd/MM/yyyy').format(item.returnDate);
+      final borrowDate = DateFormat('dd/MM/yyyy').format(item.borrowDate);
+      final returnDate = DateFormat('dd/MM/yyyy').format(item.returnDate);
 
-    // 🔹 แปลง ค.ศ. → พ.ศ.
-    final borrowYearAD = item.borrowDate.year;
-    final borrowYearBE = borrowYearAD + 543;
-    final returnYearAD = item.returnDate.year;
-    final returnYearBE = returnYearAD + 543;
+      final borrowYearAD = item.borrowDate.year;
+      final borrowYearBE = borrowYearAD + 543;
+      final returnYearAD = item.returnDate.year;
+      final returnYearBE = returnYearAD + 543;
 
-    // ✅ สร้างวันที่แบบพ.ศ. เพื่อให้ค้นหาได้ทั้งสองแบบ
-    final borrowDateBE = borrowDate.replaceAll(
-      borrowYearAD.toString(),
-      borrowYearBE.toString(),
-    );
-    final returnDateBE = returnDate.replaceAll(
-      returnYearAD.toString(),
-      returnYearBE.toString(),
-    );
+      final borrowDateBE = borrowDate.replaceAll(
+        borrowYearAD.toString(),
+        borrowYearBE.toString(),
+      );
+      final returnDateBE = returnDate.replaceAll(
+        returnYearAD.toString(),
+        returnYearBE.toString(),
+      );
 
-    final approver = (item.approverName ?? '').replaceAll(' ', '').toLowerCase();
-    final receiver = (item.receiverName ?? '').replaceAll(' ', '').toLowerCase();
-    final query = _searchHistoryQuery.replaceAll(' ', '').toLowerCase();
+      final approver = (item.approverName ?? '')
+          .replaceAll(' ', '')
+          .toLowerCase();
+      final receiver = (item.receiverName ?? '')
+          .replaceAll(' ', '')
+          .toLowerCase();
+      final query = _searchHistoryQuery.replaceAll(' ', '').toLowerCase();
 
-    // ✅ เทียบทั้งแบบ ค.ศ. และ พ.ศ.
-    return item.id.toString().contains(query) ||
-        assetID.contains(query) ||
-        assetName.contains(query) ||
-        borrowDate.toLowerCase().contains(query) ||
-        returnDate.toLowerCase().contains(query) ||
-        borrowDateBE.toLowerCase().contains(query) ||
-        returnDateBE.toLowerCase().contains(query) ||
-        approver.contains(query) ||
-        receiver.contains(query);
-  }).toList();
+      // ✅ เทียบทั้งแบบ ค.ศ. และ พ.ศ.
+      return item.id.toString().contains(query) ||
+          assetID.contains(query) ||
+          assetName.contains(query) ||
+          borrowDate.toLowerCase().contains(query) ||
+          returnDate.toLowerCase().contains(query) ||
+          borrowDateBE.toLowerCase().contains(query) ||
+          returnDateBE.toLowerCase().contains(query) ||
+          approver.contains(query) ||
+          receiver.contains(query);
+    }).toList();
 
-  return Card(
-    color: const Color(0xFF8B5B46),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          _buildSearchBar(
-            onChanged: (value) {
-              setState(() {
-                _searchHistoryQuery = value;
-              });
-            },
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: _isLoadingHistory
-                ? const Center(child: CircularProgressIndicator(color: Colors.white))
-                : filteredHistory.isEmpty
-                    ? const Center(
-                        child: Text(
-                          "ไม่พบข้อมูลที่ค้นหา",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredHistory.length,
-                        itemBuilder: (context, index) {
-                          final item = filteredHistory[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: _buildHistoryCard(item: item),
-                          );
-                        },
+    return Card(
+      color: const Color(0xFF8B5B46),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildSearchBar(
+              onChanged: (value) {
+                setState(() {
+                  _searchHistoryQuery = value;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: _isLoadingHistory
+                  ? const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  : filteredHistory.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 40),
+                          Icon(
+                            Icons.history,
+                            size: 64,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No History Naja",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
                       ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-
-
-
-
-  Widget _buildHistoryCard({required HistoryItem item}) {
-    // 21. ✅ รับเป็น HistoryItem
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFF6C68E), width: 5.0),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            // ... (ส่วนแสดง ID และ Name เหมือนเดิม) ...
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'ID: ${item.id.toString().padLeft(5, '0')}',
-                style: const TextStyle(color: Colors.white),
-              ),
-              Text(
-                'Name: ${item.assetName}',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            // ... (ส่วนแสดง รูปภาพ และ วันที่ เหมือนเดิม) ...
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    item.image ?? 'assets/images/placeholder.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Icon(Icons.image_not_supported, color: Colors.grey),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDateTag('Borrow', _formatThaiDate(item.borrowDate)),
-                  const SizedBox(height: 10),
-                  _buildDateTag('Return', _formatThaiDate(item.returnDate)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          //  status
-          _buildInfoBar(
-            'Status: ${item.displayStatus}',
-            backgroundColor: item.statusColor,
-            textColor: item.displayStatus.toLowerCase() == 'pending'
-                ? Colors.black87
-                : Colors.white,
-          ),
-
-          //  ApproveBy (ถ้ามี)
-          if (item.approverName != null) ...[
-            const SizedBox(height: 10),
-            _buildInfoBar('Approve by: ${item.approverName}'),
-          ],
-
-          //  ReceiveBy (ถ้ามี)
-          if (item.receiverName != null) ...[
-            const SizedBox(height: 10),
-            _buildInfoBar('Received asset by: ${item.receiverName}'),
-          ],
-
-          //  แสดง "ผู้ปฏิเสธ"
-          if (item.rejecterName != null) ...[
-            const SizedBox(height: 10),
-            _buildInfoBar('Reject by: ${item.rejecterName}'),
-          ],
-
-          // แสดง "เหตุผลที่ Reject" (ถ้ามี)
-          if (item.rejectReason != null) ...[
-            const SizedBox(height: 10),
-            _buildInfoBar(
-              'Reason: ${item.rejectReason}',
-              backgroundColor: Colors.red.withOpacity(0.2),
-              textColor: const Color.fromARGB(255, 255, 255, 255),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredHistory.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredHistory[index];
+                        print(item);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: _buildHistoryCard(item: item),
+                        );
+                      },
+                    ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  // 35. ✅ แก้ไข _buildInfoBar ให้รับสีได้
-  Widget _buildInfoBar(
-    String text, {
-    Color backgroundColor = const Color(0xFFDCCFCC),
-    Color? textColor = const Color(0xFF4A3831),
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center, // 36. ✅ เผื่อข้อความยาว
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
         ),
       ),
     );
   }
 
-  // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
-  Widget _buildDateTag(String label, String date) {
+  // ================== History Card ==================
+  Widget _buildHistoryCard({required HistoryItem item}) {
+    const cardTop = Color(0xFFF8D49C); // ครีมส้มอ่อน
+    const cardBottom = Color(0xFFF6C68E); // ส้มพีชแบบในรูป
+    const darkBrown = Color(0xFF4A3831); // น้ำตาลตัวหนังสือ
+    const imageBg = Color(0xFFF9E5C9); // พื้นหลังรูปอุปกรณ์
+
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFEC785), Color(0xFFFEC785).withOpacity(0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header ID + Asset Name
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "ID: ${item.id.toString().padLeft(5, '0')}",
+                style: const TextStyle(
+                  color: darkBrown,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  item.assetName,
+                  style: const TextStyle(
+                    color: darkBrown,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Image + Details
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // รูป
+              Container(
+                decoration: BoxDecoration(
+                  color: imageBg,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(10),
+                child: Image.asset(
+                  item.image ?? 'assets/images/placeholder.png',
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.contain,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _CheckStatus(item.displayStatus),
+                      const SizedBox(height: 10),
+                      _buildDateBox(
+                        "Borrow Date",
+                        _formatThaiDate(item.borrowDate),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildDateBox(
+                        "Return Date",
+                        _formatThaiDate(item.returnDate),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Approver / Receiver / Rejecter / Reason
+          if (item.approverName != null)
+            _buildInfoLine(
+              icon: Icons.check_circle_outline,
+              text: "Approved by: ${item.approverName}",
+              color: Colors.green.shade800,
+            ),
+          if (item.receiverName != null)
+            _buildInfoLine(
+              icon: Icons.person_outline,
+              text: "Received by: ${item.receiverName}",
+              color: Colors.blue.shade700,
+            ),
+          if (item.rejecterName != null)
+            _buildInfoLine(
+              icon: Icons.cancel_outlined,
+              text: "Rejected by: ${item.rejecterName}",
+              color: Colors.red.shade700,
+            ),
+          if (item.rejectReason != null)
+            _buildInfoLine(
+              icon: Icons.error_outline,
+              text: "Reason: ${item.rejectReason}",
+              color: Colors.redAccent.shade700,
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
+  Widget _buildDateBox(String label, String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
     return Row(
       children: [
         Text(
           label,
           style: const TextStyle(
-            color: Color(0xFFF6C68E),
+            color: darkBrown,
             fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
@@ -559,16 +583,109 @@ Widget _assetListFromAPI() {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFCC80),
+            color: const Color(0xFFF9E5C9),
             borderRadius: BorderRadius.circular(25),
           ),
           child: Row(
             children: [
-              const Icon(Icons.calendar_today, color: Colors.black87, size: 18),
-              const SizedBox(width: 6),
+              Icon(Icons.calendar_today, color: db, size: 18),
+              SizedBox(width: 6),
+
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoLine({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _CheckStatus(String Status) {
+    Color bgColor = const Color(0xFFF9E5C9);
+    Color textColor = const Color(0xFF4A3831);
+    IconData iconData = Icons.calendar_today;
+
+    switch (Status) {
+      case "Approved":
+        bgColor = Colors.green.shade100;
+        textColor = Colors.green;
+        iconData = Icons.check_circle;
+        break;
+      case "Rejected":
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade800;
+        iconData = Icons.book;
+        break;
+      case "Returned":
+        bgColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade800;
+        iconData = Icons.hourglass_bottom;
+        break;
+      case "Disabled":
+        bgColor = Colors.grey.shade300;
+        textColor = Colors.grey.shade700;
+        iconData = Icons.cancel;
+        break;
+    }
+
+    return Row(
+      children: [
+        const Text(
+          "Status",
+          style: TextStyle(
+            color: Color(0xFF8B5B46),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(width: 10),
+
+        Container(
+          padding:  EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, size: 18, color: textColor),
+              SizedBox(width: 6),
               Text(
-                date,
-                style: const TextStyle(color: Colors.black87, fontSize: 16),
+                Status,
+                style:  TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -576,6 +693,8 @@ Widget _assetListFromAPI() {
       ],
     );
   }
+
+  // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
 }
 
 class AssetCard extends StatelessWidget {
