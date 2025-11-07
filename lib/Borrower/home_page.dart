@@ -317,7 +317,7 @@ Widget _assetListFromAPI() {
             child: TextField(
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "search here...",
+                hintText: "Search by Name or ID...",
                 hintStyle: TextStyle(color: Colors.grey),
               ),
               onChanged: onChanged, // 12. ✅ ใช้งาน onChanged ที่รับเข้ามา
