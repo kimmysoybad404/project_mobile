@@ -300,18 +300,18 @@ class _BottomBarState extends State<BottomBar> {
         return pages;
       case 2:
         return [
-          requestlender.RequestPageLender(),
-          const homepageLender.Homelender(),
-          const DashboardPage(),
+          requestlender.RequestPage(),
+          homepageLender.HomeLender(userId: widget.userid!),
+          DashboardPage(),
         ];
       case 3:
         return [
-          const ManageAssetsPage2(),
-          homepageStaff.HomeStaff(),
-          const DashboardPage(),
+          ManageAssetsPage2(),
+          homepageLender.HomeLender(userId: widget.userid!),
+          DashboardPage(),
         ];
       default:
-        return [const Scaffold()];
+        return [Scaffold()];
     }
   }
 
