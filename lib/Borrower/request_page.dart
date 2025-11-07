@@ -705,8 +705,18 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Widget _buildStatusItemCard(HistoryItem item) {
+
     if (item.displayStatus == "Approved" || item.displayStatus == "rejected") {
       return const SizedBox.shrink();
+
+    if (item.displayStatus == "Approved" || item.displayStatus == "Rejected") {
+      return const Center(
+        child: Text(
+          "No items requested yet",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+
     }
 
     return Container(
