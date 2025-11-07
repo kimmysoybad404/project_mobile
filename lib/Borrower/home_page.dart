@@ -538,25 +538,25 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           if (item.approverName != null)
             _buildInfoLine(
               icon: Icons.check_circle_outline,
-              text: "Approved by: ${item.approverName}",
+              text: "Approved by : ${item.approverName}",
               color: Colors.green.shade800,
             ),
           if (item.receiverName != null)
             _buildInfoLine(
               icon: Icons.person_outline,
-              text: "Received by: ${item.receiverName}",
+              text: "Received by : ${item.receiverName}",
               color: Colors.blue.shade700,
             ),
           if (item.rejecterName != null)
             _buildInfoLine(
               icon: Icons.cancel_outlined,
-              text: "Rejected by: ${item.rejecterName}",
+              text: "Rejected by : ${item.rejecterName}",
               color: Colors.red.shade700,
             ),
           if (item.rejectReason != null)
             _buildInfoLine(
               icon: Icons.error_outline,
-              text: "Reason: ${item.rejectReason}",
+              text: "Reason : ${item.rejectReason}",
               color: Colors.redAccent.shade700,
             ),
         ],
