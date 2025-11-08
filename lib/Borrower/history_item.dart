@@ -7,6 +7,7 @@ class HistoryItem {
   final String? image;
   final DateTime borrowDate;
   final DateTime returnDate;
+  final DateTime? actualReturnDate;
   final int? borrowBy;
   final int? approveBy;
   final int? receiveBy;
@@ -23,6 +24,7 @@ class HistoryItem {
     required this.assetName,
     required this.borrowDate,
     required this.returnDate,
+    required this.actualReturnDate,
     this.borrowBy,
     this.approveBy,
     this.receiveBy,
@@ -35,18 +37,17 @@ class HistoryItem {
     this.rejecterName, // ✅ 2. เพิ่มใน constructor
   });
 
-  // Factory constructor to parse JSON
-  // Factory constructor to parse JSON
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
     return HistoryItem(
-      id: json['id'],
-      assetID: json['assetID'],
+      id: json['id'] ?? 0,
+      assetID: json['assetID'] ?? 0,
       assetName: json['assetName'] ?? 'No Name',
-      image: json["image"],
-      
+      image: json['image'] ?? 'assets/placeholder.png',
       borrowDate: DateTime.parse(json['BorrowDate']).toLocal(),
       returnDate: DateTime.parse(json['ReturnDate']).toLocal(),
-      
+      actualReturnDate: json['ActualReturnDate'] != null
+          ? DateTime.parse(json['ActualReturnDate']).toLocal()
+          : null,
       borrowBy: json['BorrowBy'],
       approveBy: json['ApproveBy'],
       receiveBy: json['ReceiveBy'],
@@ -60,19 +61,11 @@ class HistoryItem {
 
   // Get the status as a displayable string
   String get displayStatus {
-    // Logic หลัก: เช็คจากค่า NULL
-    if (rejectBy != null) {
-      return 'Rejected';
-    }
-    if (receiveBy != null) {
-      return 'Returned';
-    }
-    if (approveBy != null) {
-      return 'Approved';
-    }
-    
-    // (กันเหนียว) ถ้าทุกอย่างเป็น NULL
-    return 'Pending';
+    if (approveBy == null && rejectBy == null) return "Pending";
+    if (rejectBy != null) return "Rejected";
+    if (approveBy != null && receiveBy == null) return "Approved";
+    if (receiveBy != null) return "Received";
+    return "Unknown";
   }
 
   // Get the status color for your UI
@@ -97,6 +90,4 @@ class HistoryItem {
 
     return Colors.grey[600]!; // อื่นๆ = สีเทา
   }
-
-  
 }

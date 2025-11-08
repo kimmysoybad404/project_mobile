@@ -418,7 +418,6 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                       itemCount: filteredHistory.length,
                       itemBuilder: (context, index) {
                         final item = filteredHistory[index];
-                        print(item);
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: _buildHistoryCard(item: item),
@@ -458,9 +457,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header ID + Asset Name
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -472,6 +469,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                   fontSize: 14,
                 ),
               ),
+              _CheckStatus(item.displayStatus),
               Flexible(
                 child: Text(
                   item.assetName,
@@ -510,20 +508,28 @@ class _HomeBorrowerState extends State<HomeBorrower> {
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 40),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
                     children: [
-                      _CheckStatus(item.displayStatus),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Borrow Date",
-                        _formatThaiDate(item.borrowDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateText("Borrowed Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("Returned Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("ActualReturn Date	"),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Return Date",
-                        _formatThaiDate(item.returnDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateBox(_formatThaiDate(item.borrowDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                        ],
                       ),
                     ],
                   ),
@@ -565,7 +571,33 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   }
 
   // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
-  Widget _buildDateBox(String label, String date) {
+  Widget _buildDateBox(String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 14),
+              SizedBox(width: 6),
+
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateText(String label) {
     const darkBrown = Color(0xFF8B5B46);
     const db = Color(0xFF4A3831);
 
@@ -575,27 +607,11 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           label,
           style: const TextStyle(
             color: darkBrown,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, color: db, size: 18),
-              SizedBox(width: 6),
-
-              SizedBox(width: 6),
-              Text(date, style: const TextStyle(color: db, fontSize: 16)),
-            ],
-          ),
-        ),
+        const SizedBox(width: 5),
       ],
     );
   }
@@ -610,6 +626,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 8),
@@ -618,7 +635,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
               text,
               style: TextStyle(
                 color: color,
-                fontSize: 13.5,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -658,21 +675,12 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 
     return Row(
       children: [
-        const Text(
-          "Status",
-          style: TextStyle(
-            color: Color(0xFF8B5B46),
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(width: 10),
-
         Container(
-          padding:  EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: textColor, width: 2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -681,7 +689,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
               SizedBox(width: 6),
               Text(
                 Status,
-                style:  TextStyle(
+                style: TextStyle(
                   color: textColor,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

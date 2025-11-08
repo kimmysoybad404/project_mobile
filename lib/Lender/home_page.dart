@@ -121,7 +121,10 @@ class _HomeLenderState extends State<HomeLender> {
         borderRadius: BorderRadius.circular(30),
       ),
       child: Row(
-        children: [_buildTabItem("All Assets", 0), _buildTabItem("History", 1)],
+        children: [
+          _buildTabItem("Browse asset list", 0),
+          _buildTabItem("History", 1),
+        ],
       ),
     );
   }
@@ -356,6 +359,7 @@ class _HomeLenderState extends State<HomeLender> {
                   fontSize: 14,
                 ),
               ),
+              _CheckStatus(item.displayStatus),
               Flexible(
                 child: Text(
                   item.assetName,
@@ -394,23 +398,31 @@ class _HomeLenderState extends State<HomeLender> {
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
                     children: [
-                      _CheckStatus(item.displayStatus),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Borrow Date",
-                        _formatThaiDate(item.borrowDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateText("Borrowed Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("Returned Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("ActualReturn Date	"),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Return Date",
-                        _formatThaiDate(item.returnDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateBox(_formatThaiDate(item.borrowDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _Borrowby("AutHiwKai"),
+                      // const SizedBox(height: 10),
+                      // _Borrowby("AutHiwKai"),
                     ],
                   ),
                 ),
@@ -421,10 +433,10 @@ class _HomeLenderState extends State<HomeLender> {
           const SizedBox(height: 20),
 
           // Approver / Receiver / Rejecter / Reason
-          if (item.approverName != null)
+          if (item.borrowBy != null)
             _buildInfoLine(
               icon: Icons.check_circle_outline,
-              text: "Approved by : ${item.approverName}",
+              text: "Borrow by : ${item.borrowBy}",
               color: Colors.green.shade800,
             ),
           if (item.receiverName != null)
@@ -451,7 +463,33 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
-  Widget _buildDateBox(String label, String date) {
+  Widget _buildDateBox(String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 14),
+              SizedBox(width: 6),
+
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateText(String label) {
     const darkBrown = Color(0xFF8B5B46);
     const db = Color(0xFF4A3831);
 
@@ -461,27 +499,11 @@ class _HomeLenderState extends State<HomeLender> {
           label,
           style: const TextStyle(
             color: darkBrown,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, color: db, size: 18),
-              SizedBox(width: 6),
-
-              SizedBox(width: 6),
-              Text(date, style: const TextStyle(color: db, fontSize: 16)),
-            ],
-          ),
-        ),
+        const SizedBox(width: 5),
       ],
     );
   }
@@ -535,26 +557,21 @@ class _HomeLenderState extends State<HomeLender> {
         textColor = Colors.orange.shade800;
         iconData = Icons.hourglass_bottom;
         break;
+      case "Disabled":
+        bgColor = Colors.grey.shade300;
+        textColor = Colors.grey.shade700;
+        iconData = Icons.cancel;
+        break;
     }
 
     return Row(
       children: [
-        Text(
-          "Status",
-          style: TextStyle(
-            color: Color(0xFF8B5B46),
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-
-        const SizedBox(width: 10),
-
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: textColor, width: 2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -576,49 +593,49 @@ class _HomeLenderState extends State<HomeLender> {
     );
   }
 
-  Widget _Borrowby(String Name) {
-    Color bgColor = const Color(0xFFF9E5C9);
-    Color textColor = const Color(0xFF4A3831);
-    IconData iconData = Icons.man;
+  // Widget _Borrowby(String Name) {
+  //   Color bgColor = const Color(0xFFF9E5C9);
+  //   Color textColor = const Color(0xFF4A3831);
+  //   IconData iconData = Icons.man;
 
-    return Row(
-      children: [
-        Text(
-          "Borrowed by",
-          style: TextStyle(
-            color: Color(0xFF8B5B46),
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+  //   return Row(
+  //     children: [
+  //       Text(
+  //         "Borrowed by",
+  //         style: TextStyle(
+  //           color: Color(0xFF8B5B46),
+  //           fontSize: 18,
+  //           fontWeight: FontWeight.w500,
+  //         ),
+  //       ),
 
-        const SizedBox(width: 10),
+  //       const SizedBox(width: 10),
 
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.check_circle, size: 18, color: textColor),
-              SizedBox(width: 6),
-              Text(
-                Name,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  //       Container(
+  //         padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+  //         decoration: BoxDecoration(
+  //           color: bgColor,
+  //           borderRadius: BorderRadius.circular(25),
+  //         ),
+  //         child: Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Icon(Icons.check_circle, size: 18, color: textColor),
+  //             SizedBox(width: 6),
+  //             Text(
+  //               Name,
+  //               style: TextStyle(
+  //                 color: textColor,
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w600,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
 }

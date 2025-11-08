@@ -51,7 +51,6 @@ class _RequestPageState extends State<RequestPage> {
         url,
         headers: {'Content-Type': 'application/json'},
       );
-      print(response.body);
       if (response.statusCode == 200) {
         final List<HistoryItem> items = historyItemFromJson(response.body);
         setState(() {
