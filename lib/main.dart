@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_mobile/identify_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,11 +13,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        textTheme: TextTheme(headlineLarge: TextStyle(letterSpacing: 10)),
+        textTheme: GoogleFonts.deliusTextTheme(), 
         primarySwatch: Colors.blue,
-        fontFamily: 'Chewy',
       ),
-      home: IdentifyPage(),
+      home: const IdentifyPage(),
     );
   }
 }

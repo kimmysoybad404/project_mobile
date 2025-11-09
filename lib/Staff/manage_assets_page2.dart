@@ -302,13 +302,18 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                     style: const TextStyle(
                       color: Color(0xFF4A3831),
                       fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
+
+                  _CheckStatus(item["status"]),
+
                   Text(
-                    "Name: ${item["name"]}",
+                    "${item["name"]}",
                     style: const TextStyle(
                       color: Color(0xFF4A3831),
                       fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -326,14 +331,24 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        _buildDateBox("Status", item["status"] ?? "-"),
-                        const SizedBox(height: 10),
-                        _buildDateBox("Borrow Date", item["borrowDate"] ?? ""),
-                        const SizedBox(height: 10),
-                        _buildDateBox("Return Date", item["returnDate"] ?? "-"),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateText("Borrow"),
+                            const SizedBox(height: 25),
+                            _buildDateText("Return"),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateBox(item["borrowDate"] ?? ""),
+                            const SizedBox(height: 10),
+                            _buildDateBox(item["returnDate"] ?? "-"),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -406,13 +421,16 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                     style: const TextStyle(
                       color: Color(0xFF4A3831),
                       fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
+                  _CheckStatus(item["status"]),
                   Text(
-                    "Name: ${item["name"]}",
+                    "${item["name"]}",
                     style: const TextStyle(
                       color: Color(0xFF4A3831),
                       fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -431,16 +449,32 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        _buildDateBox("Status", item["status"] ?? "-"),
-                        const SizedBox(height: 10),
-                        _buildDateBox("Borrow By", item["borrowBy"] ?? "-"),
-                        const SizedBox(height: 10),
-                        _buildDateBox("Borrow Date", item["borrowDate"] ?? "-"),
-                        const SizedBox(height: 10),
-                        _buildDateBox("Return Date", item["returnDate"] ?? "-"),
+                        Column(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildDateText("BorrowBy"),
+                                const SizedBox(height: 25),
+                                _buildDateText("Borrow"),
+                                const SizedBox(height: 25),
+                                _buildDateText("Return"),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateBox(item["borrowBy"] ?? "-"),
+                            const SizedBox(height: 10),
+                            _buildDateBox(item["borrowDate"] ?? "-"),
+                            const SizedBox(height: 10),
+                            _buildDateBox(item["returnDate"] ?? "-"),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -602,74 +636,106 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
-  Widget _buildDateBox(String label, String value) {
+  Widget _CheckStatus(String status) {
     Color bgColor = const Color(0xFFF9E5C9);
     Color textColor = const Color(0xFF4A3831);
-    IconData iconData = Icons.calendar_today;
+    IconData iconData = Icons.help_outline;
 
-    if (label == "Status") {
-      switch (value) {
-        case "Available":
-          bgColor = Colors.green.shade100;
-          textColor = Colors.green.shade800;
-          iconData = Icons.check_circle;
-          break;
-        case "Borrowed":
-          bgColor = Colors.blue.shade100;
-          textColor = Colors.blue.shade800;
-          iconData = Icons.book;
-          break;
-        case "Pending":
-        case "Pending Return":
-          bgColor = Colors.orange.shade100;
-          textColor = Colors.orange.shade800;
-          iconData = Icons.hourglass_bottom;
-          break;
-        case "Disabled":
-          bgColor = Colors.grey.shade300;
-          textColor = Colors.grey.shade700;
-          iconData = Icons.cancel;
-          break;
-      }
-    } else if (label == "Borrow By") {
-      iconData = Icons.person_outline;
-    } else if (label.contains("Date")) {
-      iconData = Icons.calendar_today;
+    switch (status) {
+      case "Available":
+        bgColor = const Color(0xFFD9F8C4); // เขียวอ่อนอบอุ่น
+        textColor = const Color(0xFF3B7A2A);
+        iconData = Icons.check_circle;
+        break;
+
+      case "Borrowed":
+        bgColor = const Color(0xFFD4E4FF); // ฟ้าอ่อน
+        textColor = const Color(0xFF3A5E9A);
+        iconData = Icons.book_outlined;
+        break;
+
+      case "Pending":
+        bgColor = const Color(0xFFFFE6B8); // เหลืองอ่อน
+        textColor = const Color(0xFF8B5B46);
+        iconData = Icons.hourglass_bottom;
+        break;
+
+      case "Disabled":
+        bgColor = const Color(0xFFE0E0E0); // เทาอ่อน
+        textColor = const Color(0xFF6B6B6B);
+        iconData = Icons.cancel;
+        break;
+
+      default:
+        bgColor = const Color(0xFFF9E5C9);
+        textColor = const Color(0xFF4A3831);
+        iconData = Icons.info_outline;
     }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: textColor, width: 2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(iconData, size: 18, color: textColor),
+          const SizedBox(width: 6),
+          Text(
+            status,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateText(String label) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
 
     return Row(
       children: [
         Text(
           label,
           style: const TextStyle(
-            color: Color(0xFF8B5B46),
-            fontSize: 14,
+            color: darkBrown,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(iconData, size: 16, color: textColor),
-                const SizedBox(width: 6),
-                Text(
-                  value.isEmpty ? "-" : value,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
+        const SizedBox(width: 5),
+      ],
+    );
+  }
+
+  Widget _buildDateBox(String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 10),
+              SizedBox(width: 6),
+
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 14)),
+            ],
           ),
         ),
       ],

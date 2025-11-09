@@ -304,54 +304,309 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   Widget _buildHistoryCard({required HistoryItem item}) {
+    const cardTop = Color(0xFFF8D49C); // ครีมส้มอ่อน
+    const cardBottom = Color(0xFFF6C68E); // ส้มพีชแบบในรูป
+    const darkBrown = Color(0xFF4A3831); // น้ำตาลตัวหนังสือ
+    const imageBg = Color(0xFFF9E5C9); // พื้นหลังรูปอุปกรณ์
+
     return Container(
-      padding: const EdgeInsets.all(20.0),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFF6C68E), width: 5.0),
-        borderRadius: BorderRadius.circular(30),
+        gradient: LinearGradient(
+          colors: [Color(0xFFFEC785), Color(0xFFFEC785).withOpacity(0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Asset: ${item.assetName}',
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+          // Header ID + Asset Name
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "ID: ${item.id.toString().padLeft(5, '0')}",
+                style: const TextStyle(
+                  color: darkBrown,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  item.assetName,
+                  style: const TextStyle(
+                    color: darkBrown,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          _buildInfoBar(
-            'Status: ${item.displayStatus}',
-            backgroundColor: item.statusColor,
+
+          const SizedBox(height: 16),
+
+          // Image + Details
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // รูป
+              Container(
+                decoration: BoxDecoration(
+                  color: imageBg,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(10),
+                child: Image.asset(
+                  item.image ?? 'assets/images/placeholder.png',
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.contain,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _CheckStatus(item.displayStatus),
+                      const SizedBox(height: 10),
+                      _buildDateBox(
+                        "Borrow Date",
+                        _formatThaiDate(item.borrowDate),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildDateBox(
+                        "Return Date",
+                        _formatThaiDate(item.returnDate),
+                      ),
+                      const SizedBox(height: 10),
+                      _Borrowby("AutHiwKai"),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Approver / Receiver / Rejecter / Reason
+          if (item.approverName != null)
+            _buildInfoLine(
+              icon: Icons.check_circle_outline,
+              text: "Approved by : ${item.approverName}",
+              color: Colors.green.shade800,
+            ),
+          if (item.receiverName != null)
+            _buildInfoLine(
+              icon: Icons.person_outline,
+              text: "Received by : ${item.receiverName}",
+              color: Colors.blue.shade700,
+            ),
+          if (item.rejecterName != null)
+            _buildInfoLine(
+              icon: Icons.cancel_outlined,
+              text: "Rejected by : ${item.rejecterName}",
+              color: Colors.red.shade700,
+            ),
+          if (item.rejectReason != null)
+            _buildInfoLine(
+              icon: Icons.error_outline,
+              text: "Reason : ${item.rejectReason}",
+              color: Colors.redAccent.shade700,
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
+  Widget _buildDateBox(String label, String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: darkBrown,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 18),
+              SizedBox(width: 6),
+
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoLine({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoBar(
-    String text, {
-    Color backgroundColor = const Color(0xFFDCCFCC),
-    Color textColor = const Color(0xFF4A3831),
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
+  Widget _CheckStatus(String Status) {
+    Color bgColor = const Color(0xFFF9E5C9);
+    Color textColor = const Color(0xFF4A3831);
+    IconData iconData = Icons.calendar_today;
+
+    switch (Status) {
+      case "Approved":
+        bgColor = Colors.green.shade100;
+        textColor = Colors.green;
+        iconData = Icons.check_circle;
+        break;
+      case "Rejected":
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade800;
+        iconData = Icons.book;
+        break;
+      case "Returned":
+        bgColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade800;
+        iconData = Icons.hourglass_bottom;
+        break;
+    }
+
+    return Row(
+      children: [
+        Text(
+          "Status",
           style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+            color: Color(0xFF8B5B46),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ),
+
+        const SizedBox(width: 10),
+
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, size: 18, color: textColor),
+              SizedBox(width: 6),
+              Text(
+                Status,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
+
+  Widget _Borrowby(String Name) {
+    Color bgColor = const Color(0xFFF9E5C9);
+    Color textColor = const Color(0xFF4A3831);
+    IconData iconData = Icons.man;
+
+    return Row(
+      children: [
+        Text(
+          "Borrowed by",
+          style: TextStyle(
+            color: Color(0xFF8B5B46),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, size: 18, color: textColor),
+              SizedBox(width: 6),
+              Text(
+                Name,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
 }
 
 class AssetCard extends StatelessWidget {

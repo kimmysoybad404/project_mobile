@@ -136,7 +136,6 @@ class _RequestPageLenderState extends State<RequestPageLender>
     );
   }
 
-
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -166,16 +165,8 @@ class _RequestPageLenderState extends State<RequestPageLender>
 
   Widget _buildStatusCard() {
     final List<Map<String, String>> requests = [
-      {
-        "id": "00001",
-        "name": "Notebook",
-        "image": "notebook.png",
-      },
-      {
-        "id": "00002",
-        "name": "apple_pencil_2",
-        "image": "apple_pencil_2.png",
-      },
+      {"id": "00001", "name": "Notebook", "image": "notebook.png"},
+      {"id": "00002", "name": "apple_pencil_2", "image": "apple_pencil_2.png"},
       {"id": "00003", "name": "powerbank", "image": "powerbank.png"},
     ];
 
@@ -266,7 +257,7 @@ class _RequestPageLenderState extends State<RequestPageLender>
         Text(
           label,
           style: const TextStyle(
-            color: Colors.white70,
+            color: Color(0xFF4A3831),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -310,31 +301,30 @@ class _RequestPageLenderState extends State<RequestPageLender>
     const String statusText = "Waiting for Approve";
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: statusColor.withOpacity(0.4), width: 2),
-          ),
-          child: Row(
-            children: const [
-              Icon(statusIcon, color: statusColor, size: 18),
-              SizedBox(width: 6),
-              Text(
-                statusText,
-                style: TextStyle(
-                  color: statusColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-
+        // Container(
+        //   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        //   decoration: BoxDecoration(
+        //     color: statusColor.withOpacity(0.15),
+        //     borderRadius: BorderRadius.circular(20),
+        //     border: Border.all(color: statusColor.withOpacity(0.4), width: 2),
+        //   ),
+        //   child: Row(
+        //     children: const [
+        //       Icon(statusIcon, color: statusColor, size: 18),
+        //       SizedBox(width: 6),
+        //       Text(
+        //         statusText,
+        //         style: TextStyle(
+        //           color: statusColor,
+        //           fontWeight: FontWeight.bold,
+        //           fontSize: 10,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         Row(
           children: [
             _buildSmallButton("Reject", const Color(0xFFF48A8A)),
