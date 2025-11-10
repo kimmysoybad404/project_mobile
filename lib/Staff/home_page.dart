@@ -439,7 +439,7 @@ class _HomeStaffState extends State<HomeStaff> {
           if (item.borrowerName != null)
             _buildInfoLine(
               icon: Icons.people,
-              text: "borrower Name : ${item.borrowerName}",
+              text: "Borrower Name : ${item.borrowerName}",
               color: const Color.fromARGB(255, 0, 0, 0),
             ),
           if (item.approverName != null)
