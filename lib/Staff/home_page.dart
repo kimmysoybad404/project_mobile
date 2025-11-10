@@ -438,7 +438,7 @@ class _HomeStaffState extends State<HomeStaff> {
           // Approver / Receiver / Rejecter / Reason
           if (item.borrowerName != null)
             _buildInfoLine(
-              icon: Icons.people,
+              icon: Icons.people_outline,
               text: "Borrower Name : ${item.borrowerName}",
               color: const Color.fromARGB(255, 0, 0, 0),
             ),
