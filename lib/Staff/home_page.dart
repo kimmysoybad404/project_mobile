@@ -69,6 +69,7 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   String _formatThaiDate(DateTime date) {
+    print(date.year + 543);
     return "${date.day}/${date.month}/${date.year + 543}";
   }
 
@@ -255,6 +256,31 @@ class _HomeStaffState extends State<HomeStaff> {
   Widget _history() {
     final filteredHistory = _historyItems.where((item) {
       final query = _searchHistoryQuery.toLowerCase();
+      final formattedBorrowDate = DateFormat('dd/MM/yyyy').format(
+        DateTime(
+          item.borrowDate.year + 543,
+          item.borrowDate.month,
+          item.borrowDate.day,
+        ),
+      );
+
+      final formattedReturnDate = DateFormat('dd/MM/yyyy').format(
+        DateTime(
+          item.returnDate.year + 543,
+          item.returnDate.month,
+          item.returnDate.day,
+        ),
+      );
+
+      final formattedActualReturnDate = item.actualReturnDate != null
+          ? DateFormat('dd/MM/yyyy').format(
+              DateTime(
+                item.actualReturnDate!.year + 543,
+                item.actualReturnDate!.month,
+                item.actualReturnDate!.day,
+              ),
+            )
+          : "";
       return item.assetName.toLowerCase().contains(query) ||
           (item.id?.toString().contains(query) ?? false) ||
           (item.borrowerName?.toLowerCase().contains(query) ?? false) ||
@@ -263,12 +289,9 @@ class _HomeStaffState extends State<HomeStaff> {
           (item.rejecterName?.toLowerCase().contains(query) ?? false) ||
           (item.rejectReason?.toLowerCase().contains(query) ?? false) ||
           (item.displayStatus.toLowerCase().contains(query)) ||
-          DateFormat('dd/MM/yyyy').format(item.borrowDate).contains(query) ||
-          DateFormat('dd/MM/yyyy').format(item.returnDate).contains(query) ||
-          (item.actualReturnDate != null &&
-              DateFormat(
-                'dd/MM/yyyy',
-              ).format(item.actualReturnDate!).contains(query));
+          formattedBorrowDate.contains(query) ||
+          formattedReturnDate.contains(query) ||
+          formattedActualReturnDate.contains(query);
     }).toList();
 
     return Card(
@@ -279,7 +302,7 @@ class _HomeStaffState extends State<HomeStaff> {
         child: Column(
           children: [
             _buildSearchBar(
-              onChanged: (value) async  {
+              onChanged: (value) async {
                 setState(() => _searchHistoryQuery = value);
                 await _fetchHistory();
               },
