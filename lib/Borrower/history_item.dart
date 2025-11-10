@@ -67,7 +67,7 @@ final String? borrowerName;
     if (approveBy == null && rejectBy == null) return "Pending";
     if (rejectBy != null) return "Rejected";
     if (approveBy != null && receiveBy == null) return "Approved";
-    if (receiveBy != null) return "Received";
+    if (receiveBy != null) return "Returned";
     return "Unknown";
   }
 
