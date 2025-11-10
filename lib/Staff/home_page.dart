@@ -399,22 +399,33 @@ class _HomeStaffState extends State<HomeStaff> {
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
                     children: [
-                      _buildDateBox(
-                        "Borrow Date",
-                        _formatThaiDate(item.borrowDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateText("Borrowed Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("Returned Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("ActualReturn Date	"),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Return Date",
-                        _formatThaiDate(item.returnDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateBox(_formatThaiDate(item.borrowDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(
+                            item.actualReturnDate != null
+                                ? _formatThaiDate(item.actualReturnDate!)
+                                : "-",
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _Borrowby(item.borrowerName ?? "-"),
-                      // **********************************************************************************************************************************
                     ],
                   ),
                 ),
@@ -455,7 +466,31 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
-  Widget _buildDateBox(String label, String date) {
+  Widget _buildDateBox(String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 14),
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateText(String label) {
     const darkBrown = Color(0xFF8B5B46);
     const db = Color(0xFF4A3831);
 
@@ -465,27 +500,11 @@ class _HomeStaffState extends State<HomeStaff> {
           label,
           style: const TextStyle(
             color: darkBrown,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, color: db, size: 18),
-              SizedBox(width: 6),
-
-              SizedBox(width: 6),
-              Text(date, style: const TextStyle(color: db, fontSize: 16)),
-            ],
-          ),
-        ),
+        const SizedBox(width: 5),
       ],
     );
   }
