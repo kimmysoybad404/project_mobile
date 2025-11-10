@@ -39,10 +39,7 @@ class _RequestPageLenderState extends State<RequestPageLender>
       barrierDismissible: false, // บังคับให้กดปุ่ม
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-            'Confirm Rejection',
-            style: TextStyle(color: LightBrown),
-          ),
+          title: Text('Confirm Rejection', style: TextStyle(color: LightBrown)),
           backgroundColor: DarkBrown, // สีพื้นหลังเดียวกับ Scaffold
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -50,7 +47,10 @@ class _RequestPageLenderState extends State<RequestPageLender>
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Please provide a reason for rejection:', style: TextStyle(color: LightBrown),),
+                Text(
+                  'Please provide a reason for rejection:',
+                  style: TextStyle(color: LightBrown),
+                ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: reasonController,
@@ -74,15 +74,12 @@ class _RequestPageLenderState extends State<RequestPageLender>
           actions: <Widget>[
             // --- ปุ่ม Cancel ---
             TextButton(
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: LightBrown),
-              ),
+              child: Text('Cancel', style: TextStyle(color: LightBrown)),
               onPressed: () {
                 Navigator.of(context).pop(); // ปิด Dialog โดยไม่ส่งค่า
               },
             ),
-            
+
             // --- ปุ่ม Submit (Reject) ---
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -115,14 +112,13 @@ class _RequestPageLenderState extends State<RequestPageLender>
     );
   }
 
-Future<void> loadUserData() async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getString('userid') ?? '';
-  setState(() {
-    _userId = userId;
-  }); 
-} 
-
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userid') ?? '';
+    setState(() {
+      _userId = userId;
+    });
+  }
 
   @override
   void initState() {
@@ -203,7 +199,7 @@ Future<void> loadUserData() async {
     final String? reason = await _showRejectDialog();
 
     if (reason == null || reason.isEmpty) {
-      return; 
+      return;
     }
 
     final String? currentLenderId = _userId;
@@ -233,7 +229,7 @@ Future<void> loadUserData() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F5F1),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -463,15 +459,6 @@ Future<void> loadUserData() async {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              // --- แสดงชื่อผู้ยืม ---
-              Text(
-                "Borrower: ${item.borrowerName}",
-                style: const TextStyle(
-                  color: Color(0xFF4A3831),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -497,6 +484,8 @@ Future<void> loadUserData() async {
                   Expanded(
                     child: Column(
                       children: [
+                        _buildDateBox("Borrower", item.borrowerName),
+                        const SizedBox(height: 12),
                         _buildDateBox(
                           "Borrow",
                           item.borrowDate,
