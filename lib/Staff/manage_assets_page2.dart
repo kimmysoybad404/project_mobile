@@ -25,6 +25,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       "status": "Available",
       "borrowDate": "25/10/2568",
       "returnDate": "27/10/2568",
+      "actualreturnDate	": "28/10/2568",
     },
     {
       "id": "00002",
@@ -33,6 +34,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       "status": "Borrowed",
       "borrowDate": "25/10/2568",
       "returnDate": "27/10/2568",
+      "actualreturnDate	": "28/10/2568",
     },
     {
       "id": "00003",
@@ -41,6 +43,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       "status": "Pending",
       "borrowDate": "25/10/2568",
       "returnDate": "27/10/2568",
+      "actualreturnDate	": "28/10/2568",
     },
   ];
 
@@ -174,7 +177,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       child: Row(
         children: [
           _buildTabItem("Assets Managing", 0),
-          _buildTabItem("Assets Recovery", 1),
+          _buildTabItem("Assets Receive", 1),
         ],
       ),
     );
@@ -461,6 +464,8 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                                 _buildDateText("Borrow"),
                                 const SizedBox(height: 25),
                                 _buildDateText("Return"),
+                                const SizedBox(height: 25),
+                                _buildDateText("ActualReturn"),
                               ],
                             ),
                           ],
@@ -471,6 +476,8 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                             _buildDateBox(item["borrowBy"] ?? "-"),
                             const SizedBox(height: 10),
                             _buildDateBox(item["borrowDate"] ?? "-"),
+                            const SizedBox(height: 10),
+                            _buildDateBox(item["returnDate"] ?? "-"),
                             const SizedBox(height: 10),
                             _buildDateBox(item["returnDate"] ?? "-"),
                           ],
@@ -707,11 +714,11 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
           label,
           style: const TextStyle(
             color: darkBrown,
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 6),
       ],
     );
   }
@@ -723,7 +730,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFFF9E5C9),
             borderRadius: BorderRadius.circular(25),
@@ -732,9 +739,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
             children: [
               Icon(Icons.calendar_today, color: db, size: 10),
               SizedBox(width: 6),
-
-              SizedBox(width: 6),
-              Text(date, style: const TextStyle(color: db, fontSize: 14)),
+              Text(date, style: const TextStyle(color: db, fontSize: 12)),
             ],
           ),
         ),

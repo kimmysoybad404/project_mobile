@@ -873,7 +873,6 @@ class _RequestPageState extends State<RequestPage> {
             ),
           ),
         ),
-        const SizedBox(width: 8),
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
