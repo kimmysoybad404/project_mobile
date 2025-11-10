@@ -273,27 +273,47 @@ class _HomeStaffState extends State<HomeStaff> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _isLoadingHistory
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : filteredHistory.isEmpty
-                  ? const Center(
-                      child: Text(
-                        "No History found",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+              child: RefreshIndicator(
+                color: const Color(0xFF8B5B46),
+                onRefresh: () async {
+                  await _fetchHistory();
+                },
+                child: _isLoadingHistory
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                    : SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: filteredHistory.isEmpty
+                            ? const Padding(
+                                padding: EdgeInsets.only(top: 40),
+                                child: Center(
+                                  child: Text(
+                                    "No History found",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: filteredHistory.length,
+                                itemBuilder: (context, index) {
+                                  final item = filteredHistory[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 12.0,
+                                    ),
+                                    child: _buildHistoryCard(item: item),
+                                  );
+                                },
+                              ),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredHistory.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredHistory[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _buildHistoryCard(item: item),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),
