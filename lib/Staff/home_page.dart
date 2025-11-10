@@ -51,25 +51,22 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   Future<void> _fetchHistory() async {
-  setState(() => _isLoadingHistory = true);
-  final search = _searchHistoryQuery.trim();
-  final url = Uri.parse(
-    "http://10.0.2.2:3000/history-all?search=$search",
-  );
-  final res = await http.get(url);
-  if (res.statusCode == 200) {
-    final List<dynamic> rawData = json.decode(res.body);
-    setState(() {
-      _historyItems = rawData
-          .map((json) => HistoryItem.fromJson(json))
-          .toList();
-      _isLoadingHistory = false;
-    });
-  } else {
-    setState(() => _isLoadingHistory = false);
+    setState(() => _isLoadingHistory = true);
+    final search = _searchHistoryQuery.trim();
+    final url = Uri.parse("http://10.0.2.2:3000/history-all?search=$search");
+    final res = await http.get(url);
+    if (res.statusCode == 200) {
+      final List<dynamic> rawData = json.decode(res.body);
+      setState(() {
+        _historyItems = rawData
+            .map((json) => HistoryItem.fromJson(json))
+            .toList();
+        _isLoadingHistory = false;
+      });
+    } else {
+      setState(() => _isLoadingHistory = false);
+    }
   }
-}
-
 
   String _formatThaiDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year + 543}";
@@ -343,6 +340,7 @@ class _HomeStaffState extends State<HomeStaff> {
                   fontSize: 14,
                 ),
               ),
+              _CheckStatus(item.displayStatus),
               Flexible(
                 child: Text(
                   item.assetName,
@@ -385,8 +383,6 @@ class _HomeStaffState extends State<HomeStaff> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _CheckStatus(item.displayStatus),
-                      const SizedBox(height: 10),
                       _buildDateBox(
                         "Borrow Date",
                         _formatThaiDate(item.borrowDate),
@@ -397,8 +393,8 @@ class _HomeStaffState extends State<HomeStaff> {
                         _formatThaiDate(item.returnDate),
                       ),
                       const SizedBox(height: 10),
-                      _Borrowby(item.borrowerName??"-"),
-// **********************************************************************************************************************************
+                      _Borrowby(item.borrowerName ?? "-"),
+                      // **********************************************************************************************************************************
                     ],
                   ),
                 ),
@@ -523,26 +519,21 @@ class _HomeStaffState extends State<HomeStaff> {
         textColor = Colors.orange.shade800;
         iconData = Icons.hourglass_bottom;
         break;
+      case "Disabled":
+        bgColor = Colors.grey.shade300;
+        textColor = Colors.grey.shade700;
+        iconData = Icons.cancel;
+        break;
     }
 
     return Row(
       children: [
-        Text(
-          "Status",
-          style: TextStyle(
-            color: Color(0xFF8B5B46),
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-
-        const SizedBox(width: 10),
-
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: textColor, width: 2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
