@@ -57,6 +57,9 @@ class _HomeLenderState extends State<HomeLender> {
       "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
     );
     final res = await http.get(url);
+
+    if (!mounted) return;
+
     if (res.statusCode == 200) {
       final List<dynamic> rawData = json.decode(res.body);
       setState(() {
@@ -280,39 +283,46 @@ class _HomeLenderState extends State<HomeLender> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _isLoadingHistory
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : filteredHistory.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              child: RefreshIndicator(
+                color: Color(0xFF8B5B46),
+                backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                onRefresh: _fetchHistory,
+                child: _isLoadingHistory
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF8B5B46),
+                        ),
+                      )
+                    : filteredHistory.isEmpty
+                    ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         children: [
-                          const SizedBox(height: 40),
-                          Icon(
-                            Icons.history,
-                            size: 64,
-                            color: Colors.white.withOpacity(0.5),
-                          ),
+                          const SizedBox(height: 100),
+                          Icon(Icons.history, size: 64, color: Colors.white),
                           const SizedBox(height: 16),
-                          Text(
-                            "No History Naja",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          Center(
+                            child: Text(
+                              "No History Naja",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                         ],
+                      )
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredHistory.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredHistory[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: _buildHistoryCard(item: item),
+                          );
+                        },
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredHistory.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredHistory[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _buildHistoryCard(item: item),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),
@@ -418,7 +428,11 @@ class _HomeLenderState extends State<HomeLender> {
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
                           const SizedBox(height: 10),
-                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                          _buildDateBox(
+                            item.actualReturnDate != null
+                                ? _formatThaiDate(item.actualReturnDate!)
+                                : "-",
+                          ),
                         ],
                       ),
                       // const SizedBox(height: 10),
@@ -470,7 +484,7 @@ class _HomeLenderState extends State<HomeLender> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFFF9E5C9),
             borderRadius: BorderRadius.circular(25),
@@ -478,8 +492,6 @@ class _HomeLenderState extends State<HomeLender> {
           child: Row(
             children: [
               Icon(Icons.calendar_today, color: db, size: 14),
-              SizedBox(width: 6),
-
               SizedBox(width: 6),
               Text(date, style: const TextStyle(color: db, fontSize: 16)),
             ],
