@@ -51,24 +51,25 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   Future<void> _fetchHistory() async {
-    setState(() => _isLoadingHistory = true);
-    final search = _searchHistoryQuery.trim();
-    final url = Uri.parse(
-      "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
-    );
-    final res = await http.get(url);
-    if (res.statusCode == 200) {
-      final List<dynamic> rawData = json.decode(res.body);
-      setState(() {
-        _historyItems = rawData
-            .map((json) => HistoryItem.fromJson(json))
-            .toList();
-        _isLoadingHistory = false;
-      });
-    } else {
-      setState(() => _isLoadingHistory = false);
-    }
+  setState(() => _isLoadingHistory = true);
+  final search = _searchHistoryQuery.trim();
+  final url = Uri.parse(
+    "http://10.0.2.2:3000/history-all?search=$search",
+  );
+  final res = await http.get(url);
+  if (res.statusCode == 200) {
+    final List<dynamic> rawData = json.decode(res.body);
+    setState(() {
+      _historyItems = rawData
+          .map((json) => HistoryItem.fromJson(json))
+          .toList();
+      _isLoadingHistory = false;
+    });
+  } else {
+    setState(() => _isLoadingHistory = false);
   }
+}
+
 
   String _formatThaiDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year + 543}";
