@@ -17,6 +17,7 @@ class HistoryItem {
   final String? approverName;
   final String? receiverName;
   final String? rejecterName; // ✅ 1. เพิ่มตัวแปรนี้
+final String? borrowerName;
 
   HistoryItem({
     required this.id,
@@ -35,6 +36,7 @@ class HistoryItem {
     this.approverName,
     this.receiverName,
     this.rejecterName, // ✅ 2. เพิ่มใน constructor
+    this.borrowerName,
   });
 
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
@@ -56,6 +58,7 @@ class HistoryItem {
       approverName: json['approverName'],
       receiverName: json['receiverName'],
       rejecterName: json['rejecterName'],
+      borrowerName: json['borrowerName'],
     );
   }
 
@@ -64,7 +67,7 @@ class HistoryItem {
     if (approveBy == null && rejectBy == null) return "Pending";
     if (rejectBy != null) return "Rejected";
     if (approveBy != null && receiveBy == null) return "Approved";
-    if (receiveBy != null) return "Received";
+    if (receiveBy != null) return "Returned";
     return "Unknown";
   }
 
@@ -73,7 +76,7 @@ class HistoryItem {
     final s = displayStatus.toLowerCase();
 
     if (s == 'rejected') {
-      return Colors.red[700]!; // 🟥 Rejected = สีแดง
+      return Colors.red[700]!; // 🟥 R  ejected = สีแดง
     }
 
     if (s == 'returned') {
