@@ -241,7 +241,7 @@ class _HomeStaffState extends State<HomeStaff> {
             child: TextField(
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "Search by Name or ID...",
+                hintText: "Search by Name or Date and etc..",
                 hintStyle: TextStyle(color: Colors.grey),
               ),
               onChanged: onChanged,
@@ -254,9 +254,21 @@ class _HomeStaffState extends State<HomeStaff> {
 
   Widget _history() {
     final filteredHistory = _historyItems.where((item) {
-      final assetName = item.assetName.toLowerCase();
       final query = _searchHistoryQuery.toLowerCase();
-      return assetName.contains(query);
+      return item.assetName.toLowerCase().contains(query) ||
+          (item.id?.toString().contains(query) ?? false) ||
+          (item.borrowerName?.toLowerCase().contains(query) ?? false) ||
+          (item.approverName?.toLowerCase().contains(query) ?? false) ||
+          (item.receiverName?.toLowerCase().contains(query) ?? false) ||
+          (item.rejecterName?.toLowerCase().contains(query) ?? false) ||
+          (item.rejectReason?.toLowerCase().contains(query) ?? false) ||
+          (item.displayStatus.toLowerCase().contains(query)) ||
+          DateFormat('dd/MM/yyyy').format(item.borrowDate).contains(query) ||
+          DateFormat('dd/MM/yyyy').format(item.returnDate).contains(query) ||
+          (item.actualReturnDate != null &&
+              DateFormat(
+                'dd/MM/yyyy',
+              ).format(item.actualReturnDate!).contains(query));
     }).toList();
 
     return Card(
@@ -267,8 +279,9 @@ class _HomeStaffState extends State<HomeStaff> {
         child: Column(
           children: [
             _buildSearchBar(
-              onChanged: (value) {
+              onChanged: (value) async  {
                 setState(() => _searchHistoryQuery = value);
+                await _fetchHistory();
               },
             ),
             const SizedBox(height: 10),
@@ -353,7 +366,7 @@ class _HomeStaffState extends State<HomeStaff> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "ID: ${item.id.toString().padLeft(5, '0')}",
+                "ID: ${item.id.toString()}",
                 style: const TextStyle(
                   color: darkBrown,
                   fontWeight: FontWeight.bold,

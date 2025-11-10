@@ -76,7 +76,7 @@ final String? borrowerName;
     final s = displayStatus.toLowerCase();
 
     if (s == 'rejected') {
-      return Colors.red[700]!; // 🟥 Rejected = สีแดง
+      return Colors.red[700]!; // 🟥 R  ejected = สีแดง
     }
 
     if (s == 'returned') {

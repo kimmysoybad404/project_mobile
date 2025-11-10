@@ -478,7 +478,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "ID: ${item.id.toString().padLeft(5, '0')}",
+                "ID: ${item.id.toString()}",
                 style: const TextStyle(
                   color: darkBrown,
                   fontWeight: FontWeight.bold,
