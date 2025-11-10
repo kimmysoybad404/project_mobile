@@ -436,6 +436,12 @@ class _HomeStaffState extends State<HomeStaff> {
           const SizedBox(height: 20),
 
           // Approver / Receiver / Rejecter / Reason
+          if (item.borrowerName != null)
+            _buildInfoLine(
+              icon: Icons.people,
+              text: "borrower Name : ${item.borrowerName}",
+              color: const Color.fromARGB(255, 0, 0, 0),
+            ),
           if (item.approverName != null)
             _buildInfoLine(
               icon: Icons.check_circle_outline,
