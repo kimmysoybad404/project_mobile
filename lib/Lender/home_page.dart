@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_mobile/BottomBar.dart';
 
+// ✅ อ้างอิงจาก history_item.dart (ที่เราอัปเดตไปแล้ว)
 import 'package:project_mobile/Borrower/history_item.dart';
 import 'package:intl/intl.dart';
 
@@ -42,40 +43,56 @@ class _HomeLenderState extends State<HomeLender> {
           _isLoadingAssets = false;
         });
       } else {
+        if (!mounted) return;
         setState(() => _isLoadingAssets = false);
       }
     } catch (e) {
       print("Error fetching assets: $e");
+      if (!mounted) return;
       setState(() => _isLoadingAssets = false);
     }
   }
 
   Future<void> _fetchHistory() async {
+    if (!mounted) return;
     setState(() => _isLoadingHistory = true);
-    final search = _searchHistoryQuery.trim();
+    
+    // ✅ 1. ลบ search query ออกจาก URL
     final url = Uri.parse(
-      "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
+      "http://10.0.2.2:3000/history/lender/${widget.userId}",
     );
-    final res = await http.get(url);
-    if (res.statusCode == 200) {
-      final List<dynamic> rawData = json.decode(res.body);
-      setState(() {
-        _historyItems = rawData
-            .map((json) => HistoryItem.fromJson(json))
-            .toList();
-        _isLoadingHistory = false;
-      });
-    } else {
+
+    try { 
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        final List<dynamic> rawData = json.decode(res.body);
+        if (!mounted) return;
+        setState(() {
+          _historyItems =
+              rawData.map((json) => HistoryItem.fromJson(json)).toList();
+          _isLoadingHistory = false;
+        });
+      } else {
+        if (!mounted) return;
+        setState(() => _isLoadingHistory = false);
+      }
+    } catch (e) {
+      print("Error fetching lender history: $e");
+      if (!mounted) return;
       setState(() => _isLoadingHistory = false);
     }
   }
 
   String _formatThaiDate(DateTime date) {
-    return "${date.day}/${date.month}/${date.year + 543}";
+    // .toLocal() ถูกย้ายไปทำใน history_item.dart แล้ว
+    // (แต่เผื่อไว้ก็ไม่เสียหายครับ)
+    final localDate = date.toLocal(); 
+    return "${localDate.day}/${localDate.month}/${localDate.year + 543}";
   }
 
   @override
   Widget build(BuildContext context) {
+    // (โค้ดส่วนนี้เหมือนเดิม)
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -114,6 +131,7 @@ class _HomeLenderState extends State<HomeLender> {
       const Center(child: CircularProgressIndicator(color: Color(0xFF8B5B46)));
 
   Widget _buildTabs() {
+    // (โค้ดส่วนนี้เหมือนเดิม)
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -130,6 +148,7 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _buildTabItem(String title, int index) {
+    // (โค้ดส่วนนี้เหมือนเดิม)
     bool isActive = _selectedTabIndex == index;
     return Expanded(
       child: GestureDetector(
@@ -154,13 +173,12 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _assetListFromAPI() {
+    // (โค้ดส่วนนี้เหมือนเดิม)
     final filteredAssets = _assets.where((item) {
       final name = item['Name']?.toString().toLowerCase() ?? '';
       final id = item['ID']?.toString() ?? '';
-      final status = item['Status']?.toString() ?? '';
-
-      return (name.contains(_searchQuery) || id.contains(_searchQuery)) &&
-          status == "Available";
+      // (Lender ควรเห็นทุกสถานะ)
+      return (name.contains(_searchQuery) || id.contains(_searchQuery));
     }).toList();
 
     return Container(
@@ -191,8 +209,8 @@ class _HomeLenderState extends State<HomeLender> {
                         child: Center(
                           child: Text(
                             _searchQuery.isEmpty
-                                ? "No available items right now or No items found for '$_searchQuery'"
-                                : "No available items right now or No items found for '$_searchQuery'",
+                                ? "No items found"
+                                : "No items found for '$_searchQuery'",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -206,11 +224,11 @@ class _HomeLenderState extends State<HomeLender> {
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.85,
-                            ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.85,
+                        ),
                         itemCount: filteredAssets.length,
                         itemBuilder: (context, index) {
                           final asset = filteredAssets[index];
@@ -232,7 +250,8 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _buildSearchBar({required ValueChanged<String> onChanged}) {
-    return Container(
+    // (โค้ดส่วนนี้เหมือนเดิม)
+     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -260,22 +279,91 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _history() {
-    final filteredHistory = _historyItems.where((item) {
-      final assetName = item.assetName.toLowerCase();
-      final query = _searchHistoryQuery.toLowerCase();
-      return assetName.contains(query);
-    }).toList();
+    // 1. รับคำค้นหาดิบ (trim และ lowercase)
+    final rawQuery = _searchHistoryQuery.trim().toLowerCase();
 
+    final filteredHistory = _historyItems.where((item) {
+      // --- 2. เตรียมข้อมูลทั้งหมดที่จะใช้ค้นหา ---
+      
+      // (วันที่แบบ AD)
+      final borrowDateAD = DateFormat('dd/MM/yyyy').format(item.borrowDate);
+      final returnDateAD = DateFormat('dd/MM/yyyy').format(item.returnDate);
+      final actualReturnDateAD = item.actualReturnDate != null
+          ? DateFormat('dd/MM/yyyy').format(item.actualReturnDate!)
+          : "";
+
+      // (วันที่แบบ BE - พ.ศ.)
+      final borrowDateBE = "${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year + 543}";
+      final returnDateBE = "${item.returnDate.day}/${item.returnDate.month}/${item.returnDate.year + 543}";
+      final actualReturnDateBE = item.actualReturnDate != null
+          ? "${item.actualReturnDate!.day}/${item.actualReturnDate!.month}/${item.actualReturnDate!.year + 543}"
+          : "";
+          
+      // (ข้อมูล Text อื่นๆ)
+      final assetID = item.assetID.toString().toLowerCase();
+      final assetName = item.assetName.toLowerCase();
+      final borrowerName = (item.borrowerName ?? '').toLowerCase();
+      final receiver = (item.receiverName ?? '').toLowerCase();
+      final status = item.displayStatus.toLowerCase();
+      final id = item.id.toString();
+
+      // --- 3. ตรวจสอบ Prefix (คำนำหน้า) ---
+
+      if (rawQuery.startsWith("borrow:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "borrow:"
+        return borrowDateAD.contains(query) || borrowDateBE.contains(query);
+      }
+      
+      if (rawQuery.startsWith("return:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "return:"
+        return returnDateAD.contains(query) || returnDateBE.contains(query);
+      }
+
+      if (rawQuery.startsWith("actual:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "actual:"
+        return actualReturnDateAD.contains(query) || actualReturnDateBE.contains(query);
+      }
+      
+      if (rawQuery.startsWith("status:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "status:"
+        return status.contains(query);
+      }
+
+      if (rawQuery.startsWith("by:")) {
+        final query = rawQuery.substring(3).trim(); // เอาข้อความหลัง "by:"
+        return borrowerName.contains(query) || receiver.contains(query);
+      }
+
+      // --- 4. ถ้าไม่มี Prefix: ค้นหาทุกช่อง (แบบเดิม) ---
+      return id.contains(rawQuery) ||
+          assetID.contains(rawQuery) ||
+          assetName.contains(rawQuery) ||
+          borrowerName.contains(rawQuery) ||
+          receiver.contains(rawQuery) ||
+          status.contains(rawQuery) ||
+          borrowDateAD.contains(rawQuery) ||
+          returnDateAD.contains(rawQuery) ||
+          actualReturnDateAD.contains(rawQuery) ||
+          borrowDateBE.contains(rawQuery) ||
+          returnDateBE.contains(rawQuery) ||
+          actualReturnDateBE.contains(rawQuery);
+          
+    }).toList();
+  
+    // (ส่วน UI ของ _history() ที่เหลือเหมือนเดิม)
     return Card(
       color: const Color(0xFF8B5B46),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             _buildSearchBar(
               onChanged: (value) {
-                setState(() => _searchHistoryQuery = value);
+                setState(() {
+                  _searchHistoryQuery = value;
+                });
               },
             ),
             const SizedBox(height: 10),
@@ -284,34 +372,41 @@ class _HomeLenderState extends State<HomeLender> {
                   ? const Center(
                       child: CircularProgressIndicator(color: Colors.white),
                     )
-                  : filteredHistory.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 40),
-                          Icon(
-                            Icons.history,
-                            size: 64,
-                            color: Colors.white.withOpacity(0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "No History Naja",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredHistory.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredHistory[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _buildHistoryCard(item: item),
-                        );
-                      },
+                  : RefreshIndicator(
+                      color: const Color(0xFF8B5B46),
+                      onRefresh: _fetchHistory,
+                      child: filteredHistory.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 40),
+                                  Icon(
+                                    Icons.history,
+                                    size: 64,
+                                    color: Colors.white.withOpacity(0.5),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    _searchHistoryQuery.isEmpty
+                                      ? "No history found"
+                                      : "No history found for '$_searchHistoryQuery'",
+                                    style: TextStyle(color: Colors.white, fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: filteredHistory.length,
+                              itemBuilder: (context, index) {
+                                final item = filteredHistory[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12.0),
+                                  child: _buildHistoryCard(item: item),
+                                );
+                              },
+                            ),
                     ),
             ),
           ],
@@ -320,14 +415,15 @@ class _HomeLenderState extends State<HomeLender> {
     );
   }
 
+  //
+  // ✅✅✅ === 1. อัปเดต _buildHistoryCard() === ✅✅✅
+  //
   Widget _buildHistoryCard({required HistoryItem item}) {
-    const cardTop = Color(0xFFF8D49C); // ครีมส้มอ่อน
-    const cardBottom = Color(0xFFF6C68E); // ส้มพีชแบบในรูป
-    const darkBrown = Color(0xFF4A3831); // น้ำตาลตัวหนังสือ
-    const imageBg = Color(0xFFF9E5C9); // พื้นหลังรูปอุปกรณ์
+    const darkBrown = Color(0xFF4A3831); 
+    const imageBg = Color(0xFFF9E5C9); 
+    const accentBrown = Color(0xFF8B5B46);
 
     return Container(
-      margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -347,8 +443,8 @@ class _HomeLenderState extends State<HomeLender> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header ID + Asset Name
           Row(
+            // ... (ID and Status) ...
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -360,28 +456,27 @@ class _HomeLenderState extends State<HomeLender> {
                 ),
               ),
               _CheckStatus(item.displayStatus),
-              Flexible(
-                child: Text(
-                  item.assetName,
-                  style: const TextStyle(
-                    color: darkBrown,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
             ],
           ),
-
+          Padding(
+            // ... (Asset Name) ...
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              item.assetName,
+              style: const TextStyle(
+                color: darkBrown,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const SizedBox(height: 16),
-
-          // Image + Details
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // รูป
               Container(
+                // ... (Image) ...
                 decoration: BoxDecoration(
                   color: imageBg,
                   borderRadius: BorderRadius.circular(16),
@@ -392,14 +487,16 @@ class _HomeLenderState extends State<HomeLender> {
                   width: 90,
                   height: 90,
                   fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.image_not_supported, size: 90, color: Colors.grey[400]),
                 ),
               ),
-
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,7 +505,8 @@ class _HomeLenderState extends State<HomeLender> {
                           const SizedBox(height: 25),
                           _buildDateText("Returned Date"),
                           const SizedBox(height: 25),
-                          _buildDateText("ActualReturn Date	"),
+                          if (item.actualReturnDate != null)
+                            _buildDateText("ActualReturn Date"),
                         ],
                       ),
                       Column(
@@ -418,26 +516,32 @@ class _HomeLenderState extends State<HomeLender> {
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
                           const SizedBox(height: 10),
-                          _buildDateBox(_formatThaiDate(item.returnDate)),
+
+                          //
+                          // ✅✅✅ === แก้ไขตรงนี้ === ✅✅✅
+                          //
+                          if (item.actualReturnDate != null)
+                            _buildDateBox(
+                              _formatThaiDate(item.actualReturnDate!),
+                              // ❌ ลบ tagColor: Colors.orange[300]! ออก
+                              // เพื่อให้มันใช้สี default (สีครีม)
+                            ),
                         ],
                       ),
-                      // const SizedBox(height: 10),
-                      // _Borrowby("AutHiwKai"),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
-          // Approver / Receiver / Rejecter / Reason
-          if (item.borrowBy != null)
+          
+          // ... (Info lines: Borrower, Receiver, etc. - เหมือนเดิม) ...
+          if (item.borrowerName != null)
             _buildInfoLine(
-              icon: Icons.check_circle_outline,
-              text: "Borrow by : ${item.borrowBy}",
-              color: Colors.green.shade800,
+              icon: Icons.person_pin,
+              text: "Borrow by : ${item.borrowerName}",
+              color: accentBrown,
             ),
           if (item.receiverName != null)
             _buildInfoLine(
@@ -451,7 +555,7 @@ class _HomeLenderState extends State<HomeLender> {
               text: "Rejected by : ${item.rejecterName}",
               color: Colors.red.shade700,
             ),
-          if (item.rejectReason != null)
+          if (item.rejectReason != null && item.rejectReason!.isNotEmpty)
             _buildInfoLine(
               icon: Icons.error_outline,
               text: "Reason : ${item.rejectReason}",
@@ -462,9 +566,10 @@ class _HomeLenderState extends State<HomeLender> {
     );
   }
 
-  // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
-  Widget _buildDateBox(String date) {
-    const darkBrown = Color(0xFF8B5B46);
+  //
+  // ✅✅✅ === 4. อัปเดต _buildDateBox() (เพิ่ม tagColor) === ✅✅✅
+  //
+  Widget _buildDateBox(String date, {Color tagColor = const Color(0xFFF9E5C9)}) { // 1. เพิ่ม tagColor
     const db = Color(0xFF4A3831);
 
     return Row(
@@ -472,14 +577,12 @@ class _HomeLenderState extends State<HomeLender> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
+            color: tagColor, // 2. ใช้ tagColor
             borderRadius: BorderRadius.circular(25),
           ),
           child: Row(
             children: [
               Icon(Icons.calendar_today, color: db, size: 14),
-              SizedBox(width: 6),
-
               SizedBox(width: 6),
               Text(date, style: const TextStyle(color: db, fontSize: 16)),
             ],
@@ -490,9 +593,8 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _buildDateText(String label) {
+    // (โค้ดส่วนนี้เหมือนเดิม)
     const darkBrown = Color(0xFF8B5B46);
-    const db = Color(0xFF4A3831);
-
     return Row(
       children: [
         Text(
@@ -509,6 +611,7 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _buildInfoLine({
+    // (โค้ดส่วนนี้เหมือนเดิม)
     required IconData icon,
     required String text,
     required Color color,
@@ -537,52 +640,53 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   Widget _CheckStatus(String Status) {
+    // (โค้ดส่วนนี้เหมือนเดิม)
     Color bgColor = const Color(0xFFF9E5C9);
     Color textColor = const Color(0xFF4A3831);
-    IconData iconData = Icons.calendar_today;
+    IconData iconData = Icons.hourglass_empty; 
 
-    switch (Status) {
-      case "Approved":
+    switch (Status.toLowerCase()) { 
+      case "approved":
         bgColor = Colors.green.shade100;
-        textColor = Colors.green;
+        textColor = Colors.green.shade800; 
         iconData = Icons.check_circle;
         break;
-      case "Rejected":
+      case "rejected":
         bgColor = Colors.red.shade100;
         textColor = Colors.red.shade800;
-        iconData = Icons.book;
+        iconData = Icons.cancel; 
         break;
-      case "Returned":
+      case "returned":
         bgColor = Colors.orange.shade100;
         textColor = Colors.orange.shade800;
-        iconData = Icons.hourglass_bottom;
+        iconData = Icons.assignment_returned; 
         break;
-      case "Disabled":
+      case "disabled":
         bgColor = Colors.grey.shade300;
         textColor = Colors.grey.shade700;
-        iconData = Icons.cancel;
+        iconData = Icons.do_not_disturb;
         break;
     }
 
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6), 
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: textColor, width: 2),
+            border: Border.all(color: textColor, width: 1.5), 
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.check_circle, size: 18, color: textColor),
+              Icon(iconData, size: 16, color: textColor), 
               SizedBox(width: 6),
               Text(
                 Status,
                 style: TextStyle(
                   color: textColor,
-                  fontSize: 16,
+                  fontSize: 14, 
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -592,54 +696,9 @@ class _HomeLenderState extends State<HomeLender> {
       ],
     );
   }
-
-  // Widget _Borrowby(String Name) {
-  //   Color bgColor = const Color(0xFFF9E5C9);
-  //   Color textColor = const Color(0xFF4A3831);
-  //   IconData iconData = Icons.man;
-
-  //   return Row(
-  //     children: [
-  //       Text(
-  //         "Borrowed by",
-  //         style: TextStyle(
-  //           color: Color(0xFF8B5B46),
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.w500,
-  //         ),
-  //       ),
-
-  //       const SizedBox(width: 10),
-
-  //       Container(
-  //         padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
-  //         decoration: BoxDecoration(
-  //           color: bgColor,
-  //           borderRadius: BorderRadius.circular(25),
-  //         ),
-  //         child: Row(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Icon(Icons.check_circle, size: 18, color: textColor),
-  //             SizedBox(width: 6),
-  //             Text(
-  //               Name,
-  //               style: TextStyle(
-  //                 color: textColor,
-  //                 fontSize: 16,
-  //                 fontWeight: FontWeight.w600,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
 }
 
+// (AssetCard Class - ไม่มีการเปลี่ยนแปลงจากครั้งก่อน)
 class AssetCard extends StatelessWidget {
   final String name;
   final String id;
@@ -779,7 +838,7 @@ class AssetCard extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: status == "Available"
                                 ? Colors.green[600]
-                                : Colors.red[600],
+                                : (status == "Pending" ? Colors.orange[600] : Colors.red[600]), // ✅ อัปเดตสี
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -788,7 +847,7 @@ class AssetCard extends StatelessWidget {
                           style: TextStyle(
                             color: status == "Available"
                                 ? Colors.green[800]
-                                : Colors.red[800],
+                                : (status == "Pending" ? Colors.orange[800] : Colors.red[800]), // ✅ อัปเดตสี
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.3,

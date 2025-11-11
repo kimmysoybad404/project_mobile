@@ -334,47 +334,84 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 
   // 13. ✅ ============ แก้ไข Widget _history() ทั้งหมด ============
   Widget _history() {
+    // 1. รับคำค้นหาดิบ (trim และ lowercase)
+    final rawQuery = _searchHistoryQuery.trim().toLowerCase();
+
     final filteredHistory = _historyItems.where((item) {
-      final assetID = item.assetID.toString().replaceAll(' ', '').toLowerCase();
-      final assetName = item.assetName.replaceAll(' ', '').toLowerCase();
+      // --- 2. เตรียมข้อมูลทั้งหมดที่จะใช้ค้นหา ---
+      
+      // (วันที่แบบ AD)
+      final borrowDateAD = DateFormat('dd/MM/yyyy').format(item.borrowDate);
+      final returnDateAD = DateFormat('dd/MM/yyyy').format(item.returnDate);
+      final actualReturnDateAD = item.actualReturnDate != null
+          ? DateFormat('dd/MM/yyyy').format(item.actualReturnDate!)
+          : "";
 
-      final borrowDate = DateFormat('dd/MM/yyyy').format(item.borrowDate);
-      final returnDate = DateFormat('dd/MM/yyyy').format(item.returnDate);
+      // (วันที่แบบ BE - พ.ศ.)
+      final borrowDateBE = "${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year + 543}";
+      final returnDateBE = "${item.returnDate.day}/${item.returnDate.month}/${item.returnDate.year + 543}";
+      final actualReturnDateBE = item.actualReturnDate != null
+          ? "${item.actualReturnDate!.day}/${item.actualReturnDate!.month}/${item.actualReturnDate!.year + 543}"
+          : "";
+          
+      // (ข้อมูล Text อื่นๆ)
+      final assetID = item.assetID.toString().toLowerCase();
+      final assetName = item.assetName.toLowerCase();
+      
+      // ✅ (Borrower) จะค้นหาชื่อผู้ อนุมัติ/รับ/ปฏิเสธ
+      final approver = (item.approverName ?? '').toLowerCase();
+      final receiver = (item.receiverName ?? '').toLowerCase();
+      final rejecter = (item.rejecterName ?? '').toLowerCase();
+      
+      final status = item.displayStatus.toLowerCase();
+      final id = item.id.toString();
 
-      final borrowYearAD = item.borrowDate.year;
-      final borrowYearBE = borrowYearAD + 543;
-      final returnYearAD = item.returnDate.year;
-      final returnYearBE = returnYearAD + 543;
+      // --- 3. ตรวจสอบ Prefix (คำนำหน้า) ---
 
-      final borrowDateBE = borrowDate.replaceAll(
-        borrowYearAD.toString(),
-        borrowYearBE.toString(),
-      );
-      final returnDateBE = returnDate.replaceAll(
-        returnYearAD.toString(),
-        returnYearBE.toString(),
-      );
+      if (rawQuery.startsWith("borrow:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "borrow:"
+        return borrowDateAD.contains(query) || borrowDateBE.contains(query);
+      }
+      
+      if (rawQuery.startsWith("return:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "return:"
+        return returnDateAD.contains(query) || returnDateBE.contains(query);
+      }
 
-      final approver = (item.approverName ?? '')
-          .replaceAll(' ', '')
-          .toLowerCase();
-      final receiver = (item.receiverName ?? '')
-          .replaceAll(' ', '')
-          .toLowerCase();
-      final query = _searchHistoryQuery.replaceAll(' ', '').toLowerCase();
+      if (rawQuery.startsWith("actual:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "actual:"
+        return actualReturnDateAD.contains(query) || actualReturnDateBE.contains(query);
+      }
+      
+      if (rawQuery.startsWith("status:")) {
+        final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "status:"
+        return status.contains(query);
+      }
 
-      // ✅ เทียบทั้งแบบ ค.ศ. และ พ.ศ.
-      return item.id.toString().contains(query) ||
-          assetID.contains(query) ||
-          assetName.contains(query) ||
-          borrowDate.toLowerCase().contains(query) ||
-          returnDate.toLowerCase().contains(query) ||
-          borrowDateBE.toLowerCase().contains(query) ||
-          returnDateBE.toLowerCase().contains(query) ||
-          approver.contains(query) ||
-          receiver.contains(query);
+      // ✅ (Borrower) ค้นหา "by:" จะหาจาก (approver, receiver, rejecter)
+      if (rawQuery.startsWith("by:")) {
+        final query = rawQuery.substring(3).trim(); // เอาข้อความหลัง "by:"
+        return approver.contains(query) || receiver.contains(query) || rejecter.contains(query);
+      }
+
+      // --- 4. ถ้าไม่มี Prefix: ค้นหาทุกช่อง (แบบเดิม) ---
+      return id.contains(rawQuery) ||
+          assetID.contains(rawQuery) ||
+          assetName.contains(rawQuery) ||
+          approver.contains(rawQuery) ||
+          receiver.contains(rawQuery) ||
+          rejecter.contains(rawQuery) ||
+          status.contains(rawQuery) ||
+          borrowDateAD.contains(rawQuery) ||
+          returnDateAD.contains(rawQuery) ||
+          actualReturnDateAD.contains(rawQuery) ||
+          borrowDateBE.contains(rawQuery) ||
+          returnDateBE.contains(rawQuery) ||
+          actualReturnDateBE.contains(rawQuery);
+          
     }).toList();
-
+  
+    // (ส่วน UI ของ _history() ที่เหลือเหมือนเดิม)
     return Card(
       color: const Color(0xFF8B5B46),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -395,34 +432,41 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                   ? const Center(
                       child: CircularProgressIndicator(color: Colors.white),
                     )
-                  : filteredHistory.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 40),
-                          Icon(
-                            Icons.history,
-                            size: 64,
-                            color: Colors.white.withOpacity(0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "No History Naja",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredHistory.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredHistory[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _buildHistoryCard(item: item),
-                        );
-                      },
+                  : RefreshIndicator(
+                      color: const Color(0xFF8B5B46),
+                      onRefresh: _fetchHistory,
+                      child: filteredHistory.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 40),
+                                  Icon(
+                                    Icons.history,
+                                    size: 64,
+                                    color: Colors.white.withOpacity(0.5),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    _searchHistoryQuery.isEmpty
+                                        ? "No history found."
+                                        : "No history found for '$_searchHistoryQuery'",
+                                    style: TextStyle(color: Colors.white, fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: filteredHistory.length,
+                              itemBuilder: (context, index) {
+                                final item = filteredHistory[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12.0),
+                                  child: _buildHistoryCard(item: item),
+                                );
+                              },
+                            ),
                     ),
             ),
           ],
@@ -517,8 +561,11 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                           _buildDateText("Borrowed Date"),
                           const SizedBox(height: 25),
                           _buildDateText("Returned Date"),
-                          const SizedBox(height: 25),
-                          _buildDateText("ActualReturn Date	"),
+                          // ✅ 1. เพิ่มการตรวจสอบ (ถ้ามีวันที่คืนจริงค่อยแสดง)
+                          if (item.actualReturnDate != null) ...[
+                            const SizedBox(height: 25),
+                          _buildDateText("ActualReturn Date"),
+                          ]
                         ],
                       ),
                       Column(
@@ -527,8 +574,10 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                           _buildDateBox(_formatThaiDate(item.borrowDate)),
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
-                          const SizedBox(height: 10),
-                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                          if (item.actualReturnDate != null) ...[
+                            const SizedBox(height: 10),
+                            _buildDateBox(_formatThaiDate(item.actualReturnDate!)),
+                          ]
                         ],
                       ),
                     ],
