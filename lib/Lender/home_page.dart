@@ -54,12 +54,9 @@ class _HomeLenderState extends State<HomeLender> {
     setState(() => _isLoadingHistory = true);
     final search = _searchHistoryQuery.trim();
     final url = Uri.parse(
-      "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
-    );
+  "http://10.0.2.2:3000/history/lender/${widget.userId}?search=$search",
+);
     final res = await http.get(url);
-
-    if (!mounted) return;
-
     if (res.statusCode == 200) {
       final List<dynamic> rawData = json.decode(res.body);
       setState(() {
@@ -74,6 +71,7 @@ class _HomeLenderState extends State<HomeLender> {
   }
 
   String _formatThaiDate(DateTime date) {
+    print(date.year + 543);
     return "${date.day}/${date.month}/${date.year + 543}";
   }
 
@@ -124,10 +122,7 @@ class _HomeLenderState extends State<HomeLender> {
         borderRadius: BorderRadius.circular(30),
       ),
       child: Row(
-        children: [
-          _buildTabItem("Browse asset list", 0),
-          _buildTabItem("History", 1),
-        ],
+        children: [_buildTabItem("All Assets", 0), _buildTabItem("History", 1)],
       ),
     );
   }
@@ -193,9 +188,7 @@ class _HomeLenderState extends State<HomeLender> {
                         padding: const EdgeInsets.only(top: 40),
                         child: Center(
                           child: Text(
-                            _searchQuery.isEmpty
-                                ? "No available items right now or No items found for '$_searchQuery'"
-                                : "No available items right now or No items found for '$_searchQuery'",
+                            "No items found.",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -251,7 +244,7 @@ class _HomeLenderState extends State<HomeLender> {
             child: TextField(
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "Search by Name or ID...",
+                hintText: "Search by Name or Date and etc..",
                 hintStyle: TextStyle(color: Colors.grey),
               ),
               onChanged: onChanged,
@@ -264,9 +257,43 @@ class _HomeLenderState extends State<HomeLender> {
 
   Widget _history() {
     final filteredHistory = _historyItems.where((item) {
-      final assetName = item.assetName.toLowerCase();
       final query = _searchHistoryQuery.toLowerCase();
-      return assetName.contains(query);
+      final formattedBorrowDate = DateFormat('dd/MM/yyyy').format(
+        DateTime(
+          item.borrowDate.year + 543,
+          item.borrowDate.month,
+          item.borrowDate.day,
+        ),
+      );
+
+      final formattedReturnDate = DateFormat('dd/MM/yyyy').format(
+        DateTime(
+          item.returnDate.year + 543,
+          item.returnDate.month,
+          item.returnDate.day,
+        ),
+      );
+
+      final formattedActualReturnDate = item.actualReturnDate != null
+          ? DateFormat('dd/MM/yyyy').format(
+              DateTime(
+                item.actualReturnDate!.year + 543,
+                item.actualReturnDate!.month,
+                item.actualReturnDate!.day,
+              ),
+            )
+          : "";
+      return item.assetName.toLowerCase().contains(query) ||
+          (item.id?.toString().contains(query) ?? false) ||
+          (item.borrowerName?.toLowerCase().contains(query) ?? false) ||
+          (item.approverName?.toLowerCase().contains(query) ?? false) ||
+          (item.receiverName?.toLowerCase().contains(query) ?? false) ||
+          (item.rejecterName?.toLowerCase().contains(query) ?? false) ||
+          (item.rejectReason?.toLowerCase().contains(query) ?? false) ||
+          (item.displayStatus.toLowerCase().contains(query)) ||
+          formattedBorrowDate.contains(query) ||
+          formattedReturnDate.contains(query) ||
+          formattedActualReturnDate.contains(query);
     }).toList();
 
     return Card(
@@ -277,50 +304,52 @@ class _HomeLenderState extends State<HomeLender> {
         child: Column(
           children: [
             _buildSearchBar(
-              onChanged: (value) {
+              onChanged: (value) async {
                 setState(() => _searchHistoryQuery = value);
+                await _fetchHistory();
               },
             ),
             const SizedBox(height: 10),
             Expanded(
               child: RefreshIndicator(
-                color: Color(0xFF8B5B46),
-                backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                onRefresh: _fetchHistory,
+                color: const Color(0xFF8B5B46),
+                onRefresh: () async {
+                  await _fetchHistory();
+                },
                 child: _isLoadingHistory
                     ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF8B5B46),
-                        ),
+                        child: CircularProgressIndicator(color: Colors.white),
                       )
-                    : filteredHistory.isEmpty
-                    ? ListView(
+                    : SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          const SizedBox(height: 100),
-                          Icon(Icons.history, size: 64, color: Colors.white),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: Text(
-                              "No History Naja",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                        child: filteredHistory.isEmpty
+                            ? const Padding(
+                                padding: EdgeInsets.only(top: 40),
+                                child: Center(
+                                  child: Text(
+                                    "No History found",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: filteredHistory.length,
+                                itemBuilder: (context, index) {
+                                  final item = filteredHistory[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 12.0,
+                                    ),
+                                    child: _buildHistoryCard(item: item),
+                                  );
+                                },
                               ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: filteredHistory.length,
-                        itemBuilder: (context, index) {
-                          final item = filteredHistory[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: _buildHistoryCard(item: item),
-                          );
-                        },
                       ),
               ),
             ),
@@ -362,7 +391,7 @@ class _HomeLenderState extends State<HomeLender> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "ID: ${item.id.toString().padLeft(5, '0')}",
+                "ID: ${item.id.toString()}",
                 style: const TextStyle(
                   color: darkBrown,
                   fontWeight: FontWeight.bold,
@@ -435,8 +464,6 @@ class _HomeLenderState extends State<HomeLender> {
                           ),
                         ],
                       ),
-                      // const SizedBox(height: 10),
-                      // _Borrowby("AutHiwKai"),
                     ],
                   ),
                 ),
@@ -447,23 +474,17 @@ class _HomeLenderState extends State<HomeLender> {
           const SizedBox(height: 20),
 
           // Approver / Receiver / Rejecter / Reason
-          if (item.borrowBy != null)
+          if (item.borrowerName != null)
             _buildInfoLine(
-              icon: Icons.check_circle_outline,
-              text: "Borrow by : ${item.borrowBy}",
-              color: Colors.green.shade800,
+              icon: Icons.people_outline,
+              text: "Borrower Name : ${item.borrowerName}",
+              color: const Color.fromARGB(255, 0, 0, 0),
             ),
           if (item.receiverName != null)
             _buildInfoLine(
               icon: Icons.person_outline,
               text: "Received by : ${item.receiverName}",
               color: Colors.blue.shade700,
-            ),
-          if (item.rejecterName != null)
-            _buildInfoLine(
-              icon: Icons.cancel_outlined,
-              text: "Rejected by : ${item.rejecterName}",
-              color: Colors.red.shade700,
             ),
           if (item.rejectReason != null)
             _buildInfoLine(
@@ -605,49 +626,49 @@ class _HomeLenderState extends State<HomeLender> {
     );
   }
 
-  // Widget _Borrowby(String Name) {
-  //   Color bgColor = const Color(0xFFF9E5C9);
-  //   Color textColor = const Color(0xFF4A3831);
-  //   IconData iconData = Icons.man;
+  Widget _Borrowby(String Name) {
+    Color bgColor = const Color(0xFFF9E5C9);
+    Color textColor = const Color(0xFF4A3831);
+    IconData iconData = Icons.man;
 
-  //   return Row(
-  //     children: [
-  //       Text(
-  //         "Borrowed by",
-  //         style: TextStyle(
-  //           color: Color(0xFF8B5B46),
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.w500,
-  //         ),
-  //       ),
+    return Row(
+      children: [
+        Text(
+          "Borrowed by",
+          style: TextStyle(
+            color: Color(0xFF8B5B46),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
 
-  //       const SizedBox(width: 10),
+        const SizedBox(width: 10),
 
-  //       Container(
-  //         padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
-  //         decoration: BoxDecoration(
-  //           color: bgColor,
-  //           borderRadius: BorderRadius.circular(25),
-  //         ),
-  //         child: Row(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Icon(Icons.check_circle, size: 18, color: textColor),
-  //             SizedBox(width: 6),
-  //             Text(
-  //               Name,
-  //               style: TextStyle(
-  //                 color: textColor,
-  //                 fontSize: 16,
-  //                 fontWeight: FontWeight.w600,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, size: 18, color: textColor),
+              SizedBox(width: 6),
+              Text(
+                Name,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   // ... (โค้ด _buildDateTag และ AssetCard ไม่ต้องแก้) ...
 }

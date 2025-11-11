@@ -6,14 +6,13 @@ class HistoryItem {
   final String assetName;
   final String? image;
   final DateTime borrowDate;
-  final DateTime returnDate;
-  final DateTime? actualReturnDate;
+  final DateTime returnDate; // วันที่คาดว่าจะคืน
+  final DateTime? actualReturnDate; // ✅ 1. วันที่คืนจริง (อาจเป็น NULL)
   final int? borrowBy;
   final int? approveBy;
   final int? receiveBy;
   final int? rejectBy;
   final String? rejectReason;
-  // final String? status; // ไม่ได้ใช้แล้ว
   final String? approverName;
   final String? receiverName;
   final String? rejecterName; // ✅ 1. เพิ่มตัวแปรนี้
@@ -25,31 +24,34 @@ final String? borrowerName;
     required this.assetName,
     required this.borrowDate,
     required this.returnDate,
-    required this.actualReturnDate,
+    this.actualReturnDate, // ✅ 2. เพิ่มใน constructor
     this.borrowBy,
     this.approveBy,
     this.receiveBy,
     this.rejectBy,
     this.rejectReason,
     this.image,
-    // this.status, // ไม่ได้ใช้แล้ว
     this.approverName,
     this.receiverName,
     this.rejecterName, // ✅ 2. เพิ่มใน constructor
     this.borrowerName,
   });
 
+  // Factory constructor to parse JSON
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
     return HistoryItem(
-      id: json['id'] ?? 0,
-      assetID: json['assetID'] ?? 0,
+      id: json['id'],
+      assetID: json['assetID'],
       assetName: json['assetName'] ?? 'No Name',
-      image: json['image'] ?? 'assets/placeholder.png',
+      image: json["image"],
       borrowDate: DateTime.parse(json['BorrowDate']).toLocal(),
       returnDate: DateTime.parse(json['ReturnDate']).toLocal(),
-      actualReturnDate: json['ActualReturnDate'] != null
-          ? DateTime.parse(json['ActualReturnDate']).toLocal()
-          : null,
+      
+      // ✅ 3. เพิ่ม Logic รับค่า (ต้องเช็ค NULL ด้วย)
+      actualReturnDate: json['ActualReturnDate'] == null
+          ? null
+          : DateTime.parse(json['ActualReturnDate']).toLocal(),
+      
       borrowBy: json['BorrowBy'],
       approveBy: json['ApproveBy'],
       receiveBy: json['ReceiveBy'],
