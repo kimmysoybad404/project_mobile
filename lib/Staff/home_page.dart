@@ -53,9 +53,7 @@ class _HomeStaffState extends State<HomeStaff> {
   Future<void> _fetchHistory() async {
     setState(() => _isLoadingHistory = true);
     final search = _searchHistoryQuery.trim();
-    final url = Uri.parse(
-      "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
-    );
+    final url = Uri.parse("http://10.0.2.2:3000/history-all?search=$search");
     final res = await http.get(url);
     if (res.statusCode == 200) {
       final List<dynamic> rawData = json.decode(res.body);
@@ -71,6 +69,7 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   String _formatThaiDate(DateTime date) {
+    print(date.year + 543);
     return "${date.day}/${date.month}/${date.year + 543}";
   }
 
@@ -243,7 +242,7 @@ class _HomeStaffState extends State<HomeStaff> {
             child: TextField(
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "Search by Name or ID...",
+                hintText: "Search by Name or Date and etc..",
                 hintStyle: TextStyle(color: Colors.grey),
               ),
               onChanged: onChanged,
@@ -256,9 +255,43 @@ class _HomeStaffState extends State<HomeStaff> {
 
   Widget _history() {
     final filteredHistory = _historyItems.where((item) {
-      final assetName = item.assetName.toLowerCase();
       final query = _searchHistoryQuery.toLowerCase();
-      return assetName.contains(query);
+      final formattedBorrowDate = DateFormat('dd/MM/yyyy').format(
+        DateTime(
+          item.borrowDate.year + 543,
+          item.borrowDate.month,
+          item.borrowDate.day,
+        ),
+      );
+
+      final formattedReturnDate = DateFormat('dd/MM/yyyy').format(
+        DateTime(
+          item.returnDate.year + 543,
+          item.returnDate.month,
+          item.returnDate.day,
+        ),
+      );
+
+      final formattedActualReturnDate = item.actualReturnDate != null
+          ? DateFormat('dd/MM/yyyy').format(
+              DateTime(
+                item.actualReturnDate!.year + 543,
+                item.actualReturnDate!.month,
+                item.actualReturnDate!.day,
+              ),
+            )
+          : "";
+      return item.assetName.toLowerCase().contains(query) ||
+          (item.id?.toString().contains(query) ?? false) ||
+          (item.borrowerName?.toLowerCase().contains(query) ?? false) ||
+          (item.approverName?.toLowerCase().contains(query) ?? false) ||
+          (item.receiverName?.toLowerCase().contains(query) ?? false) ||
+          (item.rejecterName?.toLowerCase().contains(query) ?? false) ||
+          (item.rejectReason?.toLowerCase().contains(query) ?? false) ||
+          (item.displayStatus.toLowerCase().contains(query)) ||
+          formattedBorrowDate.contains(query) ||
+          formattedReturnDate.contains(query) ||
+          formattedActualReturnDate.contains(query);
     }).toList();
 
     return Card(
@@ -269,33 +302,54 @@ class _HomeStaffState extends State<HomeStaff> {
         child: Column(
           children: [
             _buildSearchBar(
-              onChanged: (value) {
+              onChanged: (value) async {
                 setState(() => _searchHistoryQuery = value);
+                await _fetchHistory();
               },
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _isLoadingHistory
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : filteredHistory.isEmpty
-                  ? const Center(
-                      child: Text(
-                        "No History found",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+              child: RefreshIndicator(
+                color: const Color(0xFF8B5B46),
+                onRefresh: () async {
+                  await _fetchHistory();
+                },
+                child: _isLoadingHistory
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                    : SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: filteredHistory.isEmpty
+                            ? const Padding(
+                                padding: EdgeInsets.only(top: 40),
+                                child: Center(
+                                  child: Text(
+                                    "No History found",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: filteredHistory.length,
+                                itemBuilder: (context, index) {
+                                  final item = filteredHistory[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 12.0,
+                                    ),
+                                    child: _buildHistoryCard(item: item),
+                                  );
+                                },
+                              ),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredHistory.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredHistory[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _buildHistoryCard(item: item),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),
@@ -335,13 +389,14 @@ class _HomeStaffState extends State<HomeStaff> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "ID: ${item.id.toString().padLeft(5, '0')}",
+                "ID: ${item.id.toString()}",
                 style: const TextStyle(
                   color: darkBrown,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
               ),
+              _CheckStatus(item.displayStatus),
               Flexible(
                 child: Text(
                   item.assetName,
@@ -380,23 +435,33 @@ class _HomeStaffState extends State<HomeStaff> {
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
                     children: [
-                      _CheckStatus(item.displayStatus),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Borrow Date",
-                        _formatThaiDate(item.borrowDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateText("Borrowed Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("Returned Date"),
+                          const SizedBox(height: 25),
+                          _buildDateText("ActualReturn Date	"),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildDateBox(
-                        "Return Date",
-                        _formatThaiDate(item.returnDate),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateBox(_formatThaiDate(item.borrowDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(_formatThaiDate(item.returnDate)),
+                          const SizedBox(height: 10),
+                          _buildDateBox(
+                            item.actualReturnDate != null
+                                ? _formatThaiDate(item.actualReturnDate!)
+                                : "-",
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _Borrowby("AutHiwKai"),
                     ],
                   ),
                 ),
@@ -407,6 +472,12 @@ class _HomeStaffState extends State<HomeStaff> {
           const SizedBox(height: 20),
 
           // Approver / Receiver / Rejecter / Reason
+          if (item.borrowerName != null)
+            _buildInfoLine(
+              icon: Icons.people_outline,
+              text: "Borrower Name : ${item.borrowerName}",
+              color: const Color.fromARGB(255, 0, 0, 0),
+            ),
           if (item.approverName != null)
             _buildInfoLine(
               icon: Icons.check_circle_outline,
@@ -437,7 +508,31 @@ class _HomeStaffState extends State<HomeStaff> {
   }
 
   // ================== Date Box (ให้เข้ากับการ์ดใหม่) ==================
-  Widget _buildDateBox(String label, String date) {
+  Widget _buildDateBox(String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 14),
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateText(String label) {
     const darkBrown = Color(0xFF8B5B46);
     const db = Color(0xFF4A3831);
 
@@ -447,27 +542,11 @@ class _HomeStaffState extends State<HomeStaff> {
           label,
           style: const TextStyle(
             color: darkBrown,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, color: db, size: 18),
-              SizedBox(width: 6),
-
-              SizedBox(width: 6),
-              Text(date, style: const TextStyle(color: db, fontSize: 16)),
-            ],
-          ),
-        ),
+        const SizedBox(width: 5),
       ],
     );
   }
@@ -521,26 +600,21 @@ class _HomeStaffState extends State<HomeStaff> {
         textColor = Colors.orange.shade800;
         iconData = Icons.hourglass_bottom;
         break;
+      case "Disabled":
+        bgColor = Colors.grey.shade300;
+        textColor = Colors.grey.shade700;
+        iconData = Icons.cancel;
+        break;
     }
 
     return Row(
       children: [
-        Text(
-          "Status",
-          style: TextStyle(
-            color: Color(0xFF8B5B46),
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-
-        const SizedBox(width: 10),
-
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: textColor, width: 2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

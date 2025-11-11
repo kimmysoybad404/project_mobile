@@ -61,24 +61,19 @@ class _HomeLenderState extends State<HomeLender> {
     final url = Uri.parse(
       "http://10.0.2.2:3000/history/lender/${widget.userId}",
     );
+    final res = await http.get(url);
 
-    try { 
-      final res = await http.get(url);
-      if (res.statusCode == 200) {
-        final List<dynamic> rawData = json.decode(res.body);
-        if (!mounted) return;
-        setState(() {
-          _historyItems =
-              rawData.map((json) => HistoryItem.fromJson(json)).toList();
-          _isLoadingHistory = false;
-        });
-      } else {
-        if (!mounted) return;
-        setState(() => _isLoadingHistory = false);
-      }
-    } catch (e) {
-      print("Error fetching lender history: $e");
-      if (!mounted) return;
+    if (!mounted) return;
+
+    if (res.statusCode == 200) {
+      final List<dynamic> rawData = json.decode(res.body);
+      setState(() {
+        _historyItems = rawData
+            .map((json) => HistoryItem.fromJson(json))
+            .toList();
+        _isLoadingHistory = false;
+      });
+    } else {
       setState(() => _isLoadingHistory = false);
     }
   }
@@ -368,46 +363,46 @@ class _HomeLenderState extends State<HomeLender> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _isLoadingHistory
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : RefreshIndicator(
-                      color: const Color(0xFF8B5B46),
-                      onRefresh: _fetchHistory,
-                      child: filteredHistory.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 40),
-                                  Icon(
-                                    Icons.history,
-                                    size: 64,
-                                    color: Colors.white.withOpacity(0.5),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    _searchHistoryQuery.isEmpty
-                                      ? "No history found"
-                                      : "No history found for '$_searchHistoryQuery'",
-                                    style: TextStyle(color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
+              child: RefreshIndicator(
+                color: Color(0xFF8B5B46),
+                backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                onRefresh: _fetchHistory,
+                child: _isLoadingHistory
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF8B5B46),
+                        ),
+                      )
+                    : filteredHistory.isEmpty
+                    ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          const SizedBox(height: 100),
+                          Icon(Icons.history, size: 64, color: Colors.white),
+                          const SizedBox(height: 16),
+                          Center(
+                            child: Text(
+                              "No History Naja",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
                               ),
-                            )
-                          : ListView.builder(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              itemCount: filteredHistory.length,
-                              itemBuilder: (context, index) {
-                                final item = filteredHistory[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12.0),
-                                  child: _buildHistoryCard(item: item),
-                                );
-                              },
                             ),
-                    ),
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredHistory.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredHistory[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: _buildHistoryCard(item: item),
+                          );
+                        },
+                      ),
+              ),
             ),
           ],
         ),
@@ -516,18 +511,15 @@ class _HomeLenderState extends State<HomeLender> {
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
                           const SizedBox(height: 10),
-
-                          //
-                          // ✅✅✅ === แก้ไขตรงนี้ === ✅✅✅
-                          //
-                          if (item.actualReturnDate != null)
-                            _buildDateBox(
-                              _formatThaiDate(item.actualReturnDate!),
-                              // ❌ ลบ tagColor: Colors.orange[300]! ออก
-                              // เพื่อให้มันใช้สี default (สีครีม)
-                            ),
+                          _buildDateBox(
+                            item.actualReturnDate != null
+                                ? _formatThaiDate(item.actualReturnDate!)
+                                : "-",
+                          ),
                         ],
                       ),
+                      // const SizedBox(height: 10),
+                      // _Borrowby("AutHiwKai"),
                     ],
                   ),
                 ),
@@ -575,7 +567,7 @@ class _HomeLenderState extends State<HomeLender> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: tagColor, // 2. ใช้ tagColor
             borderRadius: BorderRadius.circular(25),

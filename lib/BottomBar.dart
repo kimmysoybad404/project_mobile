@@ -307,7 +307,7 @@ class _BottomBarState extends State<BottomBar> {
       case 3:
         return [
           ManageAssetsPage2(),
-          homepageLender.HomeLender(userId: widget.userid!),
+          homepageStaff.HomeStaff(userId: widget.userid!),
           DashboardPage(),
         ];
       default:
