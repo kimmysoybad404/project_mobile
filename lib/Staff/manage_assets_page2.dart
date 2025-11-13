@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class ManageAssetsPage2 extends StatefulWidget {
   const ManageAssetsPage2({super.key});
@@ -17,35 +19,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  List<Map<String, dynamic>> assets = [
-    {
-      "id": "00001",
-      "name": "Notebook",
-      "image": "assets/images/notebook.png",
-      "status": "Available",
-      "borrowDate": "25/10/2568",
-      "returnDate": "27/10/2568",
-      "actualreturnDate	": "28/10/2568",
-    },
-    {
-      "id": "00002",
-      "name": "Apple Pencil 2",
-      "image": "assets/images/apple_pencil_2.png",
-      "status": "Borrowed",
-      "borrowDate": "25/10/2568",
-      "returnDate": "27/10/2568",
-      "actualreturnDate	": "28/10/2568",
-    },
-    {
-      "id": "00003",
-      "name": "Powerbank",
-      "image": "assets/images/powerbank.png",
-      "status": "Pending",
-      "borrowDate": "25/10/2568",
-      "returnDate": "27/10/2568",
-      "actualreturnDate	": "28/10/2568",
-    },
-  ];
+  List<Map<String, dynamic>> assets = [];
 
   List<Map<String, dynamic>> recoveryAssets = [
     {
@@ -86,6 +60,33 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     },
   ];
 
+  // --- Fetch data from your server ---
+  Future<void> fetchAssets() async {
+    try {
+      final response = await http.get(Uri.parse("http://10.0.2.2:3000/storage"));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          assets = data.map((item) {
+            return {
+              "id": item['ID'].toString(),
+              "name": item['Name'] ?? 'Unknown',
+              "image": item['imageName'] != null && item['imageName'].isNotEmpty
+                  ? "assets/images/${item['imageName']}"
+                  : "assets/images/default.png",
+              "status": item['Status'] ?? 'Unknown',
+            };
+          }).toList();
+        });
+      } else {
+        throw Exception('Failed to load assets');
+      }
+    } catch (e) {
+      print('Error fetching assets: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,6 +99,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       curve: Curves.easeInOut,
     );
     _animationController.forward();
+    fetchAssets();
   }
 
   @override
@@ -332,29 +334,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                     padding: const EdgeInsets.all(10),
                     child: Image.asset(item["image"], width: 90, height: 90),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildDateText("Borrow"),
-                            const SizedBox(height: 25),
-                            _buildDateText("Return"),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildDateBox(item["borrowDate"] ?? ""),
-                            const SizedBox(height: 10),
-                            _buildDateBox(item["returnDate"] ?? "-"),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+
                 ],
               ),
               const SizedBox(height: 20),
