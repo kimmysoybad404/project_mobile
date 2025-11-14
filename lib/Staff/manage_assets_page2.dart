@@ -81,6 +81,33 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     },
   ];
 
+  final List<Map<String, dynamic>> statusOptions = [
+      {
+        'value': 'Available',
+        'icon': Icons.check_circle,
+        'color': Colors.green,
+        'label': 'Available',
+      },
+      {
+        'value': 'Borrowed',
+        'icon': Icons.book,
+        'color': Colors.blue,
+        'label': 'Borrowed',
+      },
+      {
+        'value': 'Pending',
+        'icon': Icons.hourglass_bottom,
+        'color': Colors.orange,
+        'label': 'Pending',
+      },
+      {
+        'value': 'Disabled',
+        'icon': Icons.cancel,
+        'color': Colors.redAccent,
+        'label': 'Disabled',
+      },
+    ];
+
   // --- Fetch data from the server ---
   Future<void> fetchAssets() async {
     try {
@@ -107,6 +134,33 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       }
     } catch (e) {
       print('Error fetching assets: $e');
+    }
+  }
+
+  Future<bool> updateAssetToServer({
+    required int id,
+    required String name,
+    required String status,
+    required String imageName,
+  }) async {
+    final url = Uri.parse("http://10.0.2.2:3000/edit-storage");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "id": id,
+        "name": name,
+        "status": status,
+        "imageName": imageName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed: ${response.body}");
+      return false;
     }
   }
 
@@ -784,33 +838,6 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     String localImage = 'assets/images/notebook.png';
     bool showError = false;
 
-    final List<Map<String, dynamic>> statusOptions = [
-      {
-        'value': 'Available',
-        'icon': Icons.check_circle,
-        'color': Colors.green,
-        'label': 'Available',
-      },
-      {
-        'value': 'Borrowed',
-        'icon': Icons.book,
-        'color': Colors.blue,
-        'label': 'Borrowed',
-      },
-      {
-        'value': 'Pending',
-        'icon': Icons.hourglass_bottom,
-        'color': Colors.orange,
-        'label': 'Pending',
-      },
-      {
-        'value': 'Disabled',
-        'icon': Icons.cancel,
-        'color': Colors.redAccent,
-        'label': 'Disabled',
-      },
-    ];
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1022,37 +1049,12 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
 
   // Edit Dialog
   void showEditDialog(Map<String, dynamic> item) {
-    String localStatus = item['status'] ?? 'Available';
-    String localName = item['name'] ?? '';
-    String localImage = item['image'] ?? 'assets/images/notebook.png';
+    String localStatus = item['status'];
+    String localName = item['name'];
+    String localImage = item['image'];
     bool showError = false;
 
-    final List<Map<String, dynamic>> statusOptions = [
-      {
-        'value': 'Available',
-        'icon': Icons.check_circle,
-        'color': Colors.green,
-        'label': 'Available',
-      },
-      {
-        'value': 'Borrowed',
-        'icon': Icons.book,
-        'color': Colors.blue,
-        'label': 'Borrowed',
-      },
-      {
-        'value': 'Pending',
-        'icon': Icons.hourglass_bottom,
-        'color': Colors.orange,
-        'label': 'Pending',
-      },
-      {
-        'value': 'Disabled',
-        'icon': Icons.cancel,
-        'color': Colors.redAccent,
-        'label': 'Disabled',
-      },
-    ];
+    final nameController = TextEditingController(text: localName);
 
     showDialog(
       context: context,
@@ -1062,26 +1064,16 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
           builder: (context, setStateDialog) {
             return Dialog(
               backgroundColor: Colors.transparent,
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
-              ),
               child: Container(
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5B46),
                   borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
                 ),
-                padding: const EdgeInsets.all(18),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // IMAGE
                     Container(
                       margin: const EdgeInsets.only(top: 8, bottom: 10),
                       width: 80,
@@ -1090,8 +1082,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                         color: Color(0xFFFEC785),
                         shape: BoxShape.circle,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                      child: ClipOval(
                         child: Image.asset(localImage, fit: BoxFit.contain),
                       ),
                     ),
@@ -1104,14 +1095,18 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                           value: localImage,
                           options: imageOptions,
                           setStateDialog: setStateDialog,
-                          onChanged: (v) => localImage = v!,
+                          onChanged: (v) {
+                            setStateDialog(() => localImage = v!);
+                          },
                         ),
                         _buildDropdownSection(
                           title: "Select Status",
                           value: localStatus,
                           options: statusOptions,
                           setStateDialog: setStateDialog,
-                          onChanged: (v) => localStatus = v!,
+                          onChanged: (v) {
+                            setStateDialog(() => localStatus = v!);
+                          },
                         ),
                       ],
                     ),
@@ -1119,116 +1114,64 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                     _buildTextFieldSection(
                       title: "Name",
                       hint: "Enter asset name...",
-                      controller: TextEditingController(text: localName),
+                      controller: nameController,
                       onChanged: (v) => localName = v,
                     ),
 
                     if (showError)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF48A8A).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFF48A8A).withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              color: Color(0xFFF48A8A),
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            const Expanded(
-                              child: Text(
-                                "Please enter asset name before saving.",
-                                style: TextStyle(
-                                  color: Color(0xFFF48A8A),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
+                      const Padding(
+                        padding: EdgeInsets.only(top: 6, bottom: 10),
+                        child: Text(
+                          "Please enter asset name!",
+                          style: TextStyle(color: Colors.redAccent),
                         ),
                       ),
-                    // Button
+
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               if (localName.trim().isEmpty) {
                                 setStateDialog(() => showError = true);
                                 return;
                               }
 
-                              setState(() {
-                                // Generate a new ID (you can customize this logic)
-                                int newId = assets.isNotEmpty
-                                    ? (assets
-                                              .map((e) => e['id'] as int)
-                                              .reduce((a, b) => a > b ? a : b) +
-                                          1)
-                                    : 1;
+                              final success = await updateAssetToServer(
+                                id: int.parse(item['id'].toString()),
+                                name: localName,
+                                status: localStatus,
+                                imageName: localImage.replaceFirst(
+                                  "assets/images/",
+                                  "",
+                                ),
+                              );
 
-                                assets.add({
-                                  'id': newId,
-                                  'name': localName,
-                                  'status': localStatus,
-                                  'image': localImage,
-                                  'borrowDate': DateFormat(
-                                    'dd/MM/yyyy',
-                                  ).format(DateTime.now()),
-                                  'returnDate': DateFormat('dd/MM/yyyy').format(
-                                    DateTime.now().add(const Duration(days: 1)),
-                                  ),
+                              if (success) {
+                                setState(() {
+                                  item['name'] = localName;
+                                  item['status'] = localStatus;
+                                  item['image'] = localImage;
                                 });
-                              });
-                              Navigator.of(context).pop();
+
+                                Navigator.pop(context);
+                              }
                             },
-                            icon: const Icon(Icons.save, color: Colors.white),
-                            label: const Text(
-                              "Save",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            icon: const Icon(Icons.save),
+                            label: const Text("Save"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: 3,
                             ),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            icon: const Icon(Icons.close, color: Colors.white),
-                            label: const Text(
-                              "Cancel",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                            label: const Text("Cancel"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: 3,
                             ),
                           ),
                         ),
