@@ -18,6 +18,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  final TextEditingController _searchController = TextEditingController();
 
   List<Map<String, dynamic>> assets = [];
 
@@ -82,38 +83,39 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
   ];
 
   final List<Map<String, dynamic>> statusOptions = [
-      {
-        'value': 'Available',
-        'icon': Icons.check_circle,
-        'color': Colors.green,
-        'label': 'Available',
-      },
-      {
-        'value': 'Borrowed',
-        'icon': Icons.book,
-        'color': Colors.blue,
-        'label': 'Borrowed',
-      },
-      {
-        'value': 'Pending',
-        'icon': Icons.hourglass_bottom,
-        'color': Colors.orange,
-        'label': 'Pending',
-      },
-      {
-        'value': 'Disabled',
-        'icon': Icons.cancel,
-        'color': Colors.redAccent,
-        'label': 'Disabled',
-      },
-    ];
+    {
+      'value': 'Available',
+      'icon': Icons.check_circle,
+      'color': Colors.green,
+      'label': 'Available',
+    },
+    {
+      'value': 'Borrowed',
+      'icon': Icons.book,
+      'color': Colors.blue,
+      'label': 'Borrowed',
+    },
+    {
+      'value': 'Pending',
+      'icon': Icons.hourglass_bottom,
+      'color': Colors.orange,
+      'label': 'Pending',
+    },
+    {
+      'value': 'Disabled',
+      'icon': Icons.cancel,
+      'color': Colors.redAccent,
+      'label': 'Disabled',
+    },
+  ];
 
   // --- Fetch data from the server ---
-  Future<void> fetchAssets() async {
+  Future<void> fetchAssets({String query = ""}) async {
     try {
       final response = await http.get(
-        Uri.parse("http://10.0.2.2:3000/storage"),
+        Uri.parse("http://10.0.2.2:3000/storage?q=$query"),
       );
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
@@ -317,33 +319,20 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Icon(Icons.search, color: Colors.grey),
           ),
-          const Expanded(
+
+          Expanded(
             child: TextField(
-              decoration: InputDecoration(
+              controller: _searchController,
+              onChanged: (value) {
+                fetchAssets(query: value); // 🔥 search directly
+              },
+              decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "search here...",
+                hintText: "Search by ID or Name...",
                 hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
           ),
-
-          if (_selectedTabIndex == 0)
-            Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: ElevatedButton(
-                onPressed: () {
-                  showAddDialog();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFEC785),
-                  foregroundColor: const Color(0xFF4A3831),
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(10),
-                  elevation: 2,
-                ),
-                child: const Icon(Icons.add, size: 24),
-              ),
-            ),
         ],
       ),
     );
@@ -1297,128 +1286,132 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
 
   // Delete Dialog
   void showDeleteDialog(Map<String, dynamic> item) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF8B5B46),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.4),
-                blurRadius: 10,
-                offset: const Offset(0, 6),
-              ),
-            ],
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
           ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.delete, color: Colors.red, size: 48),
-              const SizedBox(height: 10),
-              Text(
-                "Are you sure want to delete ${item['name']}?",
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              const SizedBox(height: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF8B5B46),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.delete, color: Colors.red, size: 48),
+                const SizedBox(height: 10),
+                Text(
+                  "Are you sure want to delete ${item['name']}?",
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 20),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        Navigator.of(context).pop();
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
 
-                        final id = item['id'];
+                          final id = item['id'];
 
-                        try {
-                          final response = await http.post(
-                            Uri.parse("http://10.0.2.2:3000/delete-storage"),
-                            headers: {"Content-Type": "application/json"},
-                            body: jsonEncode({"id": id}),
-                          );
-
-                          if (response.statusCode == 200) {
-                            // update UI
-                            setState(() {
-                              assets.removeWhere((a) => a['id'] == id);
-                            });
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Asset deleted successfully"),
-                                backgroundColor: Colors.green,
-                              ),
+                          try {
+                            final response = await http.post(
+                              Uri.parse("http://10.0.2.2:3000/delete-storage"),
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({"id": id}),
                             );
-                          } else {
+
+                            if (response.statusCode == 200) {
+                              // update UI
+                              setState(() {
+                                assets.removeWhere((a) => a['id'] == id);
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Asset deleted successfully"),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Delete failed: ${response.body}",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Delete failed: ${response.body}"),
+                                content: Text("Error: $e"),
                                 backgroundColor: Colors.red,
                               ),
                             );
                           }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Error: $e"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.delete, color: Colors.white),
-                      label: const Text(
-                        "Yes, Delete It",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD9534F),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                        },
+                        icon: const Icon(Icons.delete, color: Colors.white),
+                        label: const Text(
+                          "Yes, Delete It",
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 3,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD9534F),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 3,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
+                    const SizedBox(width: 10),
 
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      label: const Text(
-                        "Cancel",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        label: const Text(
+                          "Cancel",
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 3,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 3,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 }
