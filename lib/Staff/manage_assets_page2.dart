@@ -51,19 +51,42 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     {
       'value': 'assets/images/apple_pencil_2.png',
       'icon': Icons.edit,
-      'label': 'Apple Pencil 2',
+      'label': 'Apple Pencil',
     },
     {
       'value': 'assets/images/powerbank.png',
       'icon': Icons.battery_charging_full,
       'label': 'Powerbank',
     },
+    {
+      'value': 'assets/images/Camera.png',
+      'icon': Icons.camera_alt,
+      'label': 'Camera',
+    },
+    {
+      'value': 'assets/images/boardgame.png',
+      'icon': Icons.dashboard,
+      'label': 'Board Game',
+    },
+    {'value': 'assets/images/Mouse.png', 'icon': Icons.mouse, 'label': 'Mouse'},
+    {
+      'value': 'assets/images/Phone.png',
+      'icon': Icons.phone_iphone,
+      'label': 'Phone',
+    },
+    {
+      'value': 'assets/images/ipad.png',
+      'icon': Icons.tablet_mac,
+      'label': 'Ipad',
+    },
   ];
 
-  // --- Fetch data from your server ---
+  // --- Fetch data from the server ---
   Future<void> fetchAssets() async {
     try {
-      final response = await http.get(Uri.parse("http://10.0.2.2:3000/storage"));
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:3000/storage"),
+      );
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
@@ -272,6 +295,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
+  // Status card : if avaliable
   Widget _buildStatusCard() {
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -297,34 +321,39 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
               ),
             ],
           ),
-          child: Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "ID: ${item["id"]}",
-                    style: const TextStyle(
-                      color: Color(0xFF4A3831),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+              // Left side: ID, Name, Status
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _CheckStatus(item["status"]),
+                    const SizedBox(height: 8),
+                    Text(
+                      "ID: ${item["id"]}",
+                      style: const TextStyle(
+                        color: Color(0xFF4A3831),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-
-                  _CheckStatus(item["status"]),
-
-                  Text(
-                    "${item["name"]}",
-                    style: const TextStyle(
-                      color: Color(0xFF4A3831),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                    const SizedBox(height: 4),
+                    Text(
+                      "${item["name"]}",
+                      style: const TextStyle(
+                        color: Color(0xFF4A3831),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-              Row(
+
+              // Right side: Image and buttons
+              Column(
                 children: [
                   Container(
                     decoration: BoxDecoration(
@@ -334,31 +363,29 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                     padding: const EdgeInsets.all(10),
                     child: Image.asset(item["image"], width: 90, height: 90),
                   ),
-
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildSmallButton(
-                    "Edit",
-                    item["status"] == "Available"
-                        ? Colors.grey
-                        : Colors.grey.shade400,
-                    item["status"] == "Available"
-                        ? () => showEditDialog(item)
-                        : null,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildSmallButton(
-                    "Delete",
-                    item["status"] == "Available"
-                        ? Colors.redAccent
-                        : Colors.grey.shade400,
-                    item["status"] == "Available"
-                        ? () => showDeleteDialog(item)
-                        : null,
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _buildSmallButton(
+                        "Edit",
+                        item["status"] == "Available"
+                            ? Colors.grey
+                            : Colors.grey.shade400,
+                        item["status"] == "Available"
+                            ? () => showEditDialog(item)
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildSmallButton(
+                        "Delete",
+                        item["status"] == "Available"
+                            ? Colors.redAccent
+                            : Colors.grey.shade400,
+                        item["status"] == "Available"
+                            ? () => showDeleteDialog(item)
+                            : null,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -369,6 +396,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
+  // Recovery cards
   Widget _buildRecoveryCard() {
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -623,6 +651,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
+  // Check if status == Available ? Not Available
   Widget _CheckStatus(String status) {
     Color bgColor = const Color(0xFFF9E5C9);
     Color textColor = const Color(0xFF4A3831);
@@ -748,6 +777,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
+  // Add Dialog
   void showAddDialog() {
     String localStatus = 'Available';
     String localName = '';
@@ -901,28 +931,41 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               if (localName.trim().isEmpty) {
                                 setStateDialog(() => showError = true);
                                 return;
                               }
-                              setState(() {
-                                assets.add({
-                                  'id': DateTime.now().millisecondsSinceEpoch
-                                      .toString(),
-                                  'name': localName,
-                                  'status': localStatus,
-                                  'image': localImage,
-                                  'borrowDate': DateFormat(
-                                    'dd/MM/yyyy',
-                                  ).format(DateTime.now()),
-                                  'returnDate': DateFormat('dd/MM/yyyy').format(
-                                    DateTime.now().add(Duration(days: 1)),
-                                  ),
-                                });
-                              });
 
-                              Navigator.of(context).pop();
+                              // API call to add asset
+                              final response = await http.post(
+                                Uri.parse("http://10.0.2.2:3000/add-storage"),
+                                headers: {"Content-Type": "application/json"},
+                                body: jsonEncode({
+                                  "name": localName,
+                                  "status": localStatus,
+                                  "imageName": localImage.split('/').last,
+                                }),
+                              );
+
+                              if (response.statusCode == 200) {
+                                final data = jsonDecode(response.body);
+                                print("Asset added: $data");
+
+                                // Optionally update local list
+                                setState(() {
+                                  assets.add({
+                                    'id': data['insertId'],
+                                    'name': localName,
+                                    'status': localStatus,
+                                    'image': localImage,
+                                  });
+                                });
+
+                                Navigator.of(context).pop();
+                              } else {
+                                print("Error adding asset: ${response.body}");
+                              }
                             },
 
                             icon: const Icon(Icons.add, color: Colors.white),
@@ -977,6 +1020,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
+  // Edit Dialog
   void showEditDialog(Map<String, dynamic> item) {
     String localStatus = item['status'] ?? 'Available';
     String localName = item['name'] ?? '';
@@ -1115,6 +1159,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                           ],
                         ),
                       ),
+                    // Button
                     Row(
                       children: [
                         Expanded(
@@ -1126,30 +1171,26 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                               }
 
                               setState(() {
-                                final index = assets.indexWhere(
-                                  (a) => a['id'] == item['id'],
-                                );
-                                if (index >= 0) {
-                                  assets[index]['name'] = localName;
-                                  assets[index]['status'] = localStatus;
-                                  assets[index]['image'] = localImage;
-                                  assets[index]['borrowDate'] ??= DateFormat(
+                                // Generate a new ID (you can customize this logic)
+                                int newId = assets.isNotEmpty
+                                    ? (assets
+                                              .map((e) => e['id'] as int)
+                                              .reduce((a, b) => a > b ? a : b) +
+                                          1)
+                                    : 1;
+
+                                assets.add({
+                                  'id': newId,
+                                  'name': localName,
+                                  'status': localStatus,
+                                  'image': localImage,
+                                  'borrowDate': DateFormat(
                                     'dd/MM/yyyy',
-                                  ).format(DateTime.now());
-                                  assets[index]['returnDate'] ??=
-                                      DateFormat('dd/MM/yyyy').format(
-                                        DateTime.now().add(Duration(days: 1)),
-                                      );
-                                } else {
-                                  assets.add({
-                                    'id': item['id'],
-                                    'name': localName,
-                                    'status': localStatus,
-                                    'image': localImage,
-                                    'borrowDate': '25/10/2568',
-                                    'returnDate': '27/10/2568',
-                                  });
-                                }
+                                  ).format(DateTime.now()),
+                                  'returnDate': DateFormat('dd/MM/yyyy').format(
+                                    DateTime.now().add(const Duration(days: 1)),
+                                  ),
+                                });
                               });
                               Navigator.of(context).pop();
                             },
@@ -1311,6 +1352,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
+  // Delete Dialog
   void showDeleteDialog(Map<String, dynamic> item) {
     showDialog(
       context: context,
