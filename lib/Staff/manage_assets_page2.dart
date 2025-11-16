@@ -66,9 +66,19 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       'label': 'Notebook',
     },
     {
+      'value': 'assets/images/apple_pencil_1.png',
+      'icon': Icons.edit,
+      'label': 'Apple Pencil_1',
+    },
+    {
       'value': 'assets/images/apple_pencil_2.png',
       'icon': Icons.edit,
-      'label': 'Apple Pencil',
+      'label': 'Apple Pencil_2',
+    },
+    {
+      'value': 'assets/images/apple_pencil_3.png',
+      'icon': Icons.edit,
+      'label': 'Apple Pencil_3',
     },
     {
       'value': 'assets/images/powerbank.png',
@@ -83,13 +93,25 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     {
       'value': 'assets/images/boardgame.png',
       'icon': Icons.dashboard,
-      'label': 'Board Game',
+      'label': 'Board_Game_1',
     },
-    {'value': 'assets/images/Mouse.png', 'icon': Icons.mouse, 'label': 'Mouse'},
+    {
+      'value': 'assets/images/Board_games.png',
+      'icon': Icons.dashboard,
+      'label': 'Board_Game_2',
+    },
+    {'value': 'assets/images/Mouse.png', 
+    'icon': Icons.mouse, 
+    'label': 'Mouse'},
     {
       'value': 'assets/images/Phone.png',
       'icon': Icons.phone_iphone,
       'label': 'Phone',
+    },
+    {
+      'value': 'assets/images/Phone_2.png',
+      'icon': Icons.phone_iphone,
+      'label': 'Phone_2',
     },
     {
       'value': 'assets/images/ipad.png',
@@ -105,18 +127,18 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       'color': Colors.green,
       'label': 'Available',
     },
-    {
-      'value': 'Borrowed',
-      'icon': Icons.book,
-      'color': Colors.blue,
-      'label': 'Borrowed',
-    },
-    {
-      'value': 'Pending',
-      'icon': Icons.hourglass_bottom,
-      'color': Colors.orange,
-      'label': 'Pending',
-    },
+    // {
+    //   'value': 'Borrowed',
+    //   'icon': Icons.book,
+    //   'color': Colors.blue,
+    //   'label': 'Borrowed',
+    // },
+    // {
+    //   'value': 'Pending',
+    //   'icon': Icons.hourglass_bottom,
+    //   'color': Colors.orange,
+    //   'label': 'Pending',
+    // },
     {
       'value': 'Disabled',
       'icon': Icons.cancel,
@@ -126,34 +148,35 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
   ];
 
   // --- Fetch data from the server ---
-  Future<void> fetchAssets({String query = ""}) async {
-    try {
-      final response = await http.get(
-        Uri.parse("http://10.0.2.2:3000/storage?q=$query"),
-      );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+Future<void> fetchAssets({String query = ""}) async {
+  try {
+    final response = await http.get(
+      Uri.parse("http://10.0.2.2:3000/storage?q=$query"),
+    );
 
-        setState(() {
-          assets = data.map((item) {
-            return {
-              "id": item['ID'].toString(),
-              "name": item['Name'] ?? 'Unknown',
-              "image": item['imageName'] != null && item['imageName'].isNotEmpty
-                  ? "assets/images/${item['imageName']}"
-                  : "assets/images/default.png",
-              "status": item['Status'] ?? 'Unknown',
-            };
-          }).toList();
-        });
-      } else {
-        throw Exception('Failed to load assets');
-      }
-    } catch (e) {
-      print('Error fetching assets: $e');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+
+      setState(() {
+        assets = data.map((item) {
+          return {
+            "id": item['ID'].toString(),
+            "name": item['Name'] ?? 'Unknown',
+            "image": item['imageName'] != null && item['imageName'].isNotEmpty
+                ? "assets/images/${item['imageName']}"
+                : "assets/images/default.png",
+            "status": item['Status'] ?? 'Unknown',
+          };
+        }).toList();
+      });
+    } else {
+      throw Exception('Failed to load assets');
     }
+  } catch (e) {
+    print('Error fetching assets: $e');
   }
+}
 
   // -- Async function to update asset on the server ---
   Future<bool> updateAssetToServer({
@@ -646,40 +669,6 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     );
   }
 
-  // Helper method for detail rows
-  Widget _buildDetailRow(String label, String value) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            "$label:",
-            style: const TextStyle(
-              color: Color(0xFF8B5B46),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xFF4A3831),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   //------------Important Dialog Widgets-------------
 
@@ -1619,6 +1608,24 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
               ),
             ),
           ),
+
+          if (_selectedTabIndex == 0)
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: ElevatedButton(
+                onPressed: () {
+                  showAddDialog();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFEC785),
+                  foregroundColor: const Color(0xFF4A3831),
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(10),
+                  elevation: 2,
+                ),
+                child: const Icon(Icons.add, size: 24),
+              ),
+            ),
         ],
       ),
     );
