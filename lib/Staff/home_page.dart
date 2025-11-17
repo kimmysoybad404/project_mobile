@@ -444,8 +444,10 @@ class _HomeStaffState extends State<HomeStaff> {
                           _buildDateText("Borrowed Date"),
                           const SizedBox(height: 25),
                           _buildDateText("Returned Date"),
-                          const SizedBox(height: 25),
-                          _buildDateText("ActualReturn Date	"),
+                          if (item.actualReturnDate != null)
+                            const SizedBox(height: 25),
+                          if (item.actualReturnDate != null)
+                            _buildDateText("ActualReturn Date	"),
                         ],
                       ),
                       Column(
@@ -454,12 +456,14 @@ class _HomeStaffState extends State<HomeStaff> {
                           _buildDateBox(_formatThaiDate(item.borrowDate)),
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
-                          const SizedBox(height: 10),
-                          _buildDateBox(
-                            item.actualReturnDate != null
-                                ? _formatThaiDate(item.actualReturnDate!)
-                                : "-",
-                          ),
+                          if (item.actualReturnDate != null)
+                            const SizedBox(height: 10),
+                          if (item.actualReturnDate != null)
+                            _buildDateBox(
+                              item.actualReturnDate != null
+                                  ? _formatThaiDate(item.actualReturnDate!)
+                                  : "-",
+                            ),
                         ],
                       ),
                     ],
