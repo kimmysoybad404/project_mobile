@@ -34,7 +34,7 @@ class RecoveryAsset {
   factory RecoveryAsset.fromJson(Map<String, dynamic> json) {
     return RecoveryAsset(
       id: json['id'].toString(),
-      assetId: json['assetId'].toString(), // Add this line
+      assetId: json['assetId'].toString(),
       name: json['name'],
       image: json['image'],
       status: json['status'],
@@ -100,9 +100,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
       'icon': Icons.dashboard,
       'label': 'Board_Game_2',
     },
-    {'value': 'assets/images/Mouse.png', 
-    'icon': Icons.mouse, 
-    'label': 'Mouse'},
+    {'value': 'assets/images/Mouse.png', 'icon': Icons.mouse, 'label': 'Mouse'},
     {
       'value': 'assets/images/Phone.png',
       'icon': Icons.phone_iphone,
@@ -149,34 +147,34 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
 
   // --- Fetch data from the server ---
 
-Future<void> fetchAssets({String query = ""}) async {
-  try {
-    final response = await http.get(
-      Uri.parse("http://10.0.2.2:3000/storage?q=$query"),
-    );
+  Future<void> fetchAssets({String query = ""}) async {
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:3000/storage?q=$query"),
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
 
-      setState(() {
-        assets = data.map((item) {
-          return {
-            "id": item['ID'].toString(),
-            "name": item['Name'] ?? 'Unknown',
-            "image": item['imageName'] != null && item['imageName'].isNotEmpty
-                ? "assets/images/${item['imageName']}"
-                : "assets/images/default.png",
-            "status": item['Status'] ?? 'Unknown',
-          };
-        }).toList();
-      });
-    } else {
-      throw Exception('Failed to load assets');
+        setState(() {
+          assets = data.map((item) {
+            return {
+              "id": item['ID'].toString(),
+              "name": item['Name'] ?? 'Unknown',
+              "image": item['imageName'] != null && item['imageName'].isNotEmpty
+                  ? "assets/images/${item['imageName']}"
+                  : "assets/images/default.png",
+              "status": item['Status'] ?? 'Unknown',
+            };
+          }).toList();
+        });
+      } else {
+        throw Exception('Failed to load assets');
+      }
+    } catch (e) {
+      print('Error fetching assets: $e');
     }
-  } catch (e) {
-    print('Error fetching assets: $e');
   }
-}
 
   // -- Async function to update asset on the server ---
   Future<bool> updateAssetToServer({
@@ -283,54 +281,61 @@ Future<void> fetchAssets({String query = ""}) async {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: DarkBrown,
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: DarkBrown,
+                    borderRadius: BorderRadius.circular(32),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildTabs(),
-                          const SizedBox(height: 10),
-                          _buildSearchBar(),
-                          const SizedBox(height: 2),
-                          IndexedStack(
-                            index: _selectedTabIndex,
-                            children: [
-                              _buildStatusCard(),
-                              _buildRecoveryCard(),
-                            ],
-                          ),
-                        ],
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      _buildTabs(),
+                      const SizedBox(height: 10),
+                      _buildSearchBar(),
+                      const SizedBox(height: 8),
+
+                      /// ⭐ ให้พื้นที่ตรงนี้เป็นของแต่ละ Tab แบบเลื่อนได้อิสระ
+                      Expanded(
+                        child: IndexedStack(
+                          index: _selectedTabIndex,
+                          children: [
+                            _buildStatusCardScrollable(),
+                            _buildRecoveryCardScrollable(),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildStatusCardScrollable() {
+    return SingleChildScrollView(child: _buildStatusCard());
+  }
+
+  Widget _buildRecoveryCardScrollable() {
+    return SingleChildScrollView(child: _buildRecoveryCard());
   }
 
   //------------MAJOR widgets-------------
@@ -456,9 +461,18 @@ Future<void> fetchAssets({String query = ""}) async {
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
-            child: Text(
-              'No borrowed assets to recover.',
-              style: TextStyle(color: Colors.white),
+            child: Column(
+              children: [
+                const SizedBox(height: 30),
+                Text(
+                  "No borrowed assets to recover",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           );
         } else {
@@ -524,8 +538,8 @@ Future<void> fetchAssets({String query = ""}) async {
                           padding: const EdgeInsets.all(10),
                           child: Image.asset(
                             item.image,
-                            width: 90,
-                            height: 90,
+                            width: 60,
+                            height: 60,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
                                 'assets/images/notebook.png',
@@ -535,46 +549,58 @@ Future<void> fetchAssets({String query = ""}) async {
                             },
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 5),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
                             children: [
-                              _buildDetailItem("BorrowBy", item.borrowBy),
-                              const SizedBox(height: 8),
-                              _buildDetailItem(
-                                "Borrow",
-                                formatDate(item.borrowDate),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildDateText("Borrowed Date"),
+                                  const SizedBox(height: 25),
+                                  _buildDateText("Returned Date"),
+                                  const SizedBox(height: 25),
+                                  _buildDateText("ActualReturn Date	"),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              _buildDetailItem(
-                                "Return",
-                                formatDate(item.returnDate),
-                              ),
-                              const SizedBox(height: 8),
-                              _buildDetailItem(
-                                "ActualReturn",
-                                formatDate(DateTime.now().toIso8601String()),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildDateBox(formatDate(item.borrowDate)),
+                                  const SizedBox(height: 10),
+                                  _buildDateBox(formatDate(item.returnDate)),
+                                  const SizedBox(height: 10),
+                                  _buildDateBox(formatDate(item.returnDate)),
+                                  const SizedBox(height: 10),
+                                  // _buildDateBox(
+                                  //   DateTime.now().toIso8601String(),
+                                  // ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 5),
+
+                    // Approver / Receiver / Rejecter / Reason
+                    if (item.borrowBy != null)
+                      _buildInfoLine(
+                        icon: Icons.people_outline,
+                        text: "Borrower Name : ${item.borrowBy}",
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    const SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton.icon(
                           onPressed: () {
                             confirmReturnDialog(context, item, () async {
-                              final success = await confirmReturn(
-                                item.id,
-                                6,
-                              ); // ✅ Fixed: added staffId 6
+                              final success = await confirmReturn(item.id, 6);
 
                               if (success) {
-                                // Refresh the list by triggering a rebuild
                                 setState(() {});
 
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -634,41 +660,57 @@ Future<void> fetchAssets({String query = ""}) async {
   }
 
   // Helper method for detail items
-  Widget _buildDetailItem(String label, String value) {
+  Widget _buildDateBox(String date) {
+    const darkBrown = Color(0xFF8B5B46);
+    const db = Color(0xFF4A3831);
+
     return Row(
       children: [
-        SizedBox(
-          width: 80,
-          child: Text(
-            "$label:",
-            style: const TextStyle(
-              color: Color(0xFF8B5B46),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9E5C9),
+            borderRadius: BorderRadius.circular(25),
           ),
-        ),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9E5C9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Color(0xFF4A3831),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: db, size: 14),
+              SizedBox(width: 6),
+              Text(date, style: const TextStyle(color: db, fontSize: 15)),
+            ],
           ),
         ),
       ],
     );
   }
 
+  Widget _buildInfoLine({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   //------------Important Dialog Widgets-------------
 
@@ -1361,7 +1403,7 @@ Future<void> fetchAssets({String query = ""}) async {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFFEC785),
         borderRadius: BorderRadius.circular(20),
@@ -1457,41 +1499,6 @@ Future<void> fetchAssets({String query = ""}) async {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDateBox(String date) {
-    const darkBrown = Color(0xFF8B5B46);
-    const db = Color(0xFF4A3831);
-
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9E5C9),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, color: db, size: 10),
-              SizedBox(width: 6),
-              Text(date, style: const TextStyle(color: db, fontSize: 12)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateItem(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildDateText(title),
-        const SizedBox(height: 6),
-        _buildDateBox(value.isNotEmpty ? value : "-"),
-      ],
     );
   }
 

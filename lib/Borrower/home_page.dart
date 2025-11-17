@@ -584,6 +584,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
                           const SizedBox(height: 10),
+                          if (item.actualReturnDate != null)
                           _buildDateBox(
                             item.actualReturnDate != null
                                 ? _formatThaiDate(item.actualReturnDate!)

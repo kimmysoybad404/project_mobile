@@ -511,6 +511,13 @@ class _RequestPageLenderState extends State<RequestPageLender>
   }
 
   Widget _buildDateBox(String label, String date) {
+    IconData iconData;
+
+    if (label == "Borrower" || label == "BorrowBy") {
+      iconData = Icons.people;
+    } else {
+      iconData = Icons.calendar_today;
+    }
     // ... (เหมือนเดิม) ...
     return Row(
       children: [
@@ -533,11 +540,7 @@ class _RequestPageLenderState extends State<RequestPageLender>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: Color(0xFF4A3831),
-                ),
+                Icon(iconData, size: 16, color: Color(0xFF4A3831)),
                 const SizedBox(width: 6),
                 Text(
                   date,

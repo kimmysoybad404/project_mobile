@@ -54,8 +54,8 @@ class _HomeLenderState extends State<HomeLender> {
     setState(() => _isLoadingHistory = true);
     final search = _searchHistoryQuery.trim();
     final url = Uri.parse(
-  "http://10.0.2.2:3000/history/lender/${widget.userId}?search=$search",
-);
+      "http://10.0.2.2:3000/history/lender/${widget.userId}?search=$search",
+    );
     final res = await http.get(url);
     if (res.statusCode == 200) {
       final List<dynamic> rawData = json.decode(res.body);
@@ -446,8 +446,10 @@ class _HomeLenderState extends State<HomeLender> {
                           _buildDateText("Borrowed Date"),
                           const SizedBox(height: 25),
                           _buildDateText("Returned Date"),
-                          const SizedBox(height: 25),
-                          _buildDateText("ActualReturn Date	"),
+                          if (item.actualReturnDate != null)
+                            const SizedBox(height: 25),
+                          if (item.actualReturnDate != null)
+                            _buildDateText("ActualReturn Date	"),
                         ],
                       ),
                       Column(
@@ -457,11 +459,12 @@ class _HomeLenderState extends State<HomeLender> {
                           const SizedBox(height: 10),
                           _buildDateBox(_formatThaiDate(item.returnDate)),
                           const SizedBox(height: 10),
-                          _buildDateBox(
-                            item.actualReturnDate != null
-                                ? _formatThaiDate(item.actualReturnDate!)
-                                : "-",
-                          ),
+                          if (item.actualReturnDate != null)
+                            _buildDateBox(
+                              item.actualReturnDate != null
+                                  ? _formatThaiDate(item.actualReturnDate!)
+                                  : "-",
+                            ),
                         ],
                       ),
                     ],
