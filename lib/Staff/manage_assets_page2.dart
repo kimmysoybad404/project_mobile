@@ -854,9 +854,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                               }
 
                               // API call to add asset
+                              final token = await util.getToken(context);
                               final response = await http.post(
                                 Uri.parse("http://10.0.2.2:3000/add-storage"),
-                                headers: {"Content-Type": "application/json"},
+                                headers: {"authorization": token, "Content-Type": "application/json"},
                                 body: jsonEncode({
                                   "name": localName,
                                   "status": localStatus,
@@ -1121,9 +1122,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                           final id = item['id'];
 
                           try {
+                            final token = await util.getToken(context);
                             final response = await http.post(
                               Uri.parse("http://10.0.2.2:3000/delete-storage"),
-                              headers: {"Content-Type": "application/json"},
+                              headers: {"authorization": token, "Content-Type": "application/json"},
                               body: jsonEncode({"id": id}),
                             );
 
