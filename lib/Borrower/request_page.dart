@@ -5,6 +5,7 @@ import 'request_item.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils.dart' as util;
 
 class RequestPage extends StatefulWidget {
   final RequestItem? newItem;
@@ -47,10 +48,12 @@ class _RequestPageState extends State<RequestPage> {
     final url = Uri.parse('http://10.0.2.2:3000/user-requests/$userId');
 
     try {
+      final token = await util.getToken(context);
       final response = await http.get(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {"authorization": token, "Content-Type": "application/json"},
       );
+
       if (response.statusCode == 200) {
         final List<HistoryItem> items = historyItemFromJson(response.body);
         setState(() {
@@ -81,9 +84,10 @@ class _RequestPageState extends State<RequestPage> {
     final url = Uri.parse('http://10.0.2.2:3000/update-storage');
 
     try {
+      final token = await util.getToken(context);
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {"authorization": token, "Content-Type": "application/json"},
         body: jsonEncode({
           'id': itemId,
           'status': 'Pending',

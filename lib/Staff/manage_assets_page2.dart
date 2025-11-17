@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import '../utils.dart' as util;
 
 class ManageAssetsPage2 extends StatefulWidget {
   const ManageAssetsPage2({super.key});
@@ -149,8 +150,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
 
   Future<void> fetchAssets({String query = ""}) async {
     try {
+      final token = await util.getToken(context);
       final response = await http.get(
         Uri.parse("http://10.0.2.2:3000/storage?q=$query"),
+        headers: {"authorization": token, "Content-Type": "application/json"},
       );
 
       if (response.statusCode == 200) {
@@ -184,10 +187,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
     required String imageName,
   }) async {
     final url = Uri.parse("http://10.0.2.2:3000/edit-storage");
-
+    final token = await util.getToken(context);
     final response = await http.post(
       url,
-      headers: {"Content-Type": "application/json"},
+      headers: {"authorization": token, "Content-Type": "application/json"},
       body: jsonEncode({
         "id": id,
         "name": name,
@@ -206,8 +209,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
 
   // -- Fetch recovery assets as model ---
   Future<List<RecoveryAsset>> fetchRecoveryAssets() async {
+    final token = await util.getToken(context);
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:3000/recovery-assets'),
+      Uri.parse("http://10.0.2.2:3000/recovery-assets"),
+      headers: {"authorization": token, "Content-Type": "application/json"},
     );
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -224,9 +229,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
         '🔍 Attempting to confirm return for history ID: $historyId, Staff ID: $staffId',
       );
 
+      final token = await util.getToken(context);
       final response = await http.post(
         Uri.parse("http://10.0.2.2:3000/api/confirm-return/$historyId"),
-        headers: {"Content-Type": "application/json"},
+        headers: {"authorization": token, "Content-Type": "application/json"},
         body: jsonEncode({
           "staffId": staffId, // Use the passed staffId parameter
         }),
@@ -1040,8 +1046,8 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                                 Navigator.pop(context);
                               }
                             },
-                            icon: const Icon(Icons.save),
-                            label: const Text("Save"),
+                            icon: const Icon(Icons.save,color: Colors.white,),
+                            label: const Text("Save",style: TextStyle(color: Colors.white),),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                             ),
@@ -1051,8 +1057,8 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close),
-                            label: const Text("Cancel"),
+                            icon: const Icon(Icons.close,color: Colors.white,),
+                            label: const Text("Cancel",style: TextStyle(color: Colors.white),),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey,
                             ),
@@ -1403,7 +1409,7 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFFEC785),
         borderRadius: BorderRadius.circular(20),

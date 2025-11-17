@@ -5,6 +5,8 @@ import 'package:project_mobile/RegisterPage.dart';
 import 'package:project_mobile/BottomBar.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils.dart' as util;
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class LoginPage extends StatefulWidget {
   final int selectRole;
@@ -55,27 +57,41 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:3000/Login'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode({'username': username, 'password': password}),
       );
+
+      print(response.body);
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final user = data['user'];
+        final token = data['token'];
+
+        // ⬇️ Decode JWT Payload
+        Map<String, dynamic> decoded = JwtDecoder.decode(token);
+
+        final userId = decoded['id'];
+        final userName = decoded['name'];
+        final userRole = int.parse(decoded['role']); // แก้ string → int
+
+        // ⬇️ Save Token
+        await util.saveToken(token);
+
+        // ⬇️ Save Shared Preferences
         final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', userName);
+        await prefs.setInt('role', userRole);
+        await prefs.setString('userid', userId.toString());
 
-        await prefs.setString('username', user['name']);
-        await prefs.setInt('role', user['role']);
-        await prefs.setString('userid', user['id'].toString());
-
+        // ⬇️ Navigate
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => BottomBar(
-              role: user['role'],
-              username: user['name'],
-              userid: user["id"],
+              role: userRole,
+              username: userName,
+              userid: userId,
               newItem: null,
             ),
           ),

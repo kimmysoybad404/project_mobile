@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_mobile/BottomBar.dart';
-
 import 'package:project_mobile/Borrower/history_item.dart';
 import 'package:intl/intl.dart';
+import '../utils.dart' as util;
 
 class HomeStaff extends StatefulWidget {
   final int userId;
@@ -33,8 +33,12 @@ class _HomeStaffState extends State<HomeStaff> {
 
   Future<void> _fetchAssets([String query = ""]) async {
     try {
+      final token = await util.getToken(context);
       final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
-      final res = await http.get(url);
+      final res = await http.get(
+        url,
+        headers: {"authorization": token, "Content-Type": "application/json"},
+      );
       if (res.statusCode == 200) {
         if (!mounted) return;
         setState(() {
@@ -53,8 +57,12 @@ class _HomeStaffState extends State<HomeStaff> {
   Future<void> _fetchHistory() async {
     setState(() => _isLoadingHistory = true);
     final search = _searchHistoryQuery.trim();
+    final token = await util.getToken(context);
     final url = Uri.parse("http://10.0.2.2:3000/history-all?search=$search");
-    final res = await http.get(url);
+    final res = await http.get(
+      url,
+      headers: {"authorization": token, "Content-Type": "application/json"},
+    );
     if (res.statusCode == 200) {
       final List<dynamic> rawData = json.decode(res.body);
       setState(() {

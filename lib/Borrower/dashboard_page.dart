@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
+import '../utils.dart' as util;
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -25,7 +26,11 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> fetchStorageData() async {
     try {
-      final response = await http.get(Uri.parse("http://10.0.2.2:3000/storage"));
+      final token = await util.getToken(context);
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:3000/storage"),
+        headers: {"authorization": token, "Content-Type": "application/json"},
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -68,11 +73,7 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         Text(
           text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-
-          ),
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         Text(
           text,

@@ -6,6 +6,7 @@ import 'package:project_mobile/BottomBar.dart';
 import 'request_item.dart';
 import 'history_item.dart'; // 1. ✅ Import history_item.dart
 import 'package:intl/intl.dart';
+import '../utils.dart' as util;
 
 class HomeBorrower extends StatefulWidget {
   // 2. ✅ เพิ่ม userId เข้ามา
@@ -42,8 +43,12 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   Future<void> _fetchAssets([String query = ""]) async {
     try {
       // 1. ✅ แก้ URL ให้รับ query
+      final token = await util.getToken(context);
       final url = Uri.parse("http://10.0.2.2:3000/storage?q=$query");
-      final res = await http.get(url);
+      final res = await http.get(
+        url,
+        headers: {"authorization": token, "Content-Type": "application/json"},
+      );
 
       if (res.statusCode == 200) {
         if (!mounted) return; // 2. ✅ เพิ่ม check mounted
@@ -64,18 +69,21 @@ class _HomeBorrowerState extends State<HomeBorrower> {
   }
 
   Future<void> _fetchHistory() async {
-
-    if (!mounted) return; 
+    if (!mounted) return;
     setState(() => _isLoadingHistory = true);
 
     try {
       final search = _searchHistoryQuery.trim();
+      final token = await util.getToken(context);
       final url = Uri.parse(
         "http://10.0.2.2:3000/history/${widget.userId}?search=$search",
       );
-      final res = await http.get(url);
+      final res = await http.get(
+        url,
+        headers: {"authorization": token, "Content-Type": "application/json"},
+      );
 
-      if (!mounted) return; 
+      if (!mounted) return;
       if (res.statusCode == 200) {
         final List<dynamic> rawData = json.decode(res.body);
         setState(() {
@@ -348,7 +356,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 
     final filteredHistory = _historyItems.where((item) {
       // --- 2. เตรียมข้อมูลทั้งหมดที่จะใช้ค้นหา ---
-      
+
       // (วันที่แบบ AD)
       final borrowDateAD = DateFormat('dd/MM/yyyy').format(item.borrowDate);
       final returnDateAD = DateFormat('dd/MM/yyyy').format(item.returnDate);
@@ -357,21 +365,23 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           : "";
 
       // (วันที่แบบ BE - พ.ศ.)
-      final borrowDateBE = "${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year + 543}";
-      final returnDateBE = "${item.returnDate.day}/${item.returnDate.month}/${item.returnDate.year + 543}";
+      final borrowDateBE =
+          "${item.borrowDate.day}/${item.borrowDate.month}/${item.borrowDate.year + 543}";
+      final returnDateBE =
+          "${item.returnDate.day}/${item.returnDate.month}/${item.returnDate.year + 543}";
       final actualReturnDateBE = item.actualReturnDate != null
           ? "${item.actualReturnDate!.day}/${item.actualReturnDate!.month}/${item.actualReturnDate!.year + 543}"
           : "";
-          
+
       // (ข้อมูล Text อื่นๆ)
       final assetID = item.assetID.toString().toLowerCase();
       final assetName = item.assetName.toLowerCase();
-      
+
       // ✅ (Borrower) จะค้นหาชื่อผู้ อนุมัติ/รับ/ปฏิเสธ
       final approver = (item.approverName ?? '').toLowerCase();
       final receiver = (item.receiverName ?? '').toLowerCase();
       final rejecter = (item.rejecterName ?? '').toLowerCase();
-      
+
       final status = item.displayStatus.toLowerCase();
       final id = item.id.toString();
 
@@ -381,7 +391,7 @@ class _HomeBorrowerState extends State<HomeBorrower> {
         final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "borrow:"
         return borrowDateAD.contains(query) || borrowDateBE.contains(query);
       }
-      
+
       if (rawQuery.startsWith("return:")) {
         final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "return:"
         return returnDateAD.contains(query) || returnDateBE.contains(query);
@@ -389,9 +399,10 @@ class _HomeBorrowerState extends State<HomeBorrower> {
 
       if (rawQuery.startsWith("actual:")) {
         final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "actual:"
-        return actualReturnDateAD.contains(query) || actualReturnDateBE.contains(query);
+        return actualReturnDateAD.contains(query) ||
+            actualReturnDateBE.contains(query);
       }
-      
+
       if (rawQuery.startsWith("status:")) {
         final query = rawQuery.substring(7).trim(); // เอาข้อความหลัง "status:"
         return status.contains(query);
@@ -400,7 +411,9 @@ class _HomeBorrowerState extends State<HomeBorrower> {
       // ✅ (Borrower) ค้นหา "by:" จะหาจาก (approver, receiver, rejecter)
       if (rawQuery.startsWith("by:")) {
         final query = rawQuery.substring(3).trim(); // เอาข้อความหลัง "by:"
-        return approver.contains(query) || receiver.contains(query) || rejecter.contains(query);
+        return approver.contains(query) ||
+            receiver.contains(query) ||
+            rejecter.contains(query);
       }
 
       // --- 4. ถ้าไม่มี Prefix: ค้นหาทุกช่อง (แบบเดิม) ---
@@ -417,9 +430,8 @@ class _HomeBorrowerState extends State<HomeBorrower> {
           borrowDateBE.contains(rawQuery) ||
           returnDateBE.contains(rawQuery) ||
           actualReturnDateBE.contains(rawQuery);
-          
     }).toList();
-  
+
     // (ส่วน UI ของ _history() ที่เหลือเหมือนเดิม)
     return Card(
       color: const Color(0xFF8B5B46),
@@ -573,8 +585,8 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                           // ✅ 1. เพิ่มการตรวจสอบ (ถ้ามีวันที่คืนจริงค่อยแสดง)
                           if (item.actualReturnDate != null) ...[
                             const SizedBox(height: 25),
-                          _buildDateText("ActualReturn Date"),
-                          ]
+                            _buildDateText("ActualReturn Date"),
+                          ],
                         ],
                       ),
                       Column(
@@ -585,11 +597,11 @@ class _HomeBorrowerState extends State<HomeBorrower> {
                           _buildDateBox(_formatThaiDate(item.returnDate)),
                           const SizedBox(height: 10),
                           if (item.actualReturnDate != null)
-                          _buildDateBox(
-                            item.actualReturnDate != null
-                                ? _formatThaiDate(item.actualReturnDate!)
-                                : "-",
-                          ),
+                            _buildDateBox(
+                              item.actualReturnDate != null
+                                  ? _formatThaiDate(item.actualReturnDate!)
+                                  : "-",
+                            ),
                         ],
                       ),
                     ],
