@@ -1,60 +1,72 @@
 // api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'request_item.dart'; // Import model ที่เราสร้าง
+import 'request_item.dart';
+import '../utils.dart' as util;
 
 class ApiService {
-  // TODO: เปลี่ยน 'YOUR_API_BASE_URL' เป็น URL จริงของคุณ
   final String _baseUrl = "http://10.0.2.2:3000/api";
 
-  // ดึงรายการที่รออนุมัติ
+  // ดึงรายการ Pending Requests
   Future<List<RequestItem>> fetchPendingRequests({String query = ""}) async {
     try {
-      // เพิ่ม query parameter ถ้ามีการค้นหา
-      final uri = Uri.parse("$_baseUrl/pending-requests?search=$query"); 
-      
-      // TODO: เพิ่ม Headers ถ้าจำเป็น (เช่น Authorization)
-      final response = await http.get(uri); 
+      final token = await util.getTokenNoContext(); // 👈 ไม่ใช้ context
+
+      final uri = Uri.parse("$_baseUrl/pending-requests?search=$query");
+
+      final response = await http.get(
+        uri,
+        headers: {
+          "Authorization": "Bearer $token", // 👈 แก้ตัวใหญ่ + ไม่ซ้ำ Bearer
+          "Content-Type": "application/json",
+        },
+      );
 
       if (response.statusCode == 200) {
-        // สำเร็จ
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => RequestItem.fromJson(json)).toList();
       } else {
-        // ไม่สำเร็จ
-        throw Exception("Failed to load requests (Status: ${response.statusCode})");
+        throw Exception("Failed to load (Status: ${response.statusCode})");
       }
     } catch (e) {
-      // เกิด Error
       print("ApiService Error: $e");
-      throw Exception("Error connecting to server: $e");
+      throw Exception("Server error: $e");
     }
   }
 
-  // TODO: สร้าง API สำหรับ Approve/Reject
-Future<bool> approveRequest(String historyId, String lenderId) async {
+  // Approve Request
+  Future<bool> approveRequest(String historyId, String lenderId) async {
+    final token = await util.getTokenNoContext();
+
     final response = await http.post(
-      Uri.parse("$_baseUrl/requests/$historyId/approve"), // 3. เปลี่ยนชื่อ id เป็น historyId (เพื่อความชัดเจน)
-      
-      // 👇 4. เพิ่ม headers และ body
+      Uri.parse("$_baseUrl/requests/$historyId/approve"),
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
       },
-      body: json.encode({
-        'lenderId': lenderId,
-      }),
+      body: json.encode({"lenderId": lenderId}),
     );
+
     return response.statusCode == 200;
   }
 
-  Future<bool> rejectRequest(String id, String lenderId, String reason) async {
-    print(reason + lenderId);
+  // Reject Request
+  Future<bool> rejectRequest(
+    String historyId,
+    String lenderId,
+    String reason,
+  ) async {
+    final token = await util.getTokenNoContext();
+
     final response = await http.post(
-      Uri.parse("$_baseUrl/requests/$id/reject"),
-      body: {'reason': reason,
-            'lenderId': lenderId
-      }, 
+      Uri.parse("$_baseUrl/requests/$historyId/reject"),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+      body: json.encode({"reason": reason, "lenderId": lenderId}),
     );
+
     return response.statusCode == 200;
   }
 }
