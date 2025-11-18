@@ -160,16 +160,20 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
         final List<dynamic> data = json.decode(response.body);
 
         setState(() {
-          assets = data.map((item) {
-            return {
-              "id": item['ID'].toString(),
-              "name": item['Name'] ?? 'Unknown',
-              "image": item['imageName'] != null && item['imageName'].isNotEmpty
-                  ? "assets/images/${item['imageName']}"
-                  : "assets/images/default.png",
-              "status": item['Status'] ?? 'Unknown',
-            };
-          }).toList();
+          assets = data
+              .map((item) {
+                return {
+                  "id": item['ID'].toString(),
+                  "name": item['Name'] ?? 'Unknown',
+                  "image":
+                      item['imageName'] != null && item['imageName'].isNotEmpty
+                      ? "assets/images/${item['imageName']}"
+                      : "assets/images/default.png",
+                  "status": item['Status'] ?? 'Unknown',
+                };
+              })
+              .where((asset) => asset['status'] != 'Deleted')
+              .toList(); // ✅ Exclude deleted assets
         });
       } else {
         throw Exception('Failed to load assets');
@@ -857,7 +861,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                               final token = await util.getToken(context);
                               final response = await http.post(
                                 Uri.parse("http://10.0.2.2:3000/add-storage"),
-                                headers: {"authorization": token, "Content-Type": "application/json"},
+                                headers: {
+                                  "authorization": token,
+                                  "Content-Type": "application/json",
+                                },
                                 body: jsonEncode({
                                   "name": localName,
                                   "status": localStatus,
@@ -1047,8 +1054,11 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                                 Navigator.pop(context);
                               }
                             },
-                            icon: const Icon(Icons.save,color: Colors.white,),
-                            label: const Text("Save",style: TextStyle(color: Colors.white),),
+                            icon: const Icon(Icons.save, color: Colors.white),
+                            label: const Text(
+                              "Save",
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                             ),
@@ -1058,8 +1068,11 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close,color: Colors.white,),
-                            label: const Text("Cancel",style: TextStyle(color: Colors.white),),
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            label: const Text(
+                              "Cancel",
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey,
                             ),
@@ -1125,7 +1138,10 @@ class _ManageAssetsPage2State extends State<ManageAssetsPage2>
                             final token = await util.getToken(context);
                             final response = await http.post(
                               Uri.parse("http://10.0.2.2:3000/delete-storage"),
-                              headers: {"authorization": token, "Content-Type": "application/json"},
+                              headers: {
+                                "authorization": token,
+                                "Content-Type": "application/json",
+                              },
                               body: jsonEncode({"id": id}),
                             );
 
